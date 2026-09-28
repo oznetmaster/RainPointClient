@@ -33,7 +33,7 @@ dotnet_search_reference_assemblies = true
 # Organize usings
 dotnet_separate_import_directive_groups = true
 dotnet_sort_system_directives_first = true
-file_header_template = unset
+file_header_template = Copyright © 2026 Neil Colvin.\nLicensed under the MIT License. See LICENSE file in the project root for full license information.
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = false:suggestion

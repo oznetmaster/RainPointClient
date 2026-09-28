@@ -35,7 +35,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'DocFX metadata failed.' }
     dotnet tool run docfx build docfx/docfx.json --warningsAsErrors
     if ($LASTEXITCODE -ne 0) { throw 'DocFX site build failed.' }
-    foreach ($page in @('index.html','README.html','api/RainPointClient.RainPointCloudClient.html','docs/CALENDAR.html','release-notes/v1.0.0.html','tests/README.html')) {
+    foreach ($page in @('index.html','README.html','api/RainPointClient.RainPointCloudClient.html','docs/CALENDAR.html','release-notes/v1.0.1.html','tests/README.html')) {
         if (!(Test-Path -LiteralPath (Join-Path 'artifacts/docs-site' $page))) { throw "Missing documentation page: $page" }
     }
 } finally { Pop-Location }

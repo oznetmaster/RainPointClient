@@ -13,7 +13,7 @@ The suite targets net472 and net10.0 with C# 14. Every HTTP response is supplied
 | Microsoft.NETFramework.ReferenceAssemblies | 1.0.3 | net472 reference assemblies, build only |
 | System.Text.Json | 10.0.12 | Client serialization on net472; .NET 10 uses its built-in implementation |
 
-Versions were checked against the stable NuGet feed on 23 September 2026. The client uses no logging package and no general compatibility metapackage.
+Versions were checked against the stable NuGet feed on 23 September 2026.
 
 Run from the solution root:
 
@@ -59,7 +59,7 @@ At the initial desktop-integration checkpoint, the main test project covered pre
 
 Historical MQTT-slice result: **788 library/dashboard tests and 56 Windows tests per framework, 1,688 passes total** (24 September 2026). Run `dotnet test RainPointClient.slnx -c Release --filter "TestCategory!=Live"` for the offline suite. Windows credential tests require a normal user profile with DPAPI available; a restricted impersonated test host is insufficient.
 
-MQTTnet 4.3.7.1207 is the added client dependency, shared by net472 and net10.0. No Newtonsoft.Json or logging package was added. Offline tests cover observer request/authentication, private-root certificate validation, no subscribe/publish, malformed or misrouted frames, stale/equal timestamp rejection, cancellation, expiry, cooldown and UI selection cleanup.
+MQTTnet 4.3.7.1207 is the added client dependency, shared by net472 and net10.0. Offline tests cover observer request/authentication, private-root certificate validation, no subscribe/publish, malformed or misrouted frames, stale/equal timestamp rejection, cancellation, expiry, cooldown and UI selection cleanup.
 
 ## Read-only MQTT live checks
 

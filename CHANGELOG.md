@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1] - 2026-09-28
+
+Documentation updates. No functional changes.
+
 ## [1.0.0] - 2026-09-28
 
 Initial release of the RainPoint Home / Smart+ cloud client for .NET Framework 4.7.2 and .NET 10, written in C# 14.

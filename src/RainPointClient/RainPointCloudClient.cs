@@ -1,3 +1,9 @@
+// Copyright © 2026 Neil Colvin.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+// Protocol/compatibility reference: https://github.com/funkadelic/ha-rainpoint
+// Additional reference: https://github.com/brettmeyerowitz/homeassistant-homgar
+// Independently written C# implementation. See ATTRIBUTIONS.md and THIRD-PARTY-NOTICES.md.
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;

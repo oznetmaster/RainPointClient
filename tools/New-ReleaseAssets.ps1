@@ -1,10 +1,11 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 # Builds local artifacts only. Never uploads, tags, logs in or operates a device.
 [CmdletBinding()]
-param([string]$Version = '1.0.0', [string]$OutputDirectory = 'artifacts/release')
+param([string]$Version = '1.0.1', [string]$OutputDirectory = 'artifacts/release')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Version $Version -Root $root
+& "$PSScriptRoot/Test-SourceNotices.ps1" -Root $root
 $output = [IO.Path]::GetFullPath((Join-Path $root $OutputDirectory))
 if (Test-Path -LiteralPath $output) {
     if (@(Get-ChildItem -LiteralPath $output -Force).Count) { throw 'Choose an empty release output directory to prevent stale assets.' }
@@ -30,7 +31,7 @@ try {
         $folder = Join-Path $output "publish/RainPointClient.Desktop-$framework"
         dotnet publish src/RainPointClient.Desktop/RainPointClient.Desktop.csproj -c Release -f $framework --no-build --no-restore --self-contained false -o $folder
         if ($LASTEXITCODE -ne 0) { throw "Windows app preparation failed for $framework." }
-        foreach ($document in @('LICENSE','THIRD-PARTY-NOTICES.md','README.md')) {
+        foreach ($document in @('LICENSE','THIRD-PARTY-NOTICES.md','ATTRIBUTIONS.md','README.md')) {
             Copy-Item -LiteralPath (Join-Path $root $document) -Destination $folder
         }
         Copy-Item -LiteralPath (Join-Path $root 'licenses') -Destination $folder -Recurse
@@ -38,7 +39,7 @@ try {
         if (@(Get-ChildItem -LiteralPath $folder -Recurse -File | Where-Object { $_.Extension -in @('.trx','.pfx') -or $_.Name -match '(?i)rainpoint-test|\.local\.' }).Count) { throw 'Private/development files found in Windows output.' }
         Compress-Archive -Path (Join-Path $folder '*') -DestinationPath (Join-Path $output "RainPointClient.Desktop-$framework-$Version.zip")
     }
-    foreach ($document in @('README.md','CHANGELOG.md','LICENSE','THIRD-PARTY-NOTICES.md')) { Copy-Item -LiteralPath $document -Destination $output }
+    foreach ($document in @('README.md','CHANGELOG.md','LICENSE','THIRD-PARTY-NOTICES.md','ATTRIBUTIONS.md')) { Copy-Item -LiteralPath $document -Destination $output }
     Copy-Item -LiteralPath "release-notes/v$Version.md" -Destination (Join-Path $output 'RELEASE-NOTES.md')
     $manifest = @(Get-ChildItem -LiteralPath $output -File | Sort-Object Name | ForEach-Object { (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $_.Name })
     [IO.File]::WriteAllLines((Join-Path $output 'SHA256SUMS.txt'),$manifest,[Text.UTF8Encoding]::new($false))

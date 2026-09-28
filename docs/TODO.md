@@ -6,7 +6,7 @@ The implementation and validation work possible with the currently paired hub/ti
 
 ## Completed implementation and desktop checks
 
-- [x] Typed client, net472/net10, explicit JSON attributes, no public raw payloads, no Newtonsoft/log4net or library logging.
+- [x] Typed client, net472/net10 and explicit System.Text.Json attributes.
 - [x] Discovery, metadata, normal manual start/stop, status and MQTT feedback.
 - [x] Typed optional command-response observations and separate Windows feedback, with object/string compatibility and no operation replay. See [response semantics](COMMAND-FEEDBACK.md).
 - [x] Typed manual misting/cycle-and-soak commands and Windows controls for all zones, with firmware and timing validation. See [manual modes](MANUAL-MODES.md).

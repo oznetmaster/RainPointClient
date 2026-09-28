@@ -10,7 +10,7 @@ Inspected on 23 September 2026 for RainPoint Home / Smart+, specifically HWG023W
 | [macher91/homgar-homeassistant](https://github.com/macher91/homgar-homeassistant) | `52786d05f6f048ca7d390abe1b2301a726e90001` | Additional MQTT and multi-zone reference. Useful later for weather/sensor devices; not the primary starting point for this timer. |
 | [rathga/rainpoint-ha](https://github.com/rathga/rainpoint-ha) | `1ce749a99a0b6f273784a8caa3dca920d504133e` | Focused REST-only example with related two-zone hardware. Useful cross-check, but narrower device/test coverage and different duration policy. |
 
-All inspected repositories carry MIT licenses. Attribution and permission notices are retained in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md). No Python code or runtime is loaded by this solution.
+All inspected repositories carry MIT licenses. Attribution and permission notices are retained in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 
 ## Implemented wire contract
 

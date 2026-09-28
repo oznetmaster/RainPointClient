@@ -7,10 +7,12 @@
 - name: Feature guides
   href: ../docs/toc.yml
 - name: Release notes
-  href: ../release-notes/v1.0.0.md
+  href: ../release-notes/v1.0.1.md
 - name: Changelog
   href: ../CHANGELOG.md
 - name: Testing
   href: ../tests/README.md
 - name: Publication
   href: ../PUBLISHING.md
+- name: Attributions and notices
+  href: ../ATTRIBUTIONS.md

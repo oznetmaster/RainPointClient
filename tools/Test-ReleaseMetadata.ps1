@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 [CmdletBinding()]
-param([string]$Version = '1.0.0', [string]$Root = (Split-Path $PSScriptRoot -Parent), [switch]$RequireTag)
+param([string]$Version = '1.0.1', [string]$Root = (Split-Path $PSScriptRoot -Parent), [switch]$RequireTag)
 $ErrorActionPreference = 'Stop'
 if ($Version -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$') { throw 'Use a canonical three-part package version, optionally with a prerelease suffix.' }
 [xml]$props = Get-Content -LiteralPath (Join-Path $Root 'Directory.Build.props') -Raw
@@ -17,10 +17,11 @@ if ($project.Project.PropertyGroup.PackageReleaseNotes -notmatch ([regex]::Escap
 $notes = Join-Path $Root "release-notes/v$Version.md"
 if (!(Test-Path -LiteralPath $notes -PathType Leaf)) { throw "Missing versioned release notes: v$Version." }
 $notesText = Get-Content -LiteralPath $notes -Raw
-if (!$notesText.StartsWith("# RainPointClient $Version") -or $notesText.Length -lt 200) { throw 'Release notes are missing or inconsistent.' }
+$notesLines = $notesText -split "\r?\n", 2
+if ($notesLines[0] -cne "# RainPointClient $Version" -or $notesLines.Count -lt 2 -or [string]::IsNullOrWhiteSpace($notesLines[1])) { throw 'Release notes are missing or inconsistent.' }
 $changelog = Get-Content -LiteralPath (Join-Path $Root 'CHANGELOG.md') -Raw
 if ($changelog -notmatch ('(?m)^## \[' + [regex]::Escape($Version) + '\]')) { throw 'No changelog entry matches this version.' }
-foreach ($file in @('README.md','LICENSE','THIRD-PARTY-NOTICES.md','PUBLISHING.md','tests/README.md')) {
+foreach ($file in @('README.md','ATTRIBUTIONS.md','LICENSE','THIRD-PARTY-NOTICES.md','PUBLISHING.md','tests/README.md')) {
     if (!(Test-Path -LiteralPath (Join-Path $Root $file) -PathType Leaf)) { throw "Missing release document: $file" }
 }
 if ($RequireTag) {

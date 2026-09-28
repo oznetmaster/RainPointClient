@@ -1,3 +1,5 @@
+<!-- Copyright © 2026 Neil Colvin.
+     Licensed under the MIT License. See LICENSE file in the project root for full license information. -->
 <UserControl x:Class="RainPointClient.Desktop.ZoneSettingsView"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="#F3F6F3" Foreground="#23382F" FontFamily="Segoe UI" FontSize="14">

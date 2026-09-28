@@ -2,6 +2,8 @@
 
 Protocol descriptions and decoder behavior were informed by the following MIT-licensed projects. This solution implements the client in C#; these notices preserve upstream attribution.
 
+See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for reviewed revisions and component-level provenance.
+
 ## funkadelic/ha-rainpoint
 
 Source: https://github.com/funkadelic/ha-rainpoint

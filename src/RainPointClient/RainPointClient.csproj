@@ -1,3 +1,5 @@
+<!-- Copyright © 2026 Neil Colvin.
+     Licensed under the MIT License. See LICENSE file in the project root for full license information. -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net472;net10.0</TargetFrameworks>
@@ -7,11 +9,12 @@
     <RepositoryUrl>https://github.com/oznetmaster/RainPointClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/oznetmaster/RainPointClient</PackageProjectUrl>
-    <PackageReleaseNotes>Initial cloud release for HWG023WBRF hubs and HTV345FRF three-zone timers: typed control, MQTT feedback, schedules, usage, calendar and account/home/scene APIs. See https://github.com/oznetmaster/RainPointClient/blob/v1.0.0/release-notes/v1.0.0.md for scope and validation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Documentation updates. No functional changes. See https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/release-notes/v1.0.1.md.</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Neil Colvin</Authors>
+    <Copyright>Copyright © 2026 Neil Colvin</Copyright>
     <Description>A typed RainPoint Home / Smart+ cloud client.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -24,6 +27,7 @@
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
     <None Include="../../licenses/**" Pack="true" PackagePath="licenses/" />
+    <None Include="../../ATTRIBUTIONS.md" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE" Pack="true" PackagePath="/" />
     <None Include="../../CHANGELOG.md" Pack="true" PackagePath="/" />
     <None Include="../../release-notes/v$(Version).md" Pack="true" PackagePath="/release-notes/" />

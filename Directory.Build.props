@@ -1,9 +1,11 @@
+<!-- Copyright © 2026 Neil Colvin.
+     Licensed under the MIT License. See LICENSE file in the project root for full license information. -->
 <Project>
   <PropertyGroup>
     <LangVersion>14.0</LangVersion>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Deterministic>true</Deterministic>

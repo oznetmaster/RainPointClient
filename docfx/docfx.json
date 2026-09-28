@@ -30,7 +30,8 @@
           "PUBLISHING.md",
           "release-notes/**.md",
           "docs/toc.yml",
-          "THIRD-PARTY-NOTICES.md"
+          "THIRD-PARTY-NOTICES.md",
+          "ATTRIBUTIONS.md"
         ],
         "src": ".."
       }
@@ -44,6 +45,15 @@
     "template": [
       "default",
       "modern"
+    ],
+    "resource": [
+      {
+        "files": [
+          "LICENSE",
+          "licenses/**"
+        ],
+        "src": ".."
+      }
     ]
   }
 }
