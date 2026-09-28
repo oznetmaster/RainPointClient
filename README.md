@@ -4,7 +4,7 @@ Pure **C# 14** client for the **RainPoint Home / Smart+ cloud**, targeting **.NE
 
 > **Trademarks and disclaimer:** RainPoint, HomGar and other product names are trademarks of their respective owners, used only to describe compatibility. This is an independent, unofficial project, not affiliated with, endorsed by, sponsored by or approved by those owners.
 
-The library uses attributed System.Text.Json transport models and typed public APIs. An optional caller-owned `HttpClient` supports application integration.
+The library uses attributed System.Text.Json transport models and typed public APIs. You can optionally supply your own `HttpClient`.
 
 ## Install and documentation
 
