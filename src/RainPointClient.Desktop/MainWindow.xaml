@@ -1,0 +1,139 @@
+<Window x:Class="RainPointClient.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:RainPointClient.Desktop"
+        Title="RainPoint · Client workbench" Width="1100" Height="880" MinWidth="820" MinHeight="680"
+        Background="#F3F6F3" FontFamily="Segoe UI" FontSize="14" Foreground="#23382F">
+  <Window.Resources>
+    <Style TargetType="Button">
+      <Setter Property="Padding" Value="16,8" />
+      <Setter Property="Margin" Value="0,4,8,4" />
+      <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style TargetType="TextBox">
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+    <Style TargetType="ComboBox">
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="Margin" Value="0,0,12,0" />
+      <Setter Property="MinWidth" Value="160" />
+    </Style>
+    <Style TargetType="GroupBox">
+      <Setter Property="Margin" Value="0,0,0,16" />
+      <Setter Property="Padding" Value="14" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#CBD8CF" />
+    </Style>
+  </Window.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Background="#F3F6F3">
+    <StackPanel Margin="24">
+      <DockPanel Margin="0,0,0,18">
+        <TextBlock DockPanel.Dock="Right" Text="{Binding SessionText}" VerticalAlignment="Center" Foreground="#4A6656" />
+        <StackPanel>
+          <TextBlock Text="RainPoint" FontSize="30" FontWeight="SemiBold" />
+          <TextBlock Text="Client workbench · HWG023WBRF hub / HTV345FRF timer" Foreground="#587062" />
+        </StackPanel>
+      </DockPanel>
+      <GroupBox Header="Account">
+        <StackPanel>
+          <Grid IsEnabled="{Binding CanEdit}">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel><Label Target="{Binding ElementName=Email}" Content="Email"/><TextBox x:Name="Email" AutomationProperties.AutomationId="AccountEmail" /></StackPanel>
+            <StackPanel Grid.Column="1"><Label Target="{Binding ElementName=Password}" Content="Password"/><PasswordBox x:Name="Password" Padding="8,6" Margin="0,0,12,0" AutomationProperties.AutomationId="AccountPassword" /></StackPanel>
+            <StackPanel Grid.Column="2"><Label Target="{Binding ElementName=Country}" Content="Country calling code"/><TextBox x:Name="Country" Text="44" /></StackPanel>
+          </Grid>
+          <WrapPanel Margin="0,10,0,0">
+            <Button x:Name="SignIn" Content="Sign in" Click="SignIn_Click" IsEnabled="{Binding CanConnect}" />
+            <Button Content="Renew session" Click="Renew_Click" IsEnabled="{Binding CanRenew}" />
+            <Button x:Name="SignOut" Content="Sign out" Click="SignOut_Click" IsEnabled="{Binding CanDisconnect}" />
+            <Button x:Name="ForgetAccount" Content="Forget saved account" Click="ForgetAccount_Click" IsEnabled="{Binding CanEdit}" />
+          </WrapPanel>
+          <WrapPanel Margin="0,4,0,8" IsEnabled="{Binding CanEdit}">
+            <CheckBox x:Name="RememberAccount" Content="Remember credentials on this Windows account" IsChecked="True" Margin="0,0,20,0" Checked="RememberAccount_Changed" Unchecked="RememberAccount_Changed" />
+            <CheckBox x:Name="AutomaticSignIn" Content="Sign in automatically at startup" IsChecked="True" IsEnabled="{Binding IsChecked, ElementName=RememberAccount}" Checked="AutomaticSignIn_Changed" Unchecked="AutomaticSignIn_Changed" />
+          </WrapPanel>
+          <WrapPanel IsEnabled="{Binding CanEdit}">
+           <CheckBox x:Name="AutomaticRenewal" Content="Automatically renew session" IsChecked="True" Margin="0,0,20,8" Checked="Recovery_Changed" Unchecked="Recovery_Changed"/>
+           <CheckBox x:Name="ReconnectSaved" Content="Allow one reconnect using saved credentials" Margin="0,0,0,8"/>
+          </WrapPanel>
+          <TextBlock Text="{Binding RecoveryText}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+          <TextBlock x:Name="SavedAccountMessage" Text="Credentials will be saved after successful sign-in, encrypted for your Windows account." TextWrapping="Wrap" FontSize="12" Foreground="#587062" Margin="0,0,0,5" />
+          <TextBlock Text="Signing in can sign the phone app out of the same account. Sign out disables automatic sign-in; Forget removes saved credentials." TextWrapping="Wrap" FontSize="12" Foreground="#587062" />
+        </StackPanel>
+      </GroupBox>
+      <GroupBox Header="Devices">
+        <Grid IsEnabled="{Binding CanEdit}">
+          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+          <StackPanel><Label Target="{Binding ElementName=Home}" Content="Home"/><ComboBox x:Name="Home" ItemsSource="{Binding Homes}" SelectedItem="{Binding SelectedHome, Mode=OneWay}" DisplayMemberPath="Name" SelectionChanged="Home_SelectionChanged" /></StackPanel>
+          <StackPanel Grid.Column="1"><Label Target="{Binding ElementName=Hub}" Content="Hub"/><ComboBox x:Name="Hub" ItemsSource="{Binding Hubs}" SelectedItem="{Binding SelectedHub, Mode=OneWay}" DisplayMemberPath="Name" SelectionChanged="Hub_SelectionChanged" /></StackPanel>
+          <StackPanel Grid.Column="2"><Label Target="{Binding ElementName=Timer}" Content="Timer"/><ComboBox x:Name="Timer" ItemsSource="{Binding Timers}" SelectedItem="{Binding SelectedTimer, Mode=OneWay}" DisplayMemberPath="Name" SelectionChanged="Timer_SelectionChanged" /></StackPanel>
+        </Grid>
+      </GroupBox>
+      <TabControl x:Name="WorkbenchTabs" Margin="0,0,0,16">
+       <TabItem Header="Live status"><StackPanel Margin="12">
+      <GroupBox Header="Reported feedback">
+        <StackPanel>
+          <WrapPanel>
+            <Button x:Name="RefreshStatus" Content="Refresh status" Click="Refresh_Click" IsEnabled="{Binding CanRefresh}" />
+            <Button x:Name="LiveFeedback" Content="{Binding MonitorButtonText}" Click="LiveFeedback_Click" IsEnabled="{Binding CanToggleMonitoring}" />
+            <CheckBox x:Name="AutoRefresh" Content="Refresh every 15 seconds" VerticalAlignment="Center" Margin="8" />
+          </WrapPanel>
+          <TextBlock Text="{Binding MonitorText}" TextWrapping="Wrap" Margin="0,4,0,0" />
+          <TextBlock Text="{Binding ReceivedText}" Margin="0,4,0,8" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding HubText}" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding TimerText}" TextWrapping="Wrap" Margin="0,6,0,12" />
+          <DataGrid x:Name="ZoneReadings" ItemsSource="{Binding Zones}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" MinHeight="110" BorderBrush="#CBD8CF" RowHeaderWidth="0">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Zone" Binding="{Binding Zone}" Width="65" MinWidth="65" />
+              <DataGridTextColumn Header="Cloud state" Binding="{Binding State}" Width="130" MinWidth="130" />
+              <DataGridTextColumn Header="Last usage" Binding="{Binding Usage}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="Run length" Binding="{Binding Duration}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="Alarm code" Binding="{Binding Alarm}" Width="90" MinWidth="90" />
+              <DataGridTextColumn Header="Event (device local)" Binding="{Binding EventTime}" Width="160" MinWidth="160" />
+              <DataGridTextColumn Header="Controls" Binding="{Binding ControlAvailability}" Width="*" MinWidth="225" />
+            </DataGrid.Columns>
+          </DataGrid>
+          <TextBlock Text="Run length is the configured duration, not a countdown. Last usage is not a flow rate. A cloud state is not proof of physical water flow." TextWrapping="Wrap" Margin="0,8,0,0" FontSize="12" Foreground="#587062" />
+        </StackPanel>
+      </GroupBox>
+      <GroupBox Header="Manual watering">
+        <StackPanel>
+          <WrapPanel><Label Content="Zone" Target="{Binding ElementName=ControlZonePicker}"/><ComboBox x:Name="ControlZonePicker" ItemsSource="{Binding ControlZones}" SelectedItem="{Binding ControlZone}" IsEnabled="{Binding CanEdit}" Width="70"/></WrapPanel>
+          <WrapPanel><Label Content="Mode" Target="{Binding ElementName=ManualModePicker}"/><ComboBox x:Name="ManualModePicker" ItemsSource="{Binding ManualModes}" SelectedIndex="{Binding ManualMode}" IsEnabled="{Binding CanEdit}" Width="160"/></WrapPanel>
+          <TextBlock Text="{Binding ManualModeHint}" TextWrapping="Wrap" Margin="0,4,0,4"/>
+          <CheckBox x:Name="EnableControl" Content="{Binding ArmLabel}" IsChecked="{Binding ControlsArmed}" IsEnabled="{Binding CanEdit}" />
+          <WrapPanel Margin="0,8,0,4">
+            <Label Target="{Binding ElementName=Duration}" Content="{Binding ManualDurationLabel}" VerticalAlignment="Center" />
+            <TextBox x:Name="Duration" Text="{Binding DurationMinutes, UpdateSourceTrigger=PropertyChanged}" Width="80" VerticalAlignment="Center" IsEnabled="{Binding CanEdit}" />
+            <Button x:Name="StartSelectedZone" Content="{Binding StartLabel}" Click="Start_Click" IsEnabled="{Binding CanStart, FallbackValue=False}" />
+            <Button x:Name="StopSelectedZone" Content="{Binding StopLabel}" Click="Stop_Click" IsEnabled="{Binding CanStop, FallbackValue=False}" />
+          </WrapPanel>
+          <WrapPanel IsEnabled="{Binding CanEditManualIntervals}">
+            <Label Content="Burst" Target="{Binding ElementName=ManualBurst}"/><TextBox x:Name="ManualBurst" Text="{Binding ManualBurst, UpdateSourceTrigger=PropertyChanged}" Width="65"/>
+            <Label Content="Pause" Target="{Binding ElementName=ManualPause}"/><TextBox x:Name="ManualPause" Text="{Binding ManualPause, UpdateSourceTrigger=PropertyChanged}" Width="65"/>
+            <TextBlock Text="{Binding ManualIntervalUnit}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+          </WrapPanel>
+          <TextBlock x:Name="CommandFeedback" Text="{Binding CommandMessage}" TextWrapping="Wrap" />
+          <TextBlock Text="Changing the zone disarms the controls. Closing this app or signing out does not stop watering." TextWrapping="Wrap" Margin="0,8,0,0" FontSize="12" Foreground="#587062" />
+        </StackPanel>
+      </GroupBox>
+       </StackPanel></TabItem>
+       <TabItem Header="Zone settings"><local:ZoneSettingsView x:Name="ZoneSettings"/></TabItem>
+       <TabItem Header="History"><local:HistoryView x:Name="History"/></TabItem>
+       <TabItem Header="Plans"><local:PlansView x:Name="PlanView"/></TabItem>
+      <TabItem Header="Hub and firmware"><local:HubToolsView x:Name="HubTools"/></TabItem>
+      <TabItem Header="Calendar"><local:CalendarView x:Name="CalendarView"/></TabItem>
+       <TabItem Header="Zone profile"><local:ProfileView x:Name="ProfileView"/></TabItem>
+       <TabItem Header="Home and account"><local:AdministrationView x:Name="AdministrationView"/></TabItem>
+       <TabItem Header="Weather"><local:WeatherView x:Name="WeatherView"/></TabItem>
+       <TabItem Header="Smart Scenes"><local:ScenesView x:Name="ScenesView"/></TabItem>
+      <TabItem Header="Account management"><local:AccountView x:Name="AccountView"/></TabItem>
+      <TabItem Header="Pairing"><local:PairingView x:Name="PairingView"/></TabItem>
+      </TabControl>
+      <Border Background="#E1EBE4" Padding="14" CornerRadius="4">
+        <TextBlock x:Name="StatusMessage" Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</Window>

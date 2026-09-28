@@ -1,0 +1,77 @@
+<UserControl x:Class="RainPointClient.Desktop.ZoneSettingsView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="#F3F6F3" Foreground="#23382F" FontFamily="Segoe UI" FontSize="14">
+ <UserControl.Resources><BooleanToVisibilityConverter x:Key="VisibleWhenTrue" /></UserControl.Resources>
+ <StackPanel Margin="12">
+  <TextBlock Text="Saved zone settings" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,6" />
+  <TextBlock Text="View and edit settings for the selected zone." TextWrapping="Wrap" Margin="0,0,0,12" />
+  <WrapPanel Margin="0,0,0,12">
+   <Label Content="Zone" Target="{Binding ElementName=SettingsZonePicker}" VerticalAlignment="Center" />
+   <ComboBox x:Name="SettingsZonePicker" ItemsSource="{Binding SettingsZones}" SelectedItem="{Binding SettingsZone}" IsEnabled="{Binding CanEdit}" MinWidth="70" VerticalAlignment="Center" />
+   <Button x:Name="LoadSettings" Content="Load / reset settings" Click="LoadSettings_Click" IsEnabled="{Binding CanReadSettings}" />
+  </WrapPanel>
+  <GroupBox Header="Last cloud read">
+   <StackPanel>
+    <TextBlock Text="{Binding SettingsReadAt}" Margin="0,0,0,12" FontWeight="SemiBold" TextWrapping="Wrap" />
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <TextBlock Text="Default duration" Margin="0,0,12,10"/><TextBlock x:Name="SavedDuration" Grid.Column="1" Text="{Binding SavedDuration}" TextWrapping="Wrap"/>
+     <TextBlock Grid.Row="1" Text="Misting intervals" Margin="0,0,12,10"/><TextBlock x:Name="SavedMisting" Grid.Row="1" Grid.Column="1" Text="{Binding SavedMisting}" TextWrapping="Wrap"/>
+     <TextBlock Grid.Row="2" Text="Flow calibration" Margin="0,0,12,0"/><TextBlock x:Name="SavedCalibration" Grid.Row="2" Grid.Column="1" Text="{Binding SavedCalibration}" TextWrapping="Wrap"/>
+     <TextBlock Grid.Row="3" Text="Seasonal adjustment" Margin="0,10,12,10"/><TextBlock x:Name="SavedSeasonal" Grid.Row="3" Grid.Column="1" Text="{Binding SavedSeasonal}" TextWrapping="Wrap" Margin="0,10,0,10"/>
+     <TextBlock Grid.Row="4" Text="Rain delay" Margin="0,0,12,10"/><TextBlock x:Name="SavedRainDelay" Grid.Row="4" Grid.Column="1" Text="{Binding SavedRainDelay}" TextWrapping="Wrap"/>
+    </Grid>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Soil sensor">
+   <StackPanel>
+    <TextBlock x:Name="SavedSoilSettings" Text="{Binding SavedSoilSettings}" TextWrapping="Wrap"/>
+    <Button x:Name="LoadSoilSensors" Content="Load available sensors" Click="LoadSoilSensors_Click" IsEnabled="{Binding CanLoadSoilSensors}" HorizontalAlignment="Left"/>
+    <ComboBox x:Name="SoilSensorPicker" ItemsSource="{Binding SoilSensors}" SelectedItem="{Binding SelectedSoilSensor}" DisplayMemberPath="Name" IsEnabled="{Binding CanLoadSoilSensors}" MinWidth="300" HorizontalAlignment="Left"/>
+    <Button x:Name="SaveSoilSensor" Content="Save sensor association" Click="SaveSoilSensor_Click" IsEnabled="{Binding CanSaveSoilSensor}" HorizontalAlignment="Left"/>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Edit one setting">
+   <StackPanel>
+    <Label Content="Setting" Target="{Binding ElementName=SettingPicker}"/>
+    <ComboBox x:Name="SettingPicker" ItemsSource="{Binding SettingChoices}" SelectedItem="{Binding SettingChoice}" IsEnabled="{Binding CanEdit}" HorizontalAlignment="Left" MinWidth="250" Margin="0,0,0,12" />
+    <TextBlock Text="{Binding SettingHelp}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+    <WrapPanel>
+     <StackPanel MinWidth="350" Visibility="{Binding HasSettingValue, Converter={StaticResource VisibleWhenTrue}}">
+      <Label Content="{Binding SettingValueLabel}" Target="{Binding ElementName=SettingValue}"/>
+      <TextBox x:Name="SettingValue" Text="{Binding SettingValue, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditSetting}" Width="300" HorizontalAlignment="Left" />
+     </StackPanel>
+     <StackPanel x:Name="SecondValuePanel" Visibility="{Binding HasMistingInterval, Converter={StaticResource VisibleWhenTrue}}" MinWidth="220">
+      <Label Content="Water off (seconds)" Target="{Binding ElementName=SettingSecondValue}"/>
+      <TextBox x:Name="SettingSecondValue" Text="{Binding SettingSecondValue, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditSetting}" Width="300" HorizontalAlignment="Left" />
+     </StackPanel>
+    </WrapPanel>
+    <ItemsControl x:Name="SeasonMonths" ItemsSource="{Binding SeasonMonths}" IsEnabled="{Binding CanEditSetting}" Visibility="{Binding HasSeasonalAdjustment, Converter={StaticResource VisibleWhenTrue}}">
+     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+     <ItemsControl.ItemTemplate><DataTemplate><StackPanel Width="145" Margin="0,0,10,10"><Label Content="{Binding Name}"/><TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Width="120" HorizontalAlignment="Left"/></StackPanel></DataTemplate></ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock Text="{Binding SettingValidation}" TextWrapping="Wrap" Margin="0,12,0,6" FontSize="12" Foreground="#587062"/>
+    <Button x:Name="SaveSetting" Content="Save selected zone setting" Click="SaveSetting_Click" IsEnabled="{Binding CanSaveSetting}" HorizontalAlignment="Left"/>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Automatic watering below soil moisture">
+   <StackPanel>
+    <TextBlock Text="Enabling this rule can start watering automatically. It requires an associated soil sensor. Misting uses the zone's saved on/off intervals." TextWrapping="Wrap"/>
+    <WrapPanel><Label Content="Rule zone"/><ComboBox x:Name="MoistureRuleZone" ItemsSource="{Binding SettingsZones}" SelectedItem="{Binding MoistureRuleZone}" IsEnabled="{Binding CanEdit}" MinWidth="80"/><Button x:Name="LoadMoistureRule" Content="Load / reset rule" Click="LoadMoistureRule_Click" IsEnabled="{Binding CanLoadMoistureRule}"/></WrapPanel>
+    <CheckBox x:Name="MoistureRuleEnabled" Content="Enable automatic watering" IsChecked="{Binding MoistureRuleEnabled}" IsEnabled="{Binding CanEdit}" Margin="0,8"/>
+    <CheckBox x:Name="MoistureRuleMisting" Content="Use misting mode" IsChecked="{Binding MoistureRuleMisting}" IsEnabled="{Binding CanEdit}" Margin="0,8"/>
+    <Label Content="Start below moisture (%) · 1–99"/><TextBox x:Name="MoistureBelow" Text="{Binding MoistureBelow, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="300" HorizontalAlignment="Left"/>
+    <Label Content="Duration (minutes) · 1–30, or blank for volume only"/><TextBox x:Name="MoistureMinutes" Text="{Binding MoistureMinutes, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="300" HorizontalAlignment="Left"/>
+    <Label Content="Volume limit (litres) · optional, 0.3–6000"/><TextBox x:Name="MoistureLitres" Text="{Binding MoistureLitres, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="300" HorizontalAlignment="Left"/>
+    <Label Content="Exclude from (HH:mm, home local) · optional"/><TextBox x:Name="MoistureFrom" Text="{Binding MoistureFrom, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="300" HorizontalAlignment="Left"/>
+    <Label Content="Exclude until (HH:mm, home local) · optional"/><TextBox x:Name="MoistureUntil" Text="{Binding MoistureUntil, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="300" HorizontalAlignment="Left"/>
+    <Button x:Name="SaveMoistureRule" Content="Save automatic watering rule" Click="SaveMoistureRule_Click" IsEnabled="{Binding CanSaveMoistureRule}" HorizontalAlignment="Left"/>
+    <TextBlock x:Name="MoistureRuleMessage" Text="{Binding MoistureRuleMessage}" TextWrapping="Wrap"/>
+   </StackPanel>
+  </GroupBox>
+  <Border Background="#E1EBE4" Padding="14" CornerRadius="4">
+   <TextBlock x:Name="SettingsMessage" Text="{Binding SettingsMessage}" TextWrapping="Wrap"/>
+  </Border>
+ </StackPanel>
+</UserControl>

@@ -1,0 +1,15 @@
+# Zone profiles and watering recommendations
+
+`GetZoneProfileCatalogAsync` returns typed, ordered categories and options from the vendor. `GetZoneProfileAsync` reads one of the HTV345FRF's three zones. `SetZoneProfileAsync` updates its recommendation preference and selected options, preserving the other zones. These preferences do not create or enable schedules. The catalog currently includes plant type, soil, nozzle, sunlight duration and ground slope; labels can be localization keys.
+
+Writes require a readable snapshot, current catalog selections and a fresh matching device/profile. Unknown profile fields, malformed or duplicate fields, unknown option IDs and multiple choices in one category are rejected. Each snapshot permits one write attempt, including an uncertain failure. Reload and reconcile before trying again. The fresh-state check is not an atomic server-side compare-and-swap.
+
+`GetZoneRecommendationsAsync` returns nullable interval-day and duration values without silently replacing missing values. The Windows **Zone profile** tab displays all categories and cloud recommendations. **Prepare disabled plan draft** copies a valid suggestion into Plans for review; it does not save or enable it. The UI follows the app's interval rounding and whole-minute duration ceiling within supported plan limits. The user must review dates, start time and watering suitability.
+
+The contract was traced in RainPoint Home 1.19.1065: zone profile models and editors, the profile catalog endpoint, and the recommendation request. The vendor stores profiles as an encoded string field; the client handles this internally through attributed models, without exposing raw payloads. See [protocol provenance](PROTOCOL-SOURCES.md).
+
+Offline tests cover all zones, preservation of other profiles, malformed data, stale snapshots, catalog validation, uncertain writes, recommendation bounds, draft creation and Windows controls. The full suite passes 965 library/dashboard and 70 WPF cases per target (2,070 total), under `artifacts/profiles-offline`.
+
+On 24 September 2026, `ZoneProfileLiveTests.ReadsAllZonesAndRestoresZone1Preference` passed on net10.0 and net472. Each run read all three zones and their recommendations, toggled only zone 1's recommendation preference, verified read-back and restored it. Other profiles and the timer's full plan/settings parameter were unchanged. No valve or schedule command was sent. Recovery journals were removed after restoration; results are retained in `artifacts/profiles-live`.
+
+Live tests require private `RAINPOINT_LIVE_SETTINGS` and `RAINPOINT_LIVE_PROFILE=zone1-restore`. Run frameworks sequentially with a gap between logins. The fixture journals the original preference before writing and restores in the same session with a separate cleanup timeout. `RestoreJournaledPreference` is the explicit recovery entry point. Recommendations are cloud suggestions, not measured plant requirements or evidence of scheduled execution.

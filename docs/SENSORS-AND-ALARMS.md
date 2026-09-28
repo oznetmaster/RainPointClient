@@ -1,0 +1,19 @@
+# Soil sensor settings and timer alarms
+
+`RainPointScheduleSnapshot.SoilSensorSettings` exposes the associated soil sensor's RF address and the stop-above moisture percentage. Its independent availability distinguishes absent, malformed and unsupported data. Null address means no association; null threshold is the disabled zero sentinel. These are saved settings, not current soil readings.
+
+`GetAvailableSoilSensorsAsync` reads the hub again and lists paired HCS005FRF/HCS021FRF sensors not assigned to another supported timer zone. `SetTimerSoilSensorAsync` associates one of those sensors, or removes the association with null. It does not pair new hardware. If another watering device's assignments cannot be interpreted, assignment is rejected rather than presumed available. Duplicate addresses and stale timer snapshots are rejected. Hardware aliases and other sensor families require separate evidence.
+
+`SetTimerMoistureStopAsync` accepts 1..100 percent or null to disable. Enabling requires a saved sensor association. Association writes alter only byte 6 of the selected zone's settings; threshold writes alter only the lower seven bits of byte 7, preserving its rain flag. Other zones, schedules, calibration, seasonal values and suffixes are preserved. Writes require the supported modern container and firmware 120 or newer, with existing fresh-state and one-attempt guards. These checks are not atomic server-side transactions.
+
+The Windows Zone settings tab includes paired-sensor selection and moisture stop editing, cloud read-back and explicit reload after uncertain outcomes. Account or zone changes discard old choices. Removing a sensor preserves its threshold, matching the app. Disabling moisture stop may allow otherwise-suppressed watering. No autonomous low-moisture watering rule is implemented by these APIs.
+
+The contract comes from RainPoint Home 1.19.1065's common zone parameter model, sensor-selection screen and stop-moisture screen (modules 643, 1206 and 1218). The selector recognizes the two sensor product codes and excludes sensors assigned to other watering zones. Its separate low-moisture automatic-start screen has a different rule structure and remains a separate item.
+
+For supported compact timer alarm readings, the app's common status model (module 495) maps bits 0, 1 and 2 to leak, water shortage and freeze. `WaterLeakReported`, `WaterShortageReported` and `FreezeReported` expose nullable flags. `AlarmCode` and `UnknownAlarmBits` preserve uninterpreted values. Missing data is unknown, never a no-fault assumption. The Windows status row displays all active known flags and any unknown bits. This does not imply that every firmware generates every flag, or establish historical notification codes or alarm-clearing commands.
+
+Offline NUnit coverage on both frameworks includes all 16 compact alarm combinations for every zone, sensor filtering, settings preservation, invalid values, stale/uncertain writes, dashboard resets and actual WPF controls. Read-only live sensor checks are explicit: set private `RAINPOINT_LIVE_SETTINGS` and select `SoilSensorLiveTests.ReadsAllZonesWithoutWrites`. Sensor association writes and physical moisture-stop behavior have not been tested with a real soil sensor. Alarm faults were not physically induced.
+
+On 24 September 2026, the explicit read-only sensor fixture passed on net10.0 and net472. No sensor association or threshold was changed. Evidence is under `artifacts/soil-live`. The net472 adapter reported unload/dispose timeouts after the test passed; this diagnostic is retained. The final portable suite contains 1,041 cases and the Windows suite 73 per framework. No physical sensor behavior or fault generation is claimed.
+
+The separate [automatic low-moisture watering rule](MOISTURE-WATERING.md) is now implemented with its own typed API and Windows editor; this does not add physical sensor validation.

@@ -1,0 +1,15 @@
+using System.Windows;
+using System.Windows.Controls;
+
+using RainPointClient.Desktop.Core;
+namespace RainPointClient.Desktop;
+
+public partial class WeatherView : UserControl
+	{
+	public WeatherView () => InitializeComponent ();
+	private async void Load_Click (object sender, RoutedEventArgs e)
+		{
+		if (DataContext is Dashboard d)
+			await d.LoadWeatherAsync ();
+		}
+	}

@@ -1,0 +1,40 @@
+<UserControl Background="#F5F8F5" x:Class="RainPointClient.Desktop.AccountView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel Margin="12">
+  <GroupBox Header="Profile observed at sign-in">
+   <StackPanel>
+    <TextBlock Text="{Binding AccountProfile.Email}"/><TextBlock Text="{Binding AccountProfile.Nickname}"/>
+    <TextBlock Text="A profile change requires signing in again to read the updated values." TextWrapping="Wrap"/>
+    <WrapPanel IsEnabled="{Binding CanEditAccountProfile}"><TextBox x:Name="Nickname" Width="240"/><Button x:Name="SaveNickname" Content="Set nickname" Click="Nickname_Click"/></WrapPanel>
+    <TextBlock Text="Already uploaded profile image (HTTPS address)"/>
+    <WrapPanel IsEnabled="{Binding CanEditAccountProfile}"><TextBox x:Name="PhotoUrl" Width="400"/><Button Content="Set profile image" Click="Photo_Click"/></WrapPanel>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Change password" IsEnabled="{Binding CanChangeAccount}">
+   <StackPanel>
+    <TextBlock Text="Saved credentials are removed before submitting a change. Sign in again afterwards." TextWrapping="Wrap"/>
+    <Label Content="Current password" Target="{Binding ElementName=OldPassword}"/><PasswordBox x:Name="OldPassword"/>
+    <Label Content="New password (6–20 characters)" Target="{Binding ElementName=ChangedPassword}"/><PasswordBox x:Name="ChangedPassword"/>
+    <Button x:Name="ChangePassword" IsEnabled="{Binding CanChangeAccount}" Content="Change password and sign out" Click="Change_Click" HorizontalAlignment="Left"/>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Register or recover an account">
+   <StackPanel>
+    <TextBlock Text="Sign out before using these controls. Verification requests send an email only when you select Request code." TextWrapping="Wrap"/>
+    <StackPanel IsEnabled="{Binding CanVerifyAccount}">
+     <Label Content="Email"/><TextBox x:Name="VerificationEmail" Text="{Binding AccountEmail, UpdateSourceTrigger=PropertyChanged}"/>
+     <WrapPanel><Label Content="Calling code"/><TextBox Text="{Binding AccountAreaCode, UpdateSourceTrigger=PropertyChanged}" Width="80"/><ComboBox x:Name="Purpose" ItemsSource="{Binding AccountPurposes}" SelectedItem="{Binding AccountPurpose}"/></WrapPanel>
+     <WrapPanel><Button x:Name="RequestCode" Content="Request code" Click="Request_Click"/><PasswordBox x:Name="VerificationCode" Width="150"/><Button x:Name="VerifyCode" Content="Verify code" Click="Verify_Click"/></WrapPanel>
+     <WrapPanel><Button Content="Get registration email instructions" Click="Instructions_Click"/><Button Content="Check sent email" Click="CheckEmail_Click" IsEnabled="{Binding CanVerifyRegistrationEmail}"/></WrapPanel>
+    </StackPanel>
+    <TextBox Text="{Binding AccountInstructions, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"/>
+    <StackPanel IsEnabled="{Binding CanCompleteAccount}">
+     <Label Content="New password (6–20 characters)"/><PasswordBox x:Name="NewAccountPassword"/>
+     <WrapPanel><Label Content="Registration country (two letters)"/><TextBox x:Name="RegistrationCountry" Text="GB" Width="80"/></WrapPanel>
+     <CheckBox x:Name="AgreementAccepted" Content="For registration: I have reviewed and accept RainPoint's user agreement and privacy policy."/>
+     <TextBlock Text="Review the current agreement in the official RainPoint app before registering here." TextWrapping="Wrap"/>
+     <Button x:Name="CompleteAccount" Content="Submit verified registration or password reset" Click="Complete_Click" HorizontalAlignment="Left"/>
+    </StackPanel>
+   </StackPanel>
+  </GroupBox>
+ </StackPanel>
+</UserControl>

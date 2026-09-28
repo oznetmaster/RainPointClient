@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net472;net10.0</TargetFrameworks>
+    <PackageId>RainPointClient</PackageId>
+    <Title>RainPointClient</Title>
+    <PackageTags>RainPoint;HomGar;irrigation;smart-garden;MQTT</PackageTags>
+    <RepositoryUrl>https://github.com/oznetmaster/RainPointClient</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/oznetmaster/RainPointClient</PackageProjectUrl>
+    <PackageReleaseNotes>Initial cloud release for HWG023WBRF hubs and HTV345FRF three-zone timers: typed control, MQTT feedback, schedules, usage, calendar and account/home/scene APIs. See https://github.com/oznetmaster/RainPointClient/blob/v1.0.0/release-notes/v1.0.0.md for scope and validation.</PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Authors>Neil Colvin</Authors>
+    <Description>A typed RainPoint Home / Smart+ cloud client.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.12" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    <EmbeddedResource Include="Protocol/AliyunIoTRoot.pem" />
+    <InternalsVisibleTo Include="RainPointClient.Tests" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
+    <None Include="../../licenses/**" Pack="true" PackagePath="licenses/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="/" />
+    <None Include="../../release-notes/v$(Version).md" Pack="true" PackagePath="/release-notes/" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Reference Include="System.Net.Http" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

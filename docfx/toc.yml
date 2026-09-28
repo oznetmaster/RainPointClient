@@ -1,0 +1,16 @@
+- name: Overview
+  href: index.md
+- name: Getting started
+  href: ../README.md
+- name: API reference
+  href: api/toc.yml
+- name: Feature guides
+  href: ../docs/toc.yml
+- name: Release notes
+  href: ../release-notes/v1.0.0.md
+- name: Changelog
+  href: ../CHANGELOG.md
+- name: Testing
+  href: ../tests/README.md
+- name: Publication
+  href: ../PUBLISHING.md

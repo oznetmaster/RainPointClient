@@ -1,0 +1,24 @@
+- name: Windows app
+  href: WINDOWS-APP.md
+- name: MQTT feedback
+  href: MQTT-FEEDBACK.md
+- name: Manual modes
+  href: MANUAL-MODES.md
+- name: Saved schedules
+  href: SCHEDULES.md
+- name: Calendar
+  href: CALENDAR.md
+- name: History
+  href: HISTORY.md
+- name: Home administration
+  href: HOME-ADMINISTRATION.md
+- name: Account administration
+  href: ACCOUNT-ADMINISTRATION.md
+- name: Smart Scenes
+  href: SMART-SCENES.md
+- name: Weather
+  href: WEATHER.md
+- name: Session recovery
+  href: SESSION-RECOVERY.md
+- name: Validation ledger
+  href: TODO.md

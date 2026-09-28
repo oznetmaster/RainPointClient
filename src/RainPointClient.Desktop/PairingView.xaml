@@ -1,0 +1,17 @@
+<UserControl Background="#F5F8F5" x:Class="RainPointClient.Desktop.PairingView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel Margin="12">
+  <Button x:Name="LoadPairing" Content="Load selected hub and pairing models" Click="Load_Click" IsEnabled="{Binding CanReadPairing}" HorizontalAlignment="Left"/>
+  <TextBlock Text="{Binding PairingMessage}" TextWrapping="Wrap" Margin="0,8,0,16"/>
+  <GroupBox Header="Pair a new RF timer or soil sensor"><StackPanel>
+   <TextBlock Text="Choose the exact model. Starting a search allows the hub to pair devices in pairing mode; it does not open a valve." TextWrapping="Wrap"/>
+   <ComboBox x:Name="PairingModels" ItemsSource="{Binding PairingModels}" SelectedItem="{Binding PairingModel}" IsEnabled="{Binding CanEdit}"><ComboBox.ItemTemplate><DataTemplate><TextBlock><Run Text="{Binding Model, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding ModelCode, Mode=OneWay}"/></TextBlock></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+   <WrapPanel><Button x:Name="StartPairing" Content="Start pairing search" Click="Start_Click" IsEnabled="{Binding CanStartPairing}"/><Button x:Name="CancelPairing" Content="Cancel search" Click="Cancel_Click" IsEnabled="{Binding CanCancelPairing}"/></WrapPanel>
+  </StackPanel></GroupBox>
+  <GroupBox Header="Remove a paired device"><StackPanel>
+   <ComboBox x:Name="PairedDevices" ItemsSource="{Binding PairedDevices}" SelectedItem="{Binding PairingChild}" IsEnabled="{Binding CanEdit}"><ComboBox.ItemTemplate><DataTemplate><TextBlock><Run Text="{Binding Name, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Model, Mode=OneWay}"/><Run Text=" · RF "/><Run Text="{Binding Address, Mode=OneWay}"/></TextBlock></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+   <TextBlock Text="Removal clears matching soil-sensor associations across all timer zones. Unknown device families require the official app." TextWrapping="Wrap"/>
+   <WrapPanel><Button x:Name="RemoveChild" Content="Remove selected child" Click="RemoveChild_Click" IsEnabled="{Binding CanRemoveChild}"/><Button x:Name="RemoveHub" Content="Remove hub and all its children" Click="RemoveHub_Click" IsEnabled="{Binding CanRemoveHub}"/></WrapPanel>
+  </StackPanel></GroupBox>
+  <TextBlock Text="Initial Wi-Fi/Bluetooth setup of a new hub still requires the official RainPoint app." TextWrapping="Wrap"/>
+ </StackPanel>
+</UserControl>

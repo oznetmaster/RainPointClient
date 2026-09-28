@@ -1,0 +1,31 @@
+<UserControl x:Class="RainPointClient.Desktop.HubToolsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="#F3F6F3" Foreground="#23382F" FontFamily="Segoe UI" FontSize="14">
+ <StackPanel Margin="12">
+  <TextBlock Text="Hub and firmware" FontSize="22" FontWeight="SemiBold"/>
+  <TextBlock Text="Use the selected hub and timer. Firmware checks are read only." Margin="0,8" TextWrapping="Wrap"/>
+  <GroupBox Header="Time broadcast"><StackPanel Margin="10">
+   <TextBlock x:Name="SavedBroadcast" Text="{Binding SavedBroadcast}" Margin="0,0,0,10"/>
+   <Button x:Name="LoadHubSettings" Content="Load / reset hub settings" Click="Load_Click" IsEnabled="{Binding CanRefresh}" HorizontalAlignment="Left"/>
+   <CheckBox x:Name="AutomaticTimeBroadcast" Content="Automatic time broadcast" IsChecked="{Binding AutomaticTimeBroadcast}" IsEnabled="{Binding CanSaveBroadcast}" Margin="0,12"/>
+   <Button x:Name="SaveBroadcast" Content="Save automatic time broadcast" Click="Save_Click" IsEnabled="{Binding CanSaveBroadcast}" HorizontalAlignment="Left"/>
+   <Button x:Name="BroadcastTime" Content="Broadcast time now" Click="Broadcast_Click" IsEnabled="{Binding CanRefresh}" HorizontalAlignment="Left" Margin="0,14,0,0"/>
+  </StackPanel></GroupBox>
+  <GroupBox Header="RF communication channel"><StackPanel Margin="10">
+   <TextBlock Text="{Binding SavedRfChannel, StringFormat=Reported channel: {0}}"/>
+   <TextBlock Text="Changing the channel can interrupt communication with paired devices. Load hub settings before editing." TextWrapping="Wrap" Margin="0,8"/>
+   <WrapPanel><ComboBox x:Name="RfChannel" ItemsSource="{Binding RfChannels}" SelectedItem="{Binding RfChannel}" IsEnabled="{Binding CanSelectRfChannel}" Width="80" Margin="0,0,10,0"/><Button x:Name="SaveRfChannel" Content="Save RF channel" Click="RfChannel_Click" IsEnabled="{Binding CanSaveRfChannel}"/></WrapPanel>
+  </StackPanel></GroupBox>
+  <GroupBox Header="Firmware"><StackPanel Margin="10">
+   <Button x:Name="CheckHubFirmware" Content="Check hub firmware" Click="HubFirmware_Click" IsEnabled="{Binding CanRefresh}" HorizontalAlignment="Left"/>
+   <TextBlock x:Name="HubFirmware" Text="{Binding HubFirmware}" TextWrapping="Wrap" Margin="0,10"/>
+   <Button x:Name="CheckTimerFirmware" Content="Check timer firmware" Click="TimerFirmware_Click" IsEnabled="{Binding CanCheckTimerFirmware}" HorizontalAlignment="Left"/>
+   <TextBlock x:Name="TimerFirmware" Text="{Binding TimerFirmware}" TextWrapping="Wrap" Margin="0,10"/>
+  </StackPanel></GroupBox>
+  <GroupBox Header="Product metadata"><StackPanel Margin="10">
+   <Button x:Name="LoadCatalog" Content="Load product catalog" Click="Catalog_Click" IsEnabled="{Binding CanRefresh}" HorizontalAlignment="Left"/>
+   <DataGrid x:Name="ProductModels" ItemsSource="{Binding ProductModels}" IsReadOnly="True" CanUserAddRows="False" AutoGenerateColumns="False" Height="200" Margin="0,10">
+    <DataGrid.Columns><DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*" MinWidth="180"/><DataGridTextColumn Header="Model code" Binding="{Binding ModelCode}" Width="120" MinWidth="120"/><DataGridTextColumn Header="Ports" Binding="{Binding PortCount}" Width="90" MinWidth="90"/><DataGridTextColumn Header="Hub" Binding="{Binding IsHub}" Width="80" MinWidth="80"/><DataGridTextColumn Header="Data points" Binding="{Binding DataPoints.Count}" Width="110" MinWidth="110"/></DataGrid.Columns>
+   </DataGrid><TextBlock Text="{Binding CatalogMessage}" TextWrapping="Wrap"/>
+  </StackPanel></GroupBox>
+  <TextBlock x:Name="HubToolsMessage" Text="{Binding HubToolsMessage}" TextWrapping="Wrap" Margin="0,12"/>
+ </StackPanel>
+</UserControl>

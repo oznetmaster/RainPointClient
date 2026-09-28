@@ -1,0 +1,9 @@
+# Local-control evidence
+
+Checked 24 September 2026. No direct local interface has been confirmed on the stock HWG023WBRF/HTV345FRF kit. The primary [RainPoint integration](https://github.com/funkadelic/ha-rainpoint) documents cloud operation. [RainPoint support](https://community.rainpoint.com/t/gateway-offline/367) states that HWG023 does not support direct LAN command transmission.
+
+[diivoo2mqtt](https://github.com/Technerd-SG/hassio-diivoo2mqtt) is a relevant but distinct research lead. Its maintainer reports reverse-engineering the radio link and supports DIIVOO WT-07W, WT-09W, WT-11W(1) and WT-13W through a WG03 gateway flashed with replacement ESP32 firmware. That firmware exposes a TCP radio bridge. This is not evidence of an existing LAN service in stock RainPoint firmware, nor verified compatibility with this kit. No firmware has been replaced for this project.
+
+Router control could redirect hub connections through DNS overrides or address translation. A local server must still satisfy the hub's server authentication and reproduce its application protocol. TLS certificate verification would generally prevent simple impersonation, while an encrypted pass-through proxy would remain cloud-dependent. [Alibaba documents MQTT-TLS and server certificate verification](https://www.alibabacloud.com/help/en/iot/user-guide/establish-mqtt-connections-over-tcp); the client's cloud observer uses TLS, but this does not prove the physical hub uses the same transport or validation.
+
+Next evidence would be a passive capture of the owner's hub traffic at the gateway: DNS names, destinations, ports and TLS handshakes. No physical-hub traffic capture or local-server redirection test has yet established feasibility. Port numbers alone are insufficient: Alibaba also documents TLS on port 1883. Router settings and firmware remain unchanged.

@@ -1,0 +1,55 @@
+<UserControl x:Class="RainPointClient.Desktop.HistoryView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="#F3F6F3" Foreground="#23382F" FontFamily="Segoe UI" FontSize="14">
+ <StackPanel Margin="12">
+  <TextBlock Text="Usage and event history" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,6"/>
+  <WrapPanel Margin="0,0,0,12">
+   <Label Content="Zone" Target="{Binding ElementName=HistoryZonePicker}" VerticalAlignment="Center"/>
+   <ComboBox x:Name="HistoryZonePicker" ItemsSource="{Binding HistoryZones}" SelectedItem="{Binding HistoryZone}" IsEnabled="{Binding CanEdit}" MinWidth="70"/>
+   <TextBlock Text="Read-only history for the selected timer" VerticalAlignment="Center"/>
+  </WrapPanel>
+  <GroupBox Header="Water usage">
+   <StackPanel>
+    <WrapPanel IsEnabled="{Binding CanEdit}">
+     <StackPanel><Label Content="Grouping" Target="{Binding ElementName=UsagePeriodPicker}"/><ComboBox x:Name="UsagePeriodPicker" ItemsSource="{Binding UsagePeriods}" SelectedItem="{Binding UsagePeriod}" MinWidth="120"/></StackPanel>
+     <StackPanel><Label Content="From (yyyy-MM-dd)" Target="{Binding ElementName=UsageFrom}"/><TextBox x:Name="UsageFrom" Text="{Binding UsageStart, UpdateSourceTrigger=PropertyChanged}" Width="175"/></StackPanel>
+     <StackPanel><Label Content="Through (yyyy-MM-dd)" Target="{Binding ElementName=UsageThrough}"/><TextBox x:Name="UsageThrough" Text="{Binding UsageEnd, UpdateSourceTrigger=PropertyChanged}" Width="175"/></StackPanel>
+     <Button x:Name="LoadUsage" Content="Load usage" Click="LoadUsage_Click" IsEnabled="{Binding CanLoadUsage}" VerticalAlignment="Bottom"/>
+    </WrapPanel>
+    <TextBlock Text="{Binding UsageRangeHelp}" TextWrapping="Wrap" Margin="0,8,0,8" FontSize="12"/>
+    <TextBlock x:Name="UsageSummary" Text="{Binding UsageSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,8"/>
+    <DataGrid x:Name="UsageRows" ItemsSource="{Binding UsageHistory}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Height="150">
+     <DataGrid.Columns><DataGridTextColumn Header="Period (home calendar)" Binding="{Binding Period}" Width="*" MinWidth="250"/>
+      <DataGridTextColumn Header="Water (L)" Binding="{Binding Litres}" Width="*" MinWidth="120"/></DataGrid.Columns>
+    </DataGrid>
+    <TextBlock Text="{Binding UsageReadAt}" TextWrapping="Wrap" FontSize="12" Margin="0,8,0,4"/>
+    <TextBlock x:Name="UsageMessage" Text="{Binding UsageMessage}" TextWrapping="Wrap"/>
+   </StackPanel>
+  </GroupBox>
+  <GroupBox Header="Events">
+   <StackPanel>
+    <WrapPanel IsEnabled="{Binding CanEdit}">
+     <StackPanel><Label Content="Event type" Target="{Binding ElementName=EventFilterPicker}"/><ComboBox x:Name="EventFilterPicker" ItemsSource="{Binding EventFilters}" SelectedItem="{Binding EventFilter}" MinWidth="160"/></StackPanel>
+     <StackPanel><Label Content="From UTC (optional)" Target="{Binding ElementName=EventsFrom}"/><TextBox x:Name="EventsFrom" Text="{Binding EventBegin, UpdateSourceTrigger=PropertyChanged}" Width="220" ToolTip="yyyy-MM-dd HH:mm:ss"/></StackPanel>
+     <StackPanel><Label Content="End UTC (optional)" Target="{Binding ElementName=EventsBefore}"/><TextBox x:Name="EventsBefore" Text="{Binding EventEnd, UpdateSourceTrigger=PropertyChanged}" Width="220" ToolTip="yyyy-MM-dd HH:mm:ss"/></StackPanel>
+    </WrapPanel>
+    <TextBlock Text="Use yyyy-MM-dd HH:mm:ss for UTC times." FontSize="12" Margin="0,8,0,0"/>
+    <TextBlock Text="{Binding EventRangeHelp}" TextWrapping="Wrap" FontSize="12" Margin="0,4,0,4"/>
+    <WrapPanel><Button x:Name="LoadEvents" Content="Load / reset events" Click="LoadEvents_Click" IsEnabled="{Binding CanLoadEvents}"/><Button x:Name="LoadOlderEvents" Content="Load older" Click="LoadOlderEvents_Click" IsEnabled="{Binding CanLoadOlderEvents}"/></WrapPanel>
+    <DataGrid x:Name="EventRows" ItemsSource="{Binding EventHistory}" SelectedItem="{Binding SelectedHistoryEvent}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Height="190">
+     <DataGrid.Columns>
+      <DataGridTextColumn Header="Cloud time (UTC)" Binding="{Binding CloudTime}" Width="205" MinWidth="205"/>
+      <DataGridTextColumn Header="Device-local time" Binding="{Binding DeviceTime}" Width="170" MinWidth="170"/>
+      <DataGridTextColumn Header="Event" Binding="{Binding Kind}" Width="*" MinWidth="130"/>
+      <DataGridTextColumn Header="Scope" Binding="{Binding Scope}" Width="110" MinWidth="110"/>
+      <DataGridTextColumn Header="Water (L)" Binding="{Binding Litres}" Width="90" MinWidth="90"/>
+      <DataGridTextColumn Header="Seconds" Binding="{Binding Duration}" Width="90" MinWidth="90"/>
+     </DataGrid.Columns>
+    </DataGrid>
+    <TextBlock Text="{Binding EventsReadAt}" TextWrapping="Wrap" FontSize="12" Margin="0,8,0,4"/>
+    <TextBlock x:Name="EventsMessage" Text="{Binding EventsMessage}" TextWrapping="Wrap"/>
+    <Border Background="#E1EBE4" Padding="12" Margin="0,10,0,0" CornerRadius="4"><TextBlock x:Name="EventDetails" Text="{Binding EventDetails}" TextWrapping="Wrap"/></Border>
+   </StackPanel>
+  </GroupBox>
+ </StackPanel>
+</UserControl>

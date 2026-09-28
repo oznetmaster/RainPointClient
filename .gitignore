@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+TestResults/
+artifacts/
+.local/
+*.local.json
+*.local.env
+docfx/api/
+docfx/_site/
+**/.cache/
+*.nupkg
+*.snupkg

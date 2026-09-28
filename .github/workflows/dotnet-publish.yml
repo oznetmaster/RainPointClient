@@ -1,0 +1,140 @@
+# Copyright (c) 2026 Neil Colvin. MIT License.
+name: Publish .NET Package
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release tag or version, for example v1.0.0
+        required: true
+        type: string
+      skip_hardware_checks:
+        description: Explicitly bypass configured processor checks when unavailable
+        required: false
+        type: boolean
+        default: false
+      hardware_skip_reason:
+        description: Required reason when processor checks are bypassed
+        required: false
+        type: string
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  id-token: write
+concurrency:
+  group: rainpoint-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    environment: release
+    steps:
+      - name: Resolve the requested existing tag
+        id: version
+        shell: pwsh
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_INPUT: ${{ inputs.version }}
+          RELEASE_REF: ${{ github.ref_name }}
+        run: |
+          $value = if ($env:RELEASE_EVENT -eq 'workflow_dispatch') { $env:RELEASE_INPUT } else { $env:RELEASE_REF }
+          $version = $value.Trim() -creplace '^v', ''
+          if ($version -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$') { throw 'Invalid version.' }
+          "package_version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ steps.version.outputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Validate tag, versions and publication notes
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.package_version }}
+        run: ./tools/Test-ReleaseMetadata.ps1 -Version $env:PACKAGE_VERSION -RequireTag
+      - name: Verify hosted and configured release checks for this commit
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUIRED_RELEASE_CHECKS: ${{ vars.RELEASE_REQUIRED_CHECKS }}
+          REQUIRED_HOSTED_WORKFLOWS: '["unit-tests.yml","github-pages.yml"]'
+          RELEASE_SKIP_HARDWARE_CHECKS: ${{ inputs.skip_hardware_checks }}
+          RELEASE_HARDWARE_SKIP_REASON: ${{ inputs.hardware_skip_reason }}
+        run: ./.github/scripts/Wait-RequiredReleaseChecks.ps1
+      - name: Validate release policy
+        shell: pwsh
+        run: ./tools/Test-ReleasePreparation.ps1
+      - name: Run both offline test projects on both targets
+        shell: pwsh
+        run: |
+          foreach ($project in @('tests/RainPointClient.Tests/RainPointClient.Tests.csproj','tests/RainPointClient.Desktop.Tests/RainPointClient.Desktop.Tests.csproj')) {
+            $name = [IO.Path]::GetFileNameWithoutExtension($project)
+            dotnet test $project -c Release -p:ContinuousIntegrationBuild=true --filter "TestCategory!=Live" --logger "trx;LogFilePrefix=release" --results-directory "artifacts/test-results/$name"
+            if ($LASTEXITCODE -ne 0) { throw "Offline tests failed: $name" }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-test-results
+          path: artifacts/test-results/**/*.trx
+          if-no-files-found: warn
+      - name: Build documentation before publication
+        shell: pwsh
+        run: ./tools/Build-Documentation.ps1
+      - name: Prepare and inspect all release assets before publication
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.package_version }}
+        run: ./tools/New-ReleaseAssets.ps1 -Version $env:PACKAGE_VERSION
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-${{ steps.version.outputs.package_version }}
+          path: |
+            artifacts/release/*.nupkg
+            artifacts/release/*.zip
+            artifacts/release/*.dll
+            artifacts/release/*.xml
+            artifacts/release/*.md
+            artifacts/release/LICENSE
+            artifacts/release/SHA256SUMS.txt
+          if-no-files-found: error
+      - name: Exchange GitHub identity for a short-lived NuGet credential
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish the verified NuGet package
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) { throw 'NuGet Trusted Publishing did not return a credential.' }
+          $packages = @(Get-ChildItem artifacts/release -Filter '*.nupkg' -File)
+          if ($packages.Count -ne 1) { throw 'Expected exactly one verified package.' }
+          dotnet nuget push $packages[0].FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+          if ($LASTEXITCODE -ne 0) { throw 'NuGet publication failed.' }
+      - name: Publish GitHub release with versioned notes
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: RainPointClient ${{ steps.version.outputs.tag }}
+          body_path: artifacts/release/RELEASE-NOTES.md
+          generate_release_notes: false
+          prerelease: ${{ contains(steps.version.outputs.package_version, '-') }}
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/release/*.nupkg
+            artifacts/release/*.zip
+            artifacts/release/*.dll
+            artifacts/release/*.xml
+            artifacts/release/*.md
+            artifacts/release/LICENSE
+            artifacts/release/SHA256SUMS.txt

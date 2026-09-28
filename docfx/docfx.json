@@ -1,0 +1,49 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            ".cache/references/RainPointClient.dll"
+          ]
+        }
+      ],
+      "dest": "api",
+      "disableGitFeatures": true
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "api/**.yml",
+          "index.md",
+          "toc.yml"
+        ]
+      },
+      {
+        "files": [
+          "docs/**.md",
+          "tests/README.md",
+          "README.md",
+          "CHANGELOG.md",
+          "PUBLISHING.md",
+          "release-notes/**.md",
+          "docs/toc.yml",
+          "THIRD-PARTY-NOTICES.md"
+        ],
+        "src": ".."
+      }
+    ],
+    "dest": "../artifacts/docs-site",
+    "globalMetadata": {
+      "_appTitle": "RainPointClient",
+      "_appName": "RainPointClient",
+      "_enableSearch": true
+    },
+    "template": [
+      "default",
+      "modern"
+    ]
+  }
+}

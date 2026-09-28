@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+    <File Path="docs/PROTOCOL-SOURCES.md" />
+    <File Path="docs/UPSTREAM-PARITY.md" />
+    <File Path="docs/TODO.md" />
+    <File Path="docs/HOME-ADMINISTRATION.md" />
+    <File Path="docs/WEATHER.md" />
+    <File Path="docs/SMART-SCENES.md" />
+    <File Path="docs/CALENDAR.md" />
+    <File Path="docs/COMMAND-FEEDBACK.md" />
+    <File Path="docs/MANUAL-MODES.md" />
+    <File Path="docs/SESSION-RECOVERY.md" />
+    <File Path="docs/PRODUCT-CATALOG.md" />
+    <File Path="docs/ANDROID-APP-AUDIT.md" />
+    <File Path="docs/WINDOWS-APP.md" />
+    <File Path="docs/MQTT-FEEDBACK.md" />
+    <File Path="tests/README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/RainPointClient.Desktop.Core/RainPointClient.Desktop.Core.csproj" />
+    <Project Path="src/RainPointClient.Desktop/RainPointClient.Desktop.csproj" />
+    <Project Path="src/RainPointClient/RainPointClient.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RainPointClient.Android.Tests/RainPointClient.Android.Tests.csproj" />
+    <Project Path="tests/RainPointClient.Desktop.Tests/RainPointClient.Desktop.Tests.csproj" />
+    <Project Path="tests/RainPointClient.Tests/RainPointClient.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/RainPointClient.Probe/RainPointClient.Probe.csproj" />
+  </Folder>
+</Solution>

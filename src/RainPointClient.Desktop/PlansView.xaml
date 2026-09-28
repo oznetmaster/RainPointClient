@@ -1,0 +1,57 @@
+<UserControl x:Class="RainPointClient.Desktop.PlansView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="#F3F6F3" Foreground="#23382F" FontFamily="Segoe UI" FontSize="14">
+ <UserControl.Resources><BooleanToVisibilityConverter x:Key="VisibleWhenTrue"/></UserControl.Resources>
+ <StackPanel Margin="12">
+  <TextBlock Text="Saved plans" FontSize="22" FontWeight="SemiBold"/>
+  <TextBlock Text="View and edit plans for the selected zone. Enabled plans can water at their scheduled times, even after this app closes." TextWrapping="Wrap" Margin="0,6,0,8"/>
+  <WrapPanel><Label Content="Zone" Target="{Binding ElementName=PlanZonePicker}" VerticalAlignment="Center"/><ComboBox x:Name="PlanZonePicker" ItemsSource="{Binding PlanZones}" SelectedItem="{Binding PlanZone}" IsEnabled="{Binding CanEdit}" MinWidth="70" VerticalAlignment="Center"/>
+   <Button x:Name="LoadPlans" Content="Load / reset plans" IsEnabled="{Binding CanLoadPlans}" Click="LoadPlans_Click"/>
+   <Button x:Name="NewPlan" Content="New disabled plan" IsEnabled="{Binding CanNewPlan}" Click="NewPlan_Click"/>
+  </WrapPanel>
+  <TextBlock Text="{Binding PlansReadAt}" Margin="0,8,0,8" FontSize="12"/>
+  <DataGrid x:Name="PlanRows" ItemsSource="{Binding Plans}" SelectedItem="{Binding SelectedPlan}" IsEnabled="{Binding CanEdit}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Height="165">
+   <DataGrid.Columns>
+    <DataGridTextColumn Header="Plan" Binding="{Binding Number}" Width="50" MinWidth="50"/>
+    <DataGridTextColumn Header="State" Binding="{Binding State}" Width="80" MinWidth="80"/>
+    <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" Width="150" MinWidth="150"/>
+    <DataGridTextColumn Header="Local start" Binding="{Binding Start}" Width="85" MinWidth="85"/>
+    <DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="140" MinWidth="140"/>
+    <DataGridTextColumn Header="Repeat" Binding="{Binding Repeat}" Width="*" MinWidth="180"/>
+   </DataGrid.Columns>
+  </DataGrid>
+  <TextBlock x:Name="PlanDetails" Text="{Binding PlanDetails}" TextWrapping="Wrap" Margin="0,10,0,4"/>
+  <WrapPanel Margin="0,0,0,10"><Button x:Name="TogglePlan" Content="{Binding PlanToggleLabel}" IsEnabled="{Binding CanToggleSelectedPlan}" Click="TogglePlan_Click"/><Button x:Name="DeletePlan" Content="Delete selected plan" IsEnabled="{Binding CanChangeSelectedPlan}" Click="DeletePlan_Click"/></WrapPanel>
+  <GroupBox Header="{Binding PlanEditorTitle}">
+   <StackPanel>
+    <StackPanel IsEnabled="{Binding CanEditPlanDraft}">
+     <WrapPanel>
+      <StackPanel><Label Content="Mode" Target="{Binding ElementName=PlanMode}"/><ComboBox x:Name="PlanMode" ItemsSource="{Binding PlanDraft.Modes}" SelectedItem="{Binding PlanDraft.Mode}" MinWidth="190"/></StackPanel>
+      <StackPanel><Label Content="Start (HH:mm, home local)" Target="{Binding ElementName=PlanStart}"/><TextBox x:Name="PlanStart" Text="{Binding PlanDraft.Start, UpdateSourceTrigger=PropertyChanged}" Width="195"/></StackPanel>
+      <StackPanel><Label Content="{Binding PlanDraft.DurationLabel}" Target="{Binding ElementName=PlanDuration}"/><TextBox x:Name="PlanDuration" Text="{Binding PlanDraft.Duration, UpdateSourceTrigger=PropertyChanged}" Width="245"/></StackPanel>
+     </WrapPanel>
+     <WrapPanel x:Name="PlanCycles" Visibility="{Binding PlanDraft.HasCycles, Converter={StaticResource VisibleWhenTrue}}" Margin="0,8,0,0">
+      <StackPanel><Label Content="{Binding PlanDraft.CycleLabel}" Target="{Binding ElementName=PlanWater}"/><TextBox x:Name="PlanWater" Text="{Binding PlanDraft.Water, UpdateSourceTrigger=PropertyChanged}" Width="270"/></StackPanel>
+      <StackPanel><Label Content="{Binding PlanDraft.PauseLabel}" Target="{Binding ElementName=PlanPause}"/><TextBox x:Name="PlanPause" Text="{Binding PlanDraft.Pause, UpdateSourceTrigger=PropertyChanged}" Width="270"/></StackPanel>
+     </WrapPanel>
+     <WrapPanel Margin="0,8,0,0">
+      <StackPanel><Label Content="Repeat" Target="{Binding ElementName=PlanRepeat}"/><ComboBox x:Name="PlanRepeat" ItemsSource="{Binding PlanDraft.Repeats}" SelectedItem="{Binding PlanDraft.Repeat}" MinWidth="190"/></StackPanel>
+      <StackPanel Visibility="{Binding PlanDraft.HasInterval, Converter={StaticResource VisibleWhenTrue}}"><Label Content="Every N days (1–127)" Target="{Binding ElementName=PlanInterval}"/><TextBox x:Name="PlanInterval" Text="{Binding PlanDraft.Interval, UpdateSourceTrigger=PropertyChanged}" Width="195"/></StackPanel>
+      <StackPanel><Label Content="Effective date (yyyy-MM-dd)" Target="{Binding ElementName=PlanDate}"/><TextBox x:Name="PlanDate" Text="{Binding PlanDraft.Date, UpdateSourceTrigger=PropertyChanged}" Width="230"/></StackPanel>
+     </WrapPanel>
+     <TextBlock Text="An effective date is required for Once and Every N days; otherwise it can be blank." FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+     <ItemsControl x:Name="PlanWeekdays" ItemsSource="{Binding PlanDraft.Weekdays}" Visibility="{Binding PlanDraft.HasWeekdays, Converter={StaticResource VisibleWhenTrue}}" Margin="0,12,0,4">
+      <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate><DataTemplate><CheckBox Content="{Binding Name}" IsChecked="{Binding Selected}" Margin="0,0,16,6"/></DataTemplate></ItemsControl.ItemTemplate>
+     </ItemsControl>
+     <StackPanel Margin="0,8,0,0"><Label Content="Water limit (optional, 0.3–6000 litres in 0.1 L steps)" Target="{Binding ElementName=PlanVolume}"/><TextBox ToolTip="Watering ends at the volume or duration limit. Leave blank for duration only." x:Name="PlanVolume" Text="{Binding PlanDraft.Volume, UpdateSourceTrigger=PropertyChanged}" Width="230" HorizontalAlignment="Left"/></StackPanel>
+     <CheckBox x:Name="PlanEnabled" Content="Enable this plan (permits scheduled watering)" IsChecked="{Binding PlanDraft.Enabled}" Margin="0,14,0,6"/>
+    </StackPanel>
+    <TextBlock x:Name="PlanValidation" Text="{Binding PlanDraft.Validation}" TextWrapping="Wrap" Margin="0,8,0,6"/>
+    <Button x:Name="SavePlan" Content="{Binding PlanSaveLabel}" IsEnabled="{Binding CanSavePlan}" Click="SavePlan_Click" HorizontalAlignment="Left"/>
+    <TextBlock Text="Changing the selected plan, mode or zone, or reloading discards edits. Six plans maximum per zone. Saving does not verify scheduled execution or conflicts with other plans." TextWrapping="Wrap" FontSize="12" Margin="0,8,0,0"/>
+   </StackPanel>
+  </GroupBox>
+  <Border Background="#E1EBE4" Padding="12" CornerRadius="4"><TextBlock x:Name="PlansMessage" Text="{Binding PlansMessage}" TextWrapping="Wrap"/></Border>
+ </StackPanel>
+</UserControl>

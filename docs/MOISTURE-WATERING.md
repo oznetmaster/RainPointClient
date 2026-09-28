@@ -1,0 +1,13 @@
+# Automatic low-moisture watering
+
+`RainPointScheduleSnapshot.MoistureWateringRule` and its independent availability expose the saved rule for each zone. `SetTimerMoistureWateringRuleAsync` writes a typed `RainPointMoistureWateringRule`, preserving other zones, saved plans, settings and unknown trailing rule bytes. This rule is separate from the moisture-stop threshold and saved scheduled plans.
+
+The rule contains an enabled flag, start-below moisture percentage (1..99), normal or misting mode, a duration of 1..30 whole minutes and/or a volume limit of 0.3..6000 litres in 0.1 litre steps. Misting uses the zone's saved burst/pause settings. Duration and volume are alternative stopping limits; at least one is required. A daily home-local exclusion period can cross midnight. Both times must be supplied, be distinct whole minutes, and leave enough time for the configured duration.
+
+Enabling requires a saved soil-sensor association and can cause later watering without a manual start command. Firmware 120 or newer and the verified modern three-zone container are required. Stale/unreadable snapshots are rejected, and each snapshot permits one write attempt. Read back after writing; cloud acceptance is not physical execution. The read-check-write sequence is not an atomic server-side transaction.
+
+The Windows Zone settings tab includes a separate automatic-rule editor and explicit rule-zone selector. An absent rule opens a disabled unsaved draft. Input validation blocks invalid saves and enabling without a sensor. A save consumes the draft basis; reload before another edit, especially after an uncertain response. No startup or selection action enables a rule.
+
+RainPoint Home 1.19.1065 modules 1163, 1219 and 644 establish the eight-byte rule in the third comma-separated zone field: enabled/threshold byte, three packed bytes for exclusion times and misting flag, two little-endian duration bytes, and two volume bytes in decilitres. The app uses 43260 seconds as its volume-only duration sentinel. Typed reads retain non-picker duration/volume values; editing enforces the current app's ranges. Proprietary source is not redistributed.
+
+Offline NUnit tests cover exact encoding, all three zones, normal and misting modes, volume-only and combined limits, suffix preservation, invalid data, stale writes, dashboard uncertainty and real WPF controls. Both targets pass. No live rule storage or physical sensor-triggered watering was performed for this feature. Live execution requires suitable sensor hardware and separate bounded testing.
