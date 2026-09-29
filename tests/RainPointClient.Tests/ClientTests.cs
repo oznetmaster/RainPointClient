@@ -105,7 +105,7 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply (payload);
-		RainPointException? error = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		RainPointException? error = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
 		Assert.That (error!.ToString (), Does.Not.Contain ("fixture-session"));
 		}
 
@@ -158,9 +158,9 @@ public sealed class ClientTests
 	[TestCase (0)]
 	[TestCase (4)]
 	[TestCase (-1)]
-	public void InvalidZonesDoNotSendRequests (int zone)
+	public async Task InvalidZonesDoNotSendRequests (int zone)
 		{
-		_ = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.StopWateringAsync (Hub (), 2, zone));
+		_ = await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.StopWateringAsync (Hub (), 2, zone));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
@@ -170,24 +170,24 @@ public sealed class ClientTests
 	[TestCase (59)]
 	[TestCase (60.5)]
 	[TestCase (43201)]
-	public void InvalidDurationsDoNotSendRequests (double seconds)
+	public async Task InvalidDurationsDoNotSendRequests (double seconds)
 		{
-		_ = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () =>
+		_ = await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () =>
 			 await _client.StartWateringAsync (Hub (), 2, 1, TimeSpan.FromSeconds (seconds)));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
 	[Test]
-	public void UnsupportedModelsDoNotReceiveGuessedCommands ()
+	public async Task UnsupportedModelsDoNotReceiveGuessedCommands ()
 		{
-		_ = Assert.ThrowsAsync<NotSupportedException> (async () => await _client.StopWateringAsync (Hub ("HIC801W"), 2, 1));
+		_ = await Assert.ThrowsAsync<NotSupportedException> (async () => await _client.StopWateringAsync (Hub ("HIC801W"), 2, 1));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
 	[Test]
-	public void AddressMustBelongToTheGivenHub ()
+	public async Task AddressMustBelongToTheGivenHub ()
 		{
-		_ = Assert.ThrowsAsync<ArgumentException> (async () => await _client.StopWateringAsync (Hub (), 3, 1));
+		_ = await Assert.ThrowsAsync<ArgumentException> (async () => await _client.StopWateringAsync (Hub (), 3, 1));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
@@ -197,13 +197,13 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("{\"code\":" + code + ",\"msg\":\"private server content\"}");
-		RainPointException? error = Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
+		RainPointException? error = await Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
 		using (Assert.EnterMultipleScope ())
 			{
 			Assert.That (error!.ApiCode, Is.EqualTo (code));
 			Assert.That (error.Message, Does.Not.Contain ("private server content"));
 			}
-		_ = Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 
@@ -212,7 +212,7 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("private server text", HttpStatusCode.ServiceUnavailable);
-		RainPointException? error = Assert.ThrowsAsync<RainPointException> (async () =>
+		RainPointException? error = await Assert.ThrowsAsync<RainPointException> (async () =>
 			 await _client.StartWateringAsync (Hub (), 2, 1, TimeSpan.FromSeconds (60)));
 		using (Assert.EnterMultipleScope ())
 			{
@@ -224,11 +224,11 @@ public sealed class ClientTests
 	[TestCase ("{\"code\":0,\"data\":{\"token\":\"x\",\"tokenExpired\":0}}")]
 	[TestCase ("{\"code\":0,\"data\":{\"tokenExpired\":3600}}")]
 	[TestCase ("{\"code\":0,\"data\":{\"token\":\"x\",\"tokenExpired\":9223372036854775807}}")]
-	public void InvalidLoginSessionIsNotAccepted (string body)
+	public async Task InvalidLoginSessionIsNotAccepted (string body)
 		{
 		_handler.Reply (body);
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.LoginAsync ("test@example.invalid", "password", "44"));
-		_ = Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.LoginAsync ("test@example.invalid", "password", "44"));
+		_ = await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 
@@ -237,8 +237,8 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("{\"code\":9999}");
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.LoginAsync ("other@example.invalid", "incorrect", "44"));
-		_ = Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.LoginAsync ("other@example.invalid", "incorrect", "44"));
+		_ = await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
 		}
 
 	[Test]
@@ -254,7 +254,7 @@ public sealed class ClientTests
 			{
 			Content = new StringContent ("{\"code\":1001}")
 			});
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await oldRequest);
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await oldRequest);
 		_handler.Reply ("{\"code\":0,\"data\":[]}");
 		_ = await _client.GetHomesAsync ();
 		Assert.That (_handler.Requests.Last ().Token, Is.EqualTo ("new-session"));
@@ -265,8 +265,8 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("{}", HttpStatusCode.Unauthorized);
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
-		_ = Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 
@@ -275,7 +275,7 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("{\"code\":4}");
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
 		}
 
 	[Test]
@@ -283,19 +283,19 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("""{"code":0,"data":[{"mid":101,"deviceName":"fixture-hub","productKey":"fixture-product","subDevices":[{"addr":2,"model":"HTV345FRF"},{"addr":2,"model":"HTV345FRF"}]}]}""");
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubsAsync (1));
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubsAsync (1));
 		}
 
 	[TestCase (403, "{}")]
 	[TestCase (429, "{}")]
 	[TestCase (200, "{\"code\":9993}")]
-	public void LoginThrottlesBlockImmediateAdditionalLogin (int status, string body)
+	public async Task LoginThrottlesBlockImmediateAdditionalLogin (int status, string body)
 		{
 		_handler.Reply (body, (HttpStatusCode)status);
-		RainPointException? first = Assert.ThrowsAsync<RainPointException> (async () =>
+		RainPointException? first = await Assert.ThrowsAsync<RainPointException> (async () =>
 			 await _client.LoginAsync ("test@example.invalid", "password", "44"));
 		Assert.That (first!.RetryAfter, Is.GreaterThanOrEqualTo (TimeSpan.FromSeconds (120)));
-		_ = Assert.ThrowsAsync<RainPointException> (async () =>
+		_ = await Assert.ThrowsAsync<RainPointException> (async () =>
 			 await _client.LoginAsync ("test@example.invalid", "password", "44"));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
@@ -335,7 +335,7 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply ("""{"code":0,"data":[{"mid":101,"status":[{"id":"D02"},{"id":"D02"}]}]}""");
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetTimerStatusAsync (Hub (), 2));
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetTimerStatusAsync (Hub (), 2));
 		}
 
 	[Test]
@@ -376,7 +376,7 @@ public sealed class ClientTests
 		{
 		await LoginAsync ();
 		_handler.Reply (response);
-		_ = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetTimerStatusAsync (Hub (), 2));
+		_ = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetTimerStatusAsync (Hub (), 2));
 		}
 
 	[TestCase (60)]
@@ -408,16 +408,16 @@ public sealed class ClientTests
 	public async Task DisposalDoesNotDisposeBorrowedHttpClient ()
 		{
 		_client.Dispose ();
-		_ = Assert.ThrowsAsync<ObjectDisposedException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<ObjectDisposedException> (async () => await _client.GetHomesAsync ());
 		_handler.Reply ("{}");
 		using HttpResponseMessage result = await _http.GetAsync ("https://example.invalid/");
 		Assert.That (result.IsSuccessStatusCode, Is.True);
 		}
 
 	[Test]
-	public void RequestsRequireExplicitLogin ()
+	public async Task RequestsRequireExplicitLogin ()
 		{
-		_ = Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
+		_ = await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.GetHomesAsync ());
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 

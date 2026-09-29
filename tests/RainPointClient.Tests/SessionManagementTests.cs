@@ -61,19 +61,19 @@ public sealed class SessionManagementTests
 	[TestCase ("{\"token\":\"fresh-session\"}")]
 	[TestCase ("{\"token\":\"fresh-session\",\"tokenExpired\":0}")]
 	[TestCase ("{\"token\":\"\",\"tokenExpired\":3600}")]
-	public void MalformedRefreshDoesNotGuessAnExpiry (string data)
+	public async Task MalformedRefreshDoesNotGuessAnExpiry (string data)
 		{
 		DateTimeOffset? expiry = _client.SessionExpiresAt;
 		_handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.RefreshSessionAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.RefreshSessionAsync ());
 		Assert.That (_client.SessionExpiresAt, Is.EqualTo (expiry));
 		}
 
 	[Test]
-	public void RejectedRefreshInvalidatesTheSessionWithoutLoggingIn ()
+	public async Task RejectedRefreshInvalidatesTheSessionWithoutLoggingIn ()
 		{
 		_handler.Reply ("""{"code":1004}""");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.RefreshSessionAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.RefreshSessionAsync ());
 		Assert.That (_client.HasValidSession, Is.False);
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
@@ -89,7 +89,7 @@ public sealed class SessionManagementTests
 			}
 		else
 			{
-			Assert.ThrowsAsync<RainPointException> (async () => await _client.LogoutAsync ());
+			await Assert.ThrowsAsync<RainPointException> (async () => await _client.LogoutAsync ());
 			}
 		Assert.That (_handler.Requests.Last ().Path, Is.EqualTo ("/auth/basic/app/logOut"));
 		Assert.That (_client.HasValidSession, Is.False);

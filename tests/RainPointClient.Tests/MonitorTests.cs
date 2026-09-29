@@ -45,6 +45,63 @@ public sealed class MonitorTests
 	private const string Observer = """{"code":0,"data":{"deviceName":"observer","productKey":"observer-key","deviceSecret":"fixture-secret","mqttHostUrl":"fixture.aliyuncs.com:1883"}}""";
 
 	[Test]
+	public async Task ConfigurationChangesAreScopedDeduplicatedAndDoNotReplaceStatus ()
+		{
+		_handler.Reply ("""{"code":0,"data":{"token":"fixture","tokenExpired":3600,"user":{"uid":123}}}""");
+		await _client.LoginAsync ("fixture@example.invalid", "fixture", "44");
+		_handler.Reply (Poll);
+		_handler.Reply (Observer);
+		FakeTransport transport = new ();
+		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions (), transport,
+			(_, token) => Task.Delay (Timeout.Infinite, token), () => PushTests.Now);
+		_monitor.ConfigurationChanged += (_, _) => throw new InvalidOperationException ("Consumer failure");
+		var revisions = new System.Collections.Generic.List<long> ();
+		_monitor.ConfigurationChanged += (_, change) => revisions.Add (change.Revision);
+		Task running = _monitor.RunAsync ();
+		await Within (transport.Started.Task);
+		var status = _monitor.Current;
+		int requests = _handler.Requests.Count;
+		foreach (string body in new[] { "42||100", "42||100", "42||99", "43||101", "42||101" })
+			transport.Received! (System.Text.Encoding.UTF8.GetBytes ("#P260929120000000000012304" + body + "#"));
+		Assert.That (revisions, Is.EqualTo (new long[] { 100, 101 }));
+		Assert.That (_monitor.Current, Is.SameAs (status), "Configuration does not confirm valve status or freshness.");
+		Assert.That (_handler.Requests, Has.Count.EqualTo (requests), "The caller chooses how to reload configuration.");
+		await _monitor.StopAsync ();
+		transport.Received! (System.Text.Encoding.UTF8.GetBytes ("#P26092912000000000001230442|update|102#"));
+		Assert.That (revisions, Has.Count.EqualTo (2));
+		await Within (running);
+		}
+
+	[TestCase (false, false)]
+	[TestCase (false, true)]
+	[TestCase (true, false)]
+	[TestCase (true, true)]
+	public async Task AccountObserverIdentityIsPrivateAndSurvivesSessionRefresh (bool refresh, bool expiryOnly)
+		{
+		_handler.Reply ("""{"code":0,"data":{"token":"account-token","tokenExpired":3600,"refreshToken":"refresh","user":{"uid":123,"notice":5,"deviceName":"account-observer","productKey":"account-key","deviceSecret":"private-account-secret"}}}""");
+		await _client.LoginAsync ("fixture@example.invalid", "fixture", "44");
+		if (refresh)
+			{
+			_handler.Reply ("""{"code":0,"data":{"token":"refreshed","tokenExpired":3600}}""");
+			await _client.RefreshSessionAsync ();
+			}
+		_handler.Reply (expiryOnly ? """{"code":0,"data":{"expire":1800000500000}}""" : Observer);
+		ObserverCredentials credentials = await _client.GetObserverAsync (PushTests.Hub (), CancellationToken.None);
+		using var body = System.Text.Json.JsonDocument.Parse (_handler.Requests.Last ().Body!);
+		var user = body.RootElement.GetProperty ("userInfo");
+		Assert.That (user.GetProperty ("deviceName").GetString (), Is.EqualTo ("account-observer"));
+		Assert.That (user.GetProperty ("productKey").GetString (), Is.EqualTo ("account-key"));
+		Assert.That (user.GetProperty ("notice").GetInt32 (), Is.EqualTo (5));
+		Assert.That (_handler.Requests.Last ().Body, Does.Not.Contain ("private-account-secret"));
+		Assert.That (credentials.DeviceName, Is.EqualTo ("account-observer"));
+		Assert.That (credentials.ProductKey, Is.EqualTo ("account-key"));
+		Assert.That (credentials.DeviceSecret, Is.EqualTo ("private-account-secret"));
+		Assert.That (credentials.ExpiresAt, Is.EqualTo (expiryOnly ? 1800000500000L : (long?)null));
+		Assert.That (credentials.SessionIdentity, Is.SameAs (_client.SessionIdentity));
+		Assert.That (System.Text.Json.JsonSerializer.Serialize (_client.AccountProfile), Does.Not.Contain ("secret").And.Not.Contain ("account-key"));
+		}
+
+	[Test]
 	public async Task ObserverRegistrationUsesTypedFullEnvelopeAndOriginalAuth ()
 		{
 		_handler.Reply (Observer);
@@ -109,7 +166,7 @@ public sealed class MonitorTests
 	public async Task ExpiredSessionWaitsForAuthenticationWithoutRepeatedRequests ()
 		{
 		_handler.Reply ("{\"code\":1001}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
 		TaskCompletionSource<bool> needsAuth = new (TaskCreationOptions.RunContinuationsAsynchronously);
 		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions (), new FakeTransport (),
 			 (_, token) => Task.Delay (Timeout.Infinite, token), () => PushTests.Now);
@@ -139,8 +196,8 @@ public sealed class MonitorTests
 		await Within (reading.Task);
 		await Within (_monitor.StopAsync ());
 		Assert.That (refresh.IsCompleted, Is.True);
-		Assert.ThrowsAsync<TaskCanceledException> (async () => await refresh);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _monitor.RefreshAsync ());
+		await Assert.ThrowsAsync<TaskCanceledException> (async () => await refresh);
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _monitor.RefreshAsync ());
 		}
 
 	[Test]
@@ -179,6 +236,138 @@ public sealed class MonitorTests
 		await Within (renewed.Task);
 		Assert.That (transport.Stopped, Is.True);
 		Assert.That (_monitor.State, Is.EqualTo (RainPointMonitorState.Reconnecting));
+		}
+
+	[TestCase (false), TestCase (true)]
+	public async Task HealthyPushSuppressesOnlyOptedOutAutomaticReads (bool periodic)
+		{
+		_handler.Reply (Poll);
+		_handler.Reply (Observer);
+		FakeTransport transport = new ();
+		using PollSteps steps = new ();
+		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions { PollInterval = TimeSpan.FromSeconds (37), PollWhilePushConnected = periodic }, transport, steps.Delay, () => PushTests.Now);
+		_ = _monitor.RunAsync ();
+		await Within (transport.Started.Task);
+		await Within (steps.Entered.WaitAsync ());
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.False, "Connection alone must not validate the initial snapshot.");
+		_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.True);
+		int count = _handler.Requests.Count;
+		if (periodic)
+			_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_handler.Requests.Count, Is.EqualTo (count + (periodic ? 1 : 0)));
+		_handler.Reply (Poll);
+		await _monitor.RefreshAsync ();
+		Assert.That (_handler.Requests.Count, Is.EqualTo (count + (periodic ? 2 : 1)), "Manual refresh remains available.");
+		await _monitor.StopAsync ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.False);
+		}
+
+	[Test]
+	public async Task RecoveryOnlyModePollsWhenPushIsDisabled ()
+		{
+		_handler.Reply (Poll);
+		using PollSteps steps = new ();
+		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions { PollInterval = TimeSpan.FromSeconds (37), PollWhilePushConnected = false, EnablePush = false }, new FakeTransport (), steps.Delay, () => PushTests.Now);
+		_ = _monitor.RunAsync ();
+		await Within (steps.Entered.WaitAsync ());
+		_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_handler.Requests.Count, Is.EqualTo (3));
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.False);
+		await _monitor.StopAsync ();
+		}
+
+	[Test]
+	public async Task NewMqttConnectionRequiresCatchUpBeforeSuppressingReads ()
+		{
+		_handler.Reply (Poll);
+		_handler.Reply (Observer);
+		using PollSteps steps = new ();
+		using RestartableTransport transport = new ();
+		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions { PollInterval = TimeSpan.FromSeconds (37), PollWhilePushConnected = false }, transport,
+			 (wait, token) => wait == TimeSpan.FromSeconds (37) || wait == TimeSpan.FromSeconds (10) ? steps.Delay (wait, token) : Task.CompletedTask, () => PushTests.Now);
+		_ = _monitor.RunAsync ();
+		await Within (transport.Connected.WaitAsync ());
+		await Within (steps.Entered.WaitAsync ());
+		_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.True);
+		_handler.Reply (Observer);
+		transport.Disconnect.Release ();
+		await Within (transport.Connected.WaitAsync ());
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.False);
+		_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.True);
+		int count = _handler.Requests.Count;
+		await steps.Advance ();
+		Assert.That (_handler.Requests.Count, Is.EqualTo (count));
+		await _monitor.StopAsync ();
+		}
+
+	[Test]
+	public async Task FailedCatchUpKeepsReadsEnabledUntilRecovery ()
+		{
+		_handler.Reply (Poll);
+		_handler.Reply (Observer);
+		FakeTransport transport = new ();
+		using PollSteps steps = new ();
+		_monitor = new RainPointMonitor (_client, PushTests.Hub (), new RainPointMonitorOptions { PollInterval = TimeSpan.FromSeconds (37), PollWhilePushConnected = false }, transport, steps.Delay, () => PushTests.Now);
+		_ = _monitor.RunAsync ();
+		await Within (transport.Started.Task);
+		await Within (steps.Entered.WaitAsync ());
+		_handler.Steps.Enqueue ((_, _) => throw new HttpRequestException ("Offline fixture"));
+		await steps.Advance ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.False);
+		_handler.Reply (Poll);
+		await steps.Advance ();
+		Assert.That (_monitor.LiveUpdatesAvailable, Is.True);
+		int count = _handler.Requests.Count;
+		await steps.Advance ();
+		Assert.That (_handler.Requests.Count, Is.EqualTo (count));
+		await _monitor.StopAsync ();
+		}
+
+	private sealed class PollSteps : IDisposable
+		{
+		internal readonly SemaphoreSlim Entered = new (0);
+		private readonly SemaphoreSlim _resume = new (0);
+		internal Task Delay (TimeSpan wait, CancellationToken token)
+			{
+			if (wait != TimeSpan.FromSeconds (37))
+				return Task.Delay (Timeout.Infinite, token);
+			Entered.Release ();
+			return _resume.WaitAsync (token);
+			}
+		internal async Task Advance ()
+			{
+			_resume.Release ();
+			await Within (Entered.WaitAsync ());
+			}
+		public void Dispose ()
+			{
+			Entered.Dispose ();
+			_resume.Dispose ();
+			}
+		}
+	private sealed class RestartableTransport : IObserverTransport, IDisposable
+		{
+		internal readonly SemaphoreSlim Connected = new (0);
+		internal readonly SemaphoreSlim Disconnect = new (0);
+		public async Task RunAsync (ObserverCredentials credentials, Action connected, Action<byte[]> received, CancellationToken token)
+			{
+			connected ();
+			Connected.Release ();
+			await Disconnect.WaitAsync (token);
+			}
+		public void Dispose ()
+			{
+			Connected.Dispose ();
+			Disconnect.Dispose ();
+			}
 		}
 
 	private static async Task Within (Task task)

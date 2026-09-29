@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$Package, [string]$Version = '1.0.1')
+param([Parameter(Mandatory)][string]$Package, [string]$Version = '1.1.0')
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $Package))

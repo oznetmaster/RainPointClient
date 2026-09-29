@@ -154,7 +154,7 @@ public sealed class ScheduleTests
 			}
 		else
 			{
-			Assert.ThrowsAsync<RainPointException> (async () => await client.GetTimerSchedulesAsync (hub, 2, 1));
+			await Assert.ThrowsAsync<RainPointException> (async () => await client.GetTimerSchedulesAsync (hub, 2, 1));
 			}
 		using (Assert.EnterMultipleScope ())
 			{
@@ -166,12 +166,12 @@ public sealed class ScheduleTests
 
 	[TestCase (0)]
 	[TestCase (4)]
-	public void InvalidZoneFailsBeforeAnyNetworkRequest (int zone)
+	public async Task InvalidZoneFailsBeforeAnyNetworkRequest (int zone)
 		{
 		using ScriptedHandler handler = new ();
 		using HttpClient http = new (handler, disposeHandler: false);
 		using RainPointCloudClient client = new (http);
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await client.GetTimerSchedulesAsync (Hub (), 2, zone));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await client.GetTimerSchedulesAsync (Hub (), 2, zone));
 		Assert.That (handler.Requests, Is.Empty);
 		}
 

@@ -46,7 +46,7 @@ public sealed class AdministrationTests
 		Assert.That (_handler.Requests.Last ().Path, Is.EqualTo ("/app/member/user/info/set"));
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"notice\":" + flags + "}"));
 		Assert.That (_client.NotificationPreferences, Is.Null);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, mobile, email));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, mobile, email));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (2));
 		}
 	[Test]
@@ -54,9 +54,9 @@ public sealed class AdministrationTests
 		{
 		var expected = _client.NotificationPreferences!;
 		_handler.Reply ("{\"code\":42}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.SetNotificationPreferencesAsync (expected, false, false));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.SetNotificationPreferencesAsync (expected, false, false));
 		Assert.That (_client.NotificationPreferences, Is.Null);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, false, false));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, false, false));
 		await Task.CompletedTask;
 		}
 	[TestCase ("")]
@@ -75,7 +75,7 @@ public sealed class AdministrationTests
 		_handler.Reply ("""{"code":0,"data":{"token":"other","tokenExpired":3600}}""");
 		await _client.LoginAsync ("other@example.invalid", "fixture", "44");
 		Assert.That (_client.NotificationPreferences, Is.Null);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, true, true));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetNotificationPreferencesAsync (expected, true, true));
 		}
 	[Test]
 	public async Task HomeReadDecodesCanonicalCoordinatesWithoutExposingPayloads ()
@@ -92,10 +92,10 @@ public sealed class AdministrationTests
 	[TestCase ("{\"hid\":5,\"rooms\":[null]}")]
 	[TestCase ("{\"hid\":5,\"rooms\":[{\"rid\":9},{\"rid\":9}]}")]
 	[TestCase ("{\"hid\":5,\"rooms\":[{\"rid\":9,\"hid\":6}]}")]
-	public void InvalidHomeResponseRejected (string data)
+	public async Task InvalidHomeResponseRejected (string data)
 		{
 		_handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomeAsync (5));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomeAsync (5));
 		}
 	[TestCase (0)]
 	[TestCase (1)]
@@ -145,7 +145,7 @@ public sealed class AdministrationTests
 				break;
 			}
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo (body));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "again"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "again"));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (4));
 		}
 	[TestCase ("Garden", "Changed")]
@@ -156,7 +156,7 @@ public sealed class AdministrationTests
 		_handler.Reply (HOME);
 		var home = await _client.GetHomeAsync (5);
 		_handler.Reply (HOME.Replace (before, after));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "New"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "New"));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (3));
 		}
 	[Test]
@@ -166,8 +166,8 @@ public sealed class AdministrationTests
 		var home = await _client.GetHomeAsync (5);
 		_handler.Reply (HOME);
 		_handler.Reply ("{\"code\":42}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.RenameHomeAsync (home, "New"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "New"));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.RenameHomeAsync (home, "New"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameHomeAsync (home, "New"));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (4));
 		}
 	[Test]
@@ -187,7 +187,7 @@ public sealed class AdministrationTests
 		var home = await _client.GetHomeAsync (5);
 		using var cancelled = new CancellationTokenSource ();
 		cancelled.Cancel ();
-		Assert.CatchAsync<OperationCanceledException> (async () => await _client.RenameHomeAsync (home, "New", cancelled.Token));
+		await Assert.CatchAsync<OperationCanceledException> (async () => await _client.RenameHomeAsync (home, "New", cancelled.Token));
 		Assert.That (_handler.Requests.All (r => r.Path != "/app/member/appHome/update"), Is.True);
 		}
 	[Test]
@@ -211,7 +211,7 @@ public sealed class AdministrationTests
 		_handler.Reply ("{\"code\":0}");
 		await _client.RespondToInvitationAsync (expected, accept);
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"id\":11,\"acceptFlag\":" + (accept ? "1" : "0") + "}"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RespondToInvitationAsync (expected, accept));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RespondToInvitationAsync (expected, accept));
 		}
 	[TestCase (128, RainPointEventKind.WaterLeak)]
 	[TestCase (129, RainPointEventKind.ExcessiveWaterUsage)]

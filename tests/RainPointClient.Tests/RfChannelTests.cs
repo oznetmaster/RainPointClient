@@ -57,23 +57,23 @@ public sealed class RfChannelTests
 		Assert.That (_handler.Requests.Last ().Path, Is.EqualTo ("/app/device/main/update"));
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"mid\":101,\"recich\":" + channel + "}"));
 		Assert.That (hub.RfChannel, Is.EqualTo (original), "A command acknowledgement must not rewrite observed state.");
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (hub, channel));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (hub, channel));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (3));
 		}
 	[TestCase (-1)]
 	[TestCase (0)]
 	[TestCase (4)]
-	public void InvalidChannelNeverContactsCloud (int channel)
+	public async Task InvalidChannelNeverContactsCloud (int channel)
 		{
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.SetRfChannelAsync (Hub (), channel));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.SetRfChannelAsync (Hub (), channel));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	[TestCase (null)]
 	[TestCase (0)]
 	[TestCase (4)]
-	public void UnknownOrUnsupportedOriginalCannotWrite (int? channel)
+	public async Task UnknownOrUnsupportedOriginalCannotWrite (int? channel)
 		{
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetRfChannelAsync (Hub (channel), 2));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetRfChannelAsync (Hub (channel), 2));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	[TestCase ("missing")]
@@ -81,10 +81,10 @@ public sealed class RfChannelTests
 	[TestCase ("name")]
 	[TestCase ("key")]
 	[TestCase ("channel")]
-	public void ChangedHubCannotWrite (string changed)
+	public async Task ChangedHubCannotWrite (string changed)
 		{
 		Discovery (changed == "channel" ? 3 : 1, changed);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (Hub (), 2));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (Hub (), 2));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[Test]
@@ -112,14 +112,14 @@ public sealed class RfChannelTests
 			}
 		catch (RainPointException) { Assert.That (rejected, Is.True); }
 		catch (HttpRequestException) { Assert.That (rejected, Is.False); }
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (hub, 2));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetRfChannelAsync (hub, 2));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (3));
 		}
 	[Test]
-	public void CancellationBeforeDiscoveryDoesNotConsumeSnapshot ()
+	public async Task CancellationBeforeDiscoveryDoesNotConsumeSnapshot ()
 		{
 		var hub = Hub ();
-		Assert.ThrowsAsync<OperationCanceledException> (async () => await _client.SetRfChannelAsync (hub, 2, new CancellationToken (true)));
+		await Assert.ThrowsAsync<OperationCanceledException> (async () => await _client.SetRfChannelAsync (hub, 2, new CancellationToken (true)));
 		Assert.That (hub.RfChannelWriteAttempted, Is.Zero);
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}

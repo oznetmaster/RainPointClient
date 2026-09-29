@@ -118,7 +118,7 @@ public sealed class TimerPlanSettingsTests
 		{
 		RainPointScheduleSnapshot before = await Read ();
 		Discovery (EMPTY.Replace ("tail", "changed"));
-		Assert.ThrowsAsync<RainPointException> (async () => { if (season) await _client.SetTimerSeasonalAdjustmentAsync (_hub, before, Enumerable.Repeat (90, 12).ToArray ()); else await _client.SetTimerRainDelayAsync (_hub, before, new DateTime (2026, 9, 25)); });
+		await Assert.ThrowsAsync<RainPointException> (async () => { if (season) await _client.SetTimerSeasonalAdjustmentAsync (_hub, before, Enumerable.Repeat (90, 12).ToArray ()); else await _client.SetTimerRainDelayAsync (_hub, before, new DateTime (2026, 9, 25)); });
 		Assert.That (_handler.Requests.Skip (1).All (request => request.Method == HttpMethod.Get), Is.True);
 		}
 
@@ -128,9 +128,9 @@ public sealed class TimerPlanSettingsTests
 		RainPointScheduleSnapshot before = await Read ();
 		Discovery (EMPTY);
 		_handler.Steps.Enqueue ((_, _) => throw new HttpRequestException ("Simulated lost response"));
-		Assert.ThrowsAsync<HttpRequestException> (async () => await _client.SetTimerSeasonalAdjustmentAsync (_hub, before, Enumerable.Repeat (90, 12).ToArray ()));
+		await Assert.ThrowsAsync<HttpRequestException> (async () => await _client.SetTimerSeasonalAdjustmentAsync (_hub, before, Enumerable.Repeat (90, 12).ToArray ()));
 		Discovery (EMPTY);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetTimerRainDelayAsync (_hub, before, new DateTime (2026, 9, 25)));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetTimerRainDelayAsync (_hub, before, new DateTime (2026, 9, 25)));
 		Assert.That (_handler.Requests.Count (request => request.Path == "/app/device/sub/update"), Is.EqualTo (1));
 		}
 

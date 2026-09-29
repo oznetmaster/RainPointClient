@@ -26,6 +26,12 @@ Event handlers run on background threads: post UI work and return promptly. Neve
 
 `RefreshAsync` requests an immediate serialized poll while the monitor runs. Stopping cancels and joins the MQTT connection and active reads. Await stop before changing accounts, signing out or disposing the client. To monitor another hub, stop the old instance and create a new one. `EnablePush = false` selects polling only.
 
+### Optional polling suppression (1.1.0)
+
+Set `RainPointMonitorOptions.PollWhilePushConnected = false` to stop routine cloud status reads while synchronized MQTT is available. The default remains `true`, preserving existing polling behavior. An initial read and a catch-up read for each new MQTT connection establish the baseline; a reconnect may wait until the next poll interval for its catch-up read. Failed catch-up reads retain polling fallback. Manual `RefreshAsync` still reads immediately.
+
+`LiveUpdatesAvailable` becomes true only when the current authenticated session and MQTT connection have a successful catch-up read. A disconnected or replaced session requires synchronization again. Applications can use this flag to retain unchanged reported state while the observer is healthy. It is not a physical-device heartbeat or proof of valve position; retain explicit unknown/offline values in device reports.
+
 The Windows app offers **Start live feedback** after hub selection. Its monitor polls every 30 seconds; the separate 15-second refresh option is suspended while monitoring. Refresh status uses the monitor's merge path. Selecting another hub/home, signing in, signing out or closing stops the monitor. Selecting another timer on the same hub keeps monitoring. Startup sign-in does not automatically start monitoring or arm controls.
 
 ## Ordering and meaning
@@ -39,11 +45,11 @@ The Windows app offers **Start live feedback** after hub selection. Its monitor 
 
 ## Connection and session behavior
 
-Observer credentials come from the typed `/app/device/subscribeStatus` request. The transport uses TLS 1.2 on port 8883, checks the broker hostname and validates its chain against the embedded Aliyun IoT root. It never accepts an arbitrary certificate or changes the machine trust store. As in the upstream observer, certificate revocation checking is disabled for this private CA. The broker's advertised plaintext port is ignored.
+When sign-in supplies an account MQTT identity, the monitor retains it privately and registers it through the typed `/app/device/subscribeStatus` request. Token refresh preserves that identity. Older responses without an account identity use the temporary observer credentials returned by registration. The transport uses TLS 1.2 on port 8883, checks the broker hostname and validates its chain against the embedded Aliyun IoT root. It never accepts an arbitrary certificate or changes the machine trust store. As in the upstream observer, certificate revocation checking is disabled for this private CA. The broker's advertised plaintext port is ignored.
 
 The observer receives unsolicited downlinks on its device-specific property-set topic; it sends neither SUBSCRIBE nor application PUBLISH messages. It renews observer credentials before their expiry (bounded fallback when expiry is missing), reconnects with bounded jittered backoff and observes server cooldowns. A manually replaced or refreshed cloud session causes observer renewal.
 
-**Automatic cloud-session refresh and re-login are not implemented in this step.** A rejected/expired session reports `AuthenticationRequired` and waits without repeated authenticated requests. The caller can explicitly renew or sign in again. No watering command is retried.
+A rejected/expired session reports `AuthenticationRequired` and waits without repeated authenticated requests. The caller can explicitly renew or sign in again, or use the optional [session recovery worker](SESSION-RECOVERY.md). No watering command is retried.
 
 MQTTnet **4.3.7.1207** is pinned because its framework support includes net472. MQTTnet 5 targets newer runtimes and is not a drop-in update for this client. System.Text.Json remains the only JSON dependency. The library and transitive dependency audit on 24 September 2026 reported no known vulnerabilities in the configured NuGet feeds.
 
@@ -107,3 +113,9 @@ The certificate callback requires the expected hostname, a valid chain ending at
 The older [Mono chain implementation](https://github.com/mono/mono/blob/main/mcs/class/System/System.Security.Cryptography.X509Certificates/X509ChainImplMono.cs) recognizes only key-usage and basic-constraints critical extensions. A critical EKU can therefore remain unsupported on that runtime; the client fails closed and does not ignore InvalidExtension. Portable positive fixtures use a noncritical server-authentication EKU, with the same explicit purpose enforcement. No certificate is added to the machine trust store.
 
 After the purpose check was added, the explicit read-only MQTT connection/poll fixture passed again on both net10.0 and net472 on 24 September 2026. Results are retained under `artifacts/completion-mqtt-net10` and `artifacts/completion-mqtt-net472`. No valve commands were sent.
+
+## Home configuration changes
+
+RainPointMonitor.ConfigurationChanged reports a typed home ID and configuration revision for command 04 notifications addressed to the signed-in account and monitored home. Duplicate or older revisions are suppressed. These notifications invalidate configuration; consumers reread discovery or schedules to obtain current names, plans and settings. They do not replace timer status, extend status freshness, or confirm a watering command. A login response without an account ID cannot establish the notification recipient, so configuration notifications are rejected. Subscribers should queue asynchronous refresh work and coalesce bursts.
+
+This decoder follows the official app's home-change message handling. Offline tests cover routing, malformed frames, revision ordering, subscriber failures and shutdown. On 29 September 2026, a real app rename delivered command 04 to a separate shared account. The notification contained an empty description field between the home ID and revision. The decoder now accepts that field while retaining account/home checks and revision ordering; regression fixtures cover both the plain frame and attributed JSON envelope. A subsequent rename was reflected by the connected consumer without an explicit session restart or manual refresh. A disabled 08:00 five-minute zone-1 interval plan also appeared automatically with its disabled state intact. These checks verify shared-account name and plan invalidation followed by rereads; they do not establish delivery for every configuration edit.

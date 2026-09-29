@@ -35,9 +35,9 @@ namespace RainPointClient.Protocol
 		}
 	internal sealed class ObserverCredentials
 		{
-		[JsonPropertyName ("deviceName"), JsonRequired] public string DeviceName { get; set; } = string.Empty;
-		[JsonPropertyName ("productKey"), JsonRequired] public string ProductKey { get; set; } = string.Empty;
-		[JsonPropertyName ("deviceSecret"), JsonRequired] public string DeviceSecret { get; set; } = string.Empty;
+		[JsonPropertyName ("deviceName")] public string DeviceName { get; set; } = string.Empty;
+		[JsonPropertyName ("productKey")] public string ProductKey { get; set; } = string.Empty;
+		[JsonPropertyName ("deviceSecret")] public string DeviceSecret { get; set; } = string.Empty;
 		[JsonPropertyName ("mqttHostUrl")]
 		public string? HostUrl
 			{
@@ -60,6 +60,11 @@ namespace RainPointClient
 	{
 	public sealed partial class RainPointCloudClient
 		{
+		// Account MQTT credentials remain private and follow the authenticated session across refreshes.
+		private static Protocol.ObserverCredentials? ObserverIdentity (Protocol.LoginUser? user) =>
+			string.IsNullOrWhiteSpace (user?.DeviceName) || string.IsNullOrWhiteSpace (user?.ProductKey) || string.IsNullOrWhiteSpace (user?.DeviceSecret)
+				? null : new Protocol.ObserverCredentials { DeviceName = user!.DeviceName!, ProductKey = user.ProductKey!, DeviceSecret = user.DeviceSecret! };
+
 		private int _monitorActive;
 		internal object? SessionIdentity => Volatile.Read (ref _session);
 		internal bool AcquireMonitor () => Interlocked.CompareExchange (ref _monitorActive, 1, 0) == 0;
@@ -77,12 +82,26 @@ namespace RainPointClient
 				HomeId = home,
 				Homes = [home],
 				Subscribe = [new Protocol.HubAddress { Id = hub.Id, DeviceName = hub.DeviceName, ProductKey = hub.ProductKey }],
-				User = new Protocol.ObserverUser { DeviceName = hub.DeviceName, ProductKey = hub.ProductKey }
+				User = new Protocol.ObserverUser
+					{
+					DeviceName = session.Observer?.DeviceName ?? hub.DeviceName,
+					ProductKey = session.Observer?.ProductKey ?? hub.ProductKey,
+					Notice = session.Notifications?.Flags ?? 0
+					}
 				};
 			Protocol.ApiResult<Protocol.ObserverCredentials> result = await SendAsync<Protocol.ObserverRequest, Protocol.ApiResult<Protocol.ObserverCredentials>> (
 				 HttpMethod.Post, "app/device/subscribeStatus", request, session, token).ConfigureAwait (false);
 			CheckResult (result, session);
-			Protocol.ObserverCredentials credentials = RequireData (result);
+			Protocol.ObserverCredentials response = RequireData (result);
+			// An account registration may return just expiry/status versions. Connect with the
+			// account identity used in userInfo, rather than a hub's temporary status observer.
+			Protocol.ObserverCredentials credentials = session.Observer is null ? response : new Protocol.ObserverCredentials
+				{
+				DeviceName = session.Observer.DeviceName,
+				ProductKey = session.Observer.ProductKey,
+				DeviceSecret = session.Observer.DeviceSecret,
+				ExpiresAt = response.ExpiresAt
+				};
 			if (string.IsNullOrWhiteSpace (credentials.DeviceName) || string.IsNullOrWhiteSpace (credentials.ProductKey)
 				 || string.IsNullOrWhiteSpace (credentials.DeviceSecret))
 				throw new RainPointException ("The cloud omitted required observer credentials.");

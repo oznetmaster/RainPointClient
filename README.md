@@ -1,6 +1,6 @@
 # RainPointClient
 
-Pure **C# 14** client for the **RainPoint Home / Smart+ cloud**, targeting **.NET Framework 4.7.2** and **.NET 10**. Version **1.0.1** contains documentation updates. No functional changes. Supported control and status decoding cover the **HWG023WBRF / HWG023WBRF-V2 hub** with the **HTV345FRF three-zone RF timer**.
+Pure **C# 14** client for the **RainPoint Home / Smart+ cloud**, targeting **.NET Framework 4.7.2** and **.NET 10**. Version **1.1.0** adds assigned zone names, home-configuration notifications and optional push-only status monitoring. Supported control and status decoding cover the **HWG023WBRF / HWG023WBRF-V2 hub** with the **HTV345FRF three-zone RF timer**.
 
 > **Trademarks and disclaimer:** RainPoint, HomGar and other product names are trademarks of their respective owners, used only to describe compatibility. This is an independent, unofficial project, not affiliated with, endorsed by, sponsored by or approved by those owners.
 
@@ -8,19 +8,20 @@ The library uses attributed System.Text.Json transport models and typed public A
 
 ## Install and documentation
 
-Install version 1.0.1:
+Install version 1.1.0:
 
 ```powershell
-dotnet add package RainPointClient --version 1.0.1
+dotnet add package RainPointClient --version 1.1.0
 ```
 
-Read the [1.0.1 release notes](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/release-notes/v1.0.1.md), [changelog](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/CHANGELOG.md), [feature guides](https://github.com/oznetmaster/RainPointClient/tree/v1.0.1/docs) and [test guide](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/tests/README.md). The documentation site is [oznetmaster.github.io/RainPointClient](https://oznetmaster.github.io/RainPointClient/). Publication status and setup are tracked in [PUBLISHING.md](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/PUBLISHING.md).
+Read the [1.1.0 release notes](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/release-notes/v1.1.0.md), [changelog](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/CHANGELOG.md), [feature guides](https://github.com/oznetmaster/RainPointClient/tree/v1.1.0/docs) and [test guide](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/tests/README.md). The documentation site is [oznetmaster.github.io/RainPointClient](https://oznetmaster.github.io/RainPointClient/). Publication status and setup are tracked in [PUBLISHING.md](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/PUBLISHING.md).
 
 ## Capabilities
 
 - Login, logout, home/hub/device discovery, explicit token refresh and optional bounded session recovery without replaying commands.
 - Individual control of **all three zones**: normal irrigation, misting and cycle-and-soak, with duration and firmware validation.
 - MQTT push feedback with REST fallback, reconnection and timestamp reconciliation; acknowledgement remains separate from reported state.
+- Assigned timer zone names and typed home-configuration change notifications. Applications can subscribe to `RainPointMonitor.ConfigurationChanged` and reread configuration; these notifications do not confirm valve status.
 - Typed state, configured duration, last usage in litres, battery condition, RF signal, alarm flags and device-local report times.
 - Normal, misting and cycle-and-soak saved plans; daily, selected-weekday, odd-day, even-day and interval recurrence; optional volume limits.
 - Calendar and next-start projections, including reported home daylight-saving rules, seasonal duration display and rain-delay status.
@@ -30,7 +31,7 @@ Read the [1.0.1 release notes](https://github.com/oznetmaster/RainPointClient/bl
 - Supported Smart Scene conditions/actions and paged execution history; weather forecasts with separately supplied signing access.
 - Product metadata, firmware information, hub RF channel and time-broadcast operations.
 
-Detailed contracts, examples and feature-specific evidence are in the [feature guides](https://github.com/oznetmaster/RainPointClient/tree/v1.0.1/docs). Hardware-dependent APIs are distinguished from physically validated behavior.
+Detailed contracts, examples and feature-specific evidence are in the [feature guides](https://github.com/oznetmaster/RainPointClient/tree/v1.1.0/docs). Hardware-dependent APIs are distinguished from physically validated behavior.
 
 ## Quick start
 
@@ -56,13 +57,13 @@ await client.LogoutAsync(cancellationToken);
 
 Select the actual home, hub and timer in production; first-item selection above is illustrative. The `areaCode` is the account's country calling code, not a region ID. A dedicated account invited to the same home allows the official app and client to remain signed in separately; another login to the same account can displace its existing session.
 
-Cloud acceptance does not prove valve movement. Cloud state can lag, while fresh MQTT feedback and updated usage provide better evidence. Last usage is the most recent reported volume, not flow rate or a cumulative meter. No watering operation is automatically retried after an uncertain result. See [feedback semantics](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/docs/COMMAND-FEEDBACK.md), [MQTT monitoring](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/docs/MQTT-FEEDBACK.md) and [session recovery](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/docs/SESSION-RECOVERY.md).
+Cloud acceptance does not prove valve movement. Cloud state can lag, while fresh MQTT feedback and updated usage provide better evidence. Last usage is the most recent reported volume, not flow rate or a cumulative meter. No watering operation is automatically retried after an uncertain result. See [feedback semantics](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/docs/COMMAND-FEEDBACK.md), [MQTT monitoring](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/docs/MQTT-FEEDBACK.md) and [session recovery](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/docs/SESSION-RECOVERY.md).
 
 ## Windows reference app
 
 The WPF workbench targets net472 and net10.0-windows. It exposes all-zone controls, plans, calendar, settings, history, administration, scenes and weather. Saved credentials are encrypted for the current Windows account; optional startup sign-in never arms or operates valves. The GitHub release workflow prepares framework-dependent ZIPs for both targets. The net472 app requires .NET Framework 4.7.2 or later; the modern app requires the .NET 10 Desktop Runtime. It is separate from the NuGet library package.
 
-See the [Windows app guide](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/docs/WINDOWS-APP.md).
+See the [Windows app guide](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/docs/WINDOWS-APP.md).
 
 ## Build and test
 
@@ -74,9 +75,9 @@ dotnet test tests/RainPointClient.Tests -c Release --no-build --filter "TestCate
 dotnet test tests/RainPointClient.Desktop.Tests -c Release --no-build --filter "TestCategory!=Live"
 ```
 
-The release baseline is **1,352 library/dashboard tests and 87 WPF tests per target: 2,878 desktop passes**. Tests use NUnit 4.6.1, NUnit3TestAdapter 6.3.0, Microsoft.NET.Test.Sdk 18.10.1 and NUnit.Analyzers 4.15.0. These are development dependencies, not package dependencies. Explicit live tests require private opt-in settings and are excluded from hosted workflows. Builds, package creation and documentation generation perform no live device operations.
+The release baseline is **1,380 library/dashboard tests and 87 WPF tests per target: 2,934 desktop passes**. Tests use NUnit 5.0.0, NUnit3TestAdapter 6.3.0, Microsoft.NET.Test.Sdk 18.10.1 and NUnit.Analyzers 4.15.0. These are development dependencies, not package dependencies. Explicit live tests require private opt-in settings and are excluded from hosted workflows. Builds, package creation and documentation generation perform no live device operations.
 
-Short live checks cover all-zone normal feedback, zone-1 cycle/misting delivery feedback, supported schedule recurrences, seasonal scaling, rain-delay suppression/resumption and a volume cutoff. Account, invitation, scene-history and configuration checks restored temporary state. The even-day execution fixture needed separate successful cleanup recovery after a read timeout; its failed result is retained. See the [validation ledger](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/docs/TODO.md) and [test instructions](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/tests/README.md).
+Short live checks cover all-zone normal feedback, zone-1 cycle/misting delivery feedback, supported schedule recurrences, seasonal scaling, rain-delay suppression/resumption and a volume cutoff. Account, invitation, scene-history and configuration checks restored temporary state. The even-day execution fixture needed separate successful cleanup recovery after a read timeout; its failed result is retained. See the [validation ledger](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/docs/TODO.md) and [test instructions](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/tests/README.md).
 
 ## Supported scope and limits
 
@@ -88,7 +89,7 @@ Cloud calls default to `https://region3.homgarus.com/`; alternative HTTPS origin
 
 This library was developed using upstream reference material for protocol behavior and compatibility from [funkadelic/ha-rainpoint](https://github.com/funkadelic/ha-rainpoint), [brettmeyerowitz/homeassistant-homgar](https://github.com/brettmeyerowitz/homeassistant-homgar), [Remboooo/homgarapi](https://github.com/Remboooo/homgarapi), [macher91/homgar-homeassistant](https://github.com/macher91/homgar-homeassistant) and [rathga/rainpoint-ha](https://github.com/rathga/rainpoint-ha).
 
-See [ATTRIBUTIONS.md](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/ATTRIBUTIONS.md) for reviewed revisions and their roles, and [THIRD-PARTY-NOTICES.md](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/THIRD-PARTY-NOTICES.md) for retained upstream copyright and license texts. Dependency licenses and notices are included with the Windows downloads.
+See [ATTRIBUTIONS.md](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/ATTRIBUTIONS.md) for reviewed revisions and their roles, and [THIRD-PARTY-NOTICES.md](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/THIRD-PARTY-NOTICES.md) for retained upstream copyright and license texts. Dependency licenses and notices are included with the Windows downloads.
 
 ## Trademarks and disclaimer
 
@@ -98,4 +99,4 @@ The software is provided **AS IS**, without warranty, under the MIT License. Clo
 
 ## License
 
-Copyright © 2026 Neil Colvin. Licensed under the [MIT License](https://github.com/oznetmaster/RainPointClient/blob/v1.0.1/LICENSE). Third-party components retain their respective copyrights and licenses.
+Copyright © 2026 Neil Colvin. Licensed under the [MIT License](https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/LICENSE). Third-party components retain their respective copyrights and licenses.

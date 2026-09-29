@@ -2,7 +2,7 @@
 
 ## Current release
 
-Version **1.0.1** contains documentation updates. No functional changes. Consult the [GitHub release](https://github.com/oznetmaster/RainPointClient/releases/tag/v1.0.1), [workflow runs](https://github.com/oznetmaster/RainPointClient/actions) and [NuGet package](https://www.nuget.org/packages/RainPointClient/1.0.1) for publication status.
+Version **1.1.0** adds assigned zone names, account-scoped configuration notifications and optional push-only monitoring. Consult the [GitHub release](https://github.com/oznetmaster/RainPointClient/releases/tag/v1.1.0), [workflow runs](https://github.com/oznetmaster/RainPointClient/actions) and [NuGet package](https://www.nuget.org/packages/RainPointClient/1.1.0) for publication status.
 
 ## Release configuration
 
@@ -49,16 +49,16 @@ From the repository root in PowerShell:
 dotnet test tests/RainPointClient.Tests -c Release --filter "TestCategory!=Live"
 dotnet test tests/RainPointClient.Desktop.Tests -c Release --filter "TestCategory!=Live"
 ./tools/Build-Documentation.ps1
-./tools/New-ReleaseAssets.ps1 -Version 1.0.1 -OutputDirectory artifacts/release-preview
+./tools/New-ReleaseAssets.ps1 -Version 1.1.0 -OutputDirectory artifacts/release-preview
 ```
 
-Choose a new empty output directory for each asset run. The asset script never uploads or tags. Review its NuGet archive, README, versioned notes, XML documentation, framework-dependent Windows ZIPs and SHA-256 manifest. The package must contain only the reviewed stable direct dependencies (MQTTnet 4.3.7.1207 on both targets and System.Text.Json 10.0.12 on net472; .NET 10 uses its built-in System.Text.Json), with no test, desktop, private-settings or capture files. XML API docs are emitted for both targets; missing public-member comments are suppressed separately from other compiler warnings. DocFX reflects the Release net472 assembly to avoid relying on its older source parser for C# 14.
+Choose a new empty output directory for each asset run. The asset script never uploads or tags. Review its NuGet archive, README, versioned notes, XML documentation, framework-dependent Windows ZIPs and SHA-256 manifest. The package must contain only the reviewed stable direct dependencies (MQTTnet 4.3.7.1207 on both targets and System.Text.Json 10.0.12 on both targets), with no test, desktop, private-settings or capture files. XML API docs are emitted for both targets; missing public-member comments are suppressed separately from other compiler warnings. DocFX reflects the Release net472 assembly to avoid relying on its older source parser for C# 14.
 
 The explicit pack items include the MIT license and upstream notices. NuGet's embedded README uses absolute versioned GitHub links so they work on the package page. See [NuGet package README guidance](https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#packagereadmefile) and [DocFX assembly metadata guidance](https://dotnet.github.io/docfx/docs/dotnet-api-docs.html).
 
 ## Publish after approval
 
-Confirm `Directory.Build.props`, package release-note URL, changelog and `release-notes/v1.0.1.md` match. Review all embedded release documents and the release date before the final commit. Create `v1.0.1` on the validated commit and push that tag, or manually dispatch `dotnet-publish.yml` for the already existing tag. Do not move an existing published tag.
+Confirm `Directory.Build.props`, package release-note URL, changelog and `release-notes/v1.1.0.md` match. Review all embedded release documents and the release date before the final commit. Create `v1.1.0` on the validated commit and push that tag, or manually dispatch `dotnet-publish.yml` for the already existing tag. Do not move an existing published tag.
 
 The workflow verifies exact-tag metadata and checks, runs all offline tests, builds the documentation and every asset, validates the nupkg, retains assets, then pushes NuGet and creates the GitHub release from the versioned notes. No RainPoint login or hardware command is permitted in these jobs. A failed pre-publication step prevents upload. NuGet and GitHub publication are separate external operations; a partial failure must be reconciled against the existing tag and immutable package, not silently replaced.
 
@@ -79,3 +79,12 @@ NuGet versions are immutable. Correct documentation before upload; a later sourc
 - A separate consumer restored this local package into a new empty cache, compiled the README example for both targets with zero warnings/errors, and loaded version 1.0.0.0 successfully on net472 and net10.0. No cloud calls were made. This proves the local candidate, not public NuGet availability.
 
 The remote repository and Pages source are now configured. Hosted runs, exact-tag publication checks, Pages deployment, NuGet upload/indexing and public-download verification are performed during publication. No commit, tag, push or external publication was performed during preparation. Existing live/processor evidence remains in the feature validation ledger; those tests were not rerun for these documentation, packaging and workflow changes.
+
+
+## Local preparation validation — 29 September 2026 (1.1.0)
+
+- NUnit 5: 1,380 library/dashboard cases on each target and 87 WPF cases on each target; all 2,934 passed with no skips. Results are retained under `artifacts/release-110-tests`.
+- The separate processor workflow also passed all 1,380 library cases on the target runtime, with 2,760 desktop cases in its prerequisite stage. Its temporary test instance was removed and the reservation released; an existing package path was preserved. The workflow/evidence remains outside this repository.
+- The full solution and DocFX site built with zero warnings/errors. Release policy, metadata rejection, source notices and editor configuration checks passed.
+- `artifacts/release-110-candidate-a` contains the validated local 1.1.0 package, DLL/XML target files, both Windows archives, release documents and SHA-256 manifest. This is local candidate evidence, not proof of public NuGet publication.
+- Live testing identified configuration notifications with an empty description; regression cases now accept these while preserving recipient/home/revision validation. Shared-account rename and disabled-plan updates passed without an explicit consumer refresh. A standalone consumer restored the local candidate into a fresh package cache, compiled the README example and loaded 1.1.0.0 on both targets without cloud calls. Hosted publication and public-package verification remain the release steps.

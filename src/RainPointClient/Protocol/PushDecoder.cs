@@ -56,6 +56,39 @@ internal static class PushDecoder
 	private static readonly JsonSerializerOptions Json = new () { AllowDuplicateProperties = false, MaxDepth = 16 };
 	private static readonly Encoding Utf8 = new UTF8Encoding (false, true);
 
+	// The official app treats command 04 as a home-configuration invalidation and rereads that home.
+	// Validate recipient and home independently; never interpret these notifications as valve feedback.
+	internal static RainPointConfigurationChange? DecodeConfiguration (byte[] payload, long homeId, long? accountId)
+		{
+		if (payload.Length is 0 or > 8192 || homeId <= 0 || accountId is not > 0)
+			return null;
+		try
+			{
+			string text = Utf8.GetString (payload).Trim ();
+			if (text.StartsWith ("{", StringComparison.Ordinal))
+				{
+				PushEnvelope? envelope = JsonSerializer.Deserialize<PushEnvelope> (text, Json);
+				if (envelope?.Method != "thing.service.property.set" || envelope.Parameters is null)
+					return null;
+				text = envelope.Parameters.Parameter;
+				}
+			if (string.IsNullOrEmpty (text) || text.Length < 31 || !text.StartsWith ("#P", StringComparison.Ordinal)
+				|| !text.EndsWith ("#", StringComparison.Ordinal) || text.Substring (24, 2) != "04"
+				|| text.Substring (2, 22).Any (c => c is < '0' or > '9')
+				|| !long.TryParse (text.Substring (14, 10), NumberStyles.None, CultureInfo.InvariantCulture, out long recipient)
+				|| recipient != accountId)
+				return null;
+			// The description is optional; live rename notifications contain an empty middle field.
+			string[] fields = text.Substring (26, text.Length - 27).Split ('|');
+			if (fields.Length != 3
+				|| !long.TryParse (fields[0], NumberStyles.None, CultureInfo.InvariantCulture, out long home) || home != homeId
+				|| !long.TryParse (fields[2], NumberStyles.None, CultureInfo.InvariantCulture, out long revision))
+				return null;
+			return new RainPointConfigurationChange (home, revision);
+			}
+		catch (Exception error) when (error is JsonException or DecoderFallbackException or ArgumentOutOfRangeException) { return null; }
+		}
+
 	internal static PushReading? Decode (byte[] payload, RainPointHub hub, DateTimeOffset now)
 		{
 		if (payload.Length is 0 or > 8192)

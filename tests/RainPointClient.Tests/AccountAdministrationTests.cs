@@ -68,7 +68,7 @@ public sealed class AccountAdministrationTests
 		Assert.That (body.RootElement.GetProperty ("agreementVer").GetString (), Is.EqualTo ("reviewed-version"));
 		Assert.That (body.RootElement.GetProperty ("isocode").GetString (), Is.EqualTo ("GB"));
 		Assert.That (_client.HasValidSession, Is.False);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RegisterEmailAsync (verified, "newpass", "GB", "fixture-device"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RegisterEmailAsync (verified, "newpass", "GB", "fixture-device"));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[TestCase (true)]
@@ -80,11 +80,11 @@ public sealed class AccountAdministrationTests
 		if (succeeds)
 			await _client.ResetPasswordByEmailAsync (verified, "newpass");
 		else
-			Assert.ThrowsAsync<RainPointException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
+			await Assert.ThrowsAsync<RainPointException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
 		using var body = JsonDocument.Parse (_handler.Requests.Last ().Body!);
 		Assert.That (body.RootElement.GetProperty ("type").GetInt32 (), Is.EqualTo (1));
 		Assert.That (body.RootElement.GetProperty ("password").GetString (), Is.EqualTo ("e6053eb8d35e02ae40beeeacef203c1a"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[Test]
@@ -107,16 +107,16 @@ public sealed class AccountAdministrationTests
 	public async Task WrongPurposeOrOtherClientCannotUseVerification ()
 		{
 		var verified = await Verify (RainPointEmailVerificationPurpose.Registration);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.ResetPasswordByEmailAsync (verified, "newpass"));
 		using var other = new RainPointCloudClient (_http);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await other.RegisterEmailAsync (verified, "newpass", "GB", "fixture"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await other.RegisterEmailAsync (verified, "newpass", "GB", "fixture"));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	[Test]
 	public async Task SignedInAccountCannotRunAnonymousRecoveryFlow ()
 		{
 		await SignIn ();
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SendEmailVerificationCodeAsync ("other@example.invalid", "44", RainPointEmailVerificationPurpose.PasswordReset));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SendEmailVerificationCodeAsync ("other@example.invalid", "44", RainPointEmailVerificationPurpose.PasswordReset));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		Assert.That (_client.HasValidSession, Is.True);
 		}
@@ -129,7 +129,7 @@ public sealed class AccountAdministrationTests
 		if (succeeds)
 			await _client.ChangePasswordAsync ("oldpass", "newpass");
 		else
-			Assert.ThrowsAsync<RainPointException> (async () => await _client.ChangePasswordAsync ("oldpass", "newpass"));
+			await Assert.ThrowsAsync<RainPointException> (async () => await _client.ChangePasswordAsync ("oldpass", "newpass"));
 		using var body = JsonDocument.Parse (_handler.Requests.Last ().Body!);
 		Assert.That (body.RootElement.GetProperty ("password").GetString (), Is.EqualTo ("65596aece8ead4b14c78d52f2b88ec37"));
 		Assert.That (body.RootElement.GetProperty ("newPassword").GetString (), Is.EqualTo ("e6053eb8d35e02ae40beeeacef203c1a"));
@@ -142,24 +142,24 @@ public sealed class AccountAdministrationTests
 		await SignIn ();
 		using var cancel = new CancellationTokenSource ();
 		cancel.Cancel ();
-		Assert.CatchAsync<OperationCanceledException> (async () => await _client.ChangePasswordAsync ("oldpass", "newpass", cancel.Token));
+		await Assert.CatchAsync<OperationCanceledException> (async () => await _client.ChangePasswordAsync ("oldpass", "newpass", cancel.Token));
 		Assert.That (_client.HasValidSession, Is.True);
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	[TestCase ("")]
 	[TestCase ("short")]
 	[TestCase ("123456789012345678901")]
-	public void PasswordBoundsAreCheckedBeforeRequests (string password)
+	public async Task PasswordBoundsAreCheckedBeforeRequests (string password)
 		{
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.ChangePasswordAsync (password, "newpass"));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.ChangePasswordAsync (password, "newpass"));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 	[TestCase ("bad")]
 	[TestCase ("Name <fixture@example.invalid>")]
 	[TestCase ("fixture@example.invalid\r\nBcc:someone@example.invalid")]
-	public void NonCanonicalEmailAddressesAreRejected (string email)
+	public async Task NonCanonicalEmailAddressesAreRejected (string email)
 		{
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.SendEmailVerificationCodeAsync (email, "44", RainPointEmailVerificationPurpose.Registration));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.SendEmailVerificationCodeAsync (email, "44", RainPointEmailVerificationPurpose.Registration));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 	[Test]
@@ -173,7 +173,7 @@ public sealed class AccountAdministrationTests
 		await _client.SetAccountNicknameAsync (profile, "New fixture");
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"nickname\":\"New fixture\"}"));
 		Assert.That (_client.AccountProfile, Is.Null);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetAccountPhotoAsync (profile, new Uri ("https://fixture.invalid/another.png")));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetAccountPhotoAsync (profile, new Uri ("https://fixture.invalid/another.png")));
 		}
 	[Test]
 	public async Task OldProfileCannotCrossAccountSignIn ()
@@ -181,7 +181,7 @@ public sealed class AccountAdministrationTests
 		await SignIn ();
 		var profile = _client.AccountProfile!;
 		await SignIn ();
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetAccountNicknameAsync (profile, "No"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetAccountNicknameAsync (profile, "No"));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[Test]

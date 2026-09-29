@@ -112,7 +112,7 @@ public sealed partial class RainPointCloudClient : IDisposable
 
 			// Use local receipt timing rather than trusting a remote wall clock.
 			double margin = Math.Min (60, data.ExpiresInSeconds / 10.0);
-			_ = Interlocked.Exchange (ref _session, new Session (data.Token!, started.AddSeconds (data.ExpiresInSeconds - margin), data.RefreshToken, data.User?.Notice is >= 0 ? new RainPointNotificationPreferences (data.User.Notice.Value) : null, data.User is null ? null : new RainPointAccountProfile (data.User)));
+			_ = Interlocked.Exchange (ref _session, new Session (data.Token!, started.AddSeconds (data.ExpiresInSeconds - margin), data.RefreshToken, data.User?.Notice is >= 0 ? new RainPointNotificationPreferences (data.User.Notice.Value) : null, data.User is null ? null : new RainPointAccountProfile (data.User), ObserverIdentity (data.User)));
 			}
 		catch (RainPointException error) when (error.RetryAfter.HasValue)
 			{
@@ -451,10 +451,11 @@ public sealed partial class RainPointCloudClient : IDisposable
 			}
 		}
 
-	private sealed class Session (string token, DateTimeOffset expiresAt, string? refreshToken = null, RainPointNotificationPreferences? notifications = null, RainPointAccountProfile? profile = null)
+	private sealed class Session (string token, DateTimeOffset expiresAt, string? refreshToken = null, RainPointNotificationPreferences? notifications = null, RainPointAccountProfile? profile = null, Protocol.ObserverCredentials? observer = null)
 		{
 		internal RainPointNotificationPreferences? Notifications { get; } = notifications;
 		internal RainPointAccountProfile? Profile { get; } = profile;
+		internal Protocol.ObserverCredentials? Observer { get; } = observer;
 		internal string Token { get; } = token;
 		internal DateTimeOffset ExpiresAt { get; } = expiresAt;
 		internal string? RefreshToken { get; } = refreshToken;

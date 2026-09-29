@@ -62,7 +62,7 @@ public sealed class SceneTests
 		_handler.Steps.Enqueue ((r, _) => { Assert.That (r.Headers.GetValues ("hid").Single (), Is.EqualTo ("5")); return Task.FromResult (new HttpResponseMessage (HttpStatusCode.OK) { Content = new StringContent ("{\"code\":0}") }); });
 		await _client.SetSceneEnabledAsync (scene, enabled);
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"id\":12,\"open\":" + (enabled ? 1 : 0) + "}"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetSceneEnabledAsync (scene, enabled));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetSceneEnabledAsync (scene, enabled));
 		}
 	[Test]
 	public async Task DeleteOmitsSwitchAndDoesNotReplayFailure ()
@@ -71,9 +71,9 @@ public sealed class SceneTests
 		_handler.Reply (LIST);
 		_handler.Reply (DETAIL);
 		_handler.Reply ("{\"code\":42}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.DeleteSceneAsync (scene));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.DeleteSceneAsync (scene));
 		Assert.That (_handler.Requests.Last ().Body, Is.EqualTo ("{\"id\":12}"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.DeleteSceneAsync (scene));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.DeleteSceneAsync (scene));
 		}
 	[Test]
 	public async Task ConcurrentChangePreventsWrite ()
@@ -81,22 +81,22 @@ public sealed class SceneTests
 		var scene = await Read ();
 		_handler.Reply (LIST);
 		_handler.Reply (DETAIL.Replace ("120", "60"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetSceneEnabledAsync (scene, true));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetSceneEnabledAsync (scene, true));
 		Assert.That (_handler.Requests.Skip (1).All (r => r.Method == HttpMethod.Get), Is.True);
 		}
 	[Test]
 	public async Task MissingMembershipPreventsDetailRead ()
 		{
 		_handler.Reply ("{\"code\":0,\"data\":[]}");
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.GetSceneAsync (5, 12));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.GetSceneAsync (5, 12));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[TestCase ("{\"id\":0}")]
 	[TestCase ("{\"id\":12},{\"id\":12}")]
-	public void InvalidSceneListsAreRejected (string items)
+	public async Task InvalidSceneListsAreRejected (string items)
 		{
 		_handler.Reply ("{\"code\":0,\"data\":[" + items + "]}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetScenesAsync (5));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetScenesAsync (5));
 		}
 	[Test]
 	public async Task AccountSwitchInvalidatesObservation ()
@@ -105,7 +105,7 @@ public sealed class SceneTests
 		_handler.Reply ("""{"code":0,"data":{"token":"next","tokenExpired":3600}}""");
 		await _client.LoginAsync ("other@example.invalid", "fixture", "44");
 		int count = _handler.Requests.Count;
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.DeleteSceneAsync (scene));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.DeleteSceneAsync (scene));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (count));
 		}
 	[TestCase (RainPointSceneWeatherMetric.TemperatureCelsius, -40, "70FEFFFF")]
@@ -218,7 +218,7 @@ public sealed class SceneTests
 		var hub = (await _client.GetHubsAsync (5)).Single ();
 		_handler.Reply (HUBS);
 		_handler.Reply (CATALOG.Replace ("\"supportSmart\":7", "\"supportSmart\":0"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.CreateSceneAsync (hub, Draft ()));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.CreateSceneAsync (hub, Draft ()));
 		Assert.That (_handler.Requests.Skip (1).All (r => r.Method == HttpMethod.Get), Is.True);
 		}
 	[TestCase (-1, 120)]
@@ -353,7 +353,7 @@ public sealed class SceneTests
 		_handler.Reply (CATALOG);
 		_handler.Reply ("""{"code":0,"data":[{"uid":10}]}""");
 		_handler.Reply ("""{"code":0,"data":{"hid":5,"rooms":[],"lat":0,"lon":0}}""");
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.CreateSceneAsync (hub, draft));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.CreateSceneAsync (hub, draft));
 		Assert.That (_handler.Requests.Count (q => q.Method == HttpMethod.Post), Is.EqualTo (1));
 		}
 	[TestCase (RainPointSceneSolarPeriod.Daytime)]

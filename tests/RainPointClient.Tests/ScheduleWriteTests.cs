@@ -88,8 +88,8 @@ public sealed class ScheduleWriteTests
 				_ => replace ? _client.UpdateTimerScheduleAsync (_hub, snapshot, 0, new RainPointCycleAndSoakSchedule { Enabled = enabled, Repeat = RainPointScheduleRepeat.Once, EffectiveDate = date })
 					: _client.AddTimerScheduleAsync (_hub, snapshot, new RainPointCycleAndSoakSchedule { Enabled = enabled, Repeat = RainPointScheduleRepeat.Once, EffectiveDate = date })
 				};
-		Assert.ThrowsAsync<NotSupportedException> (async () => await Write (false));
-		Assert.ThrowsAsync<NotSupportedException> (async () => await Write (true));
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await Write (false));
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await Write (true));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (requests));
 		}
 
@@ -102,7 +102,7 @@ public sealed class ScheduleWriteTests
 		Discovery (original);
 		RainPointScheduleSnapshot snapshot = await _client.GetTimerSchedulesAsync (_hub, 2, zone);
 		Assert.That (snapshot.Schedules.Single ().Repeat, Is.EqualTo (RainPointScheduleRepeat.Once));
-		Assert.ThrowsAsync<NotSupportedException> (async () => await _client.SetTimerScheduleEnabledAsync (_hub, snapshot, 0, true));
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await _client.SetTimerScheduleEnabledAsync (_hub, snapshot, 0, true));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		Discovery (original);
 		_handler.Reply ("{\"code\":0}");
@@ -194,7 +194,7 @@ public sealed class ScheduleWriteTests
 		{
 		RainPointScheduleSnapshot before = await Read ();
 		Discovery (change == "parameter" ? EMPTY.Replace ("z3aux", "changed") : EMPTY, change == "firmware" ? "131" : "130", change == "device" ? 43 : 42);
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
 		Assert.That (_handler.Requests.Skip (1).All (request => request.Method == HttpMethod.Get), Is.True);
 		}
 
@@ -204,7 +204,7 @@ public sealed class ScheduleWriteTests
 	public async Task UnknownFirmwareCannotBeWritten (string version)
 		{
 		RainPointScheduleSnapshot before = await Read (firmware: version);
-		Assert.ThrowsAsync<NotSupportedException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 
@@ -212,7 +212,7 @@ public sealed class ScheduleWriteTests
 	public async Task SeventhPlanIsRejectedBeforeNetwork ()
 		{
 		RainPointScheduleSnapshot before = await Read ("settings," + string.Join ("/", Enumerable.Repeat ("8000483c00", 6)) + ",,|z2,|z3,");
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 
@@ -221,7 +221,7 @@ public sealed class ScheduleWriteTests
 	public async Task InvalidIndexCannotTargetAnotherPlan (int index)
 		{
 		RainPointScheduleSnapshot before = await Read ("settings,8000483c00/,,|z2,|z3,");
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.DeleteTimerScheduleAsync (_hub, before, index));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.DeleteTimerScheduleAsync (_hub, before, index));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 
@@ -231,9 +231,9 @@ public sealed class ScheduleWriteTests
 		RainPointScheduleSnapshot before = await Read ();
 		Discovery (EMPTY);
 		_handler.Steps.Enqueue ((_, _) => throw new HttpRequestException ("Simulated lost response"));
-		Assert.ThrowsAsync<HttpRequestException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
+		await Assert.ThrowsAsync<HttpRequestException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
 		Discovery (EMPTY);
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule ()));
 		Assert.That (_handler.Requests.Count (request => request.Path == "/app/device/sub/update"), Is.EqualTo (1));
 		}
 
@@ -243,7 +243,7 @@ public sealed class ScheduleWriteTests
 		RainPointScheduleSnapshot before = await Read ();
 		using CancellationTokenSource canceled = new ();
 		canceled.Cancel ();
-		Assert.CatchAsync<OperationCanceledException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule (), canceled.Token));
+		await Assert.CatchAsync<OperationCanceledException> (async () => await _client.AddTimerScheduleAsync (_hub, before, new RainPointIrrigationSchedule (), canceled.Token));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 

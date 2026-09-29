@@ -33,7 +33,7 @@ public sealed class TimeZoneTests
 			}
 		else
 			{
-			Assert.ThrowsAsync<ArgumentException> (async () => await client.SetHomeTimeZoneAsync (home, name));
+			await Assert.ThrowsAsync<ArgumentException> (async () => await client.SetHomeTimeZoneAsync (home, name));
 			Assert.That (handler.Requests, Has.Count.EqualTo (3));
 			}
 		}

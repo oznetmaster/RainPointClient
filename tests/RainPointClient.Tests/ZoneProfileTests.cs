@@ -74,7 +74,7 @@ public sealed class ZoneProfileTests
 				}
 			}
 		int requests = _handler.Requests.Count;
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, new[] { 30 }));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, new[] { 30 }));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (requests));
 		}
 	[TestCase (null)]
@@ -102,7 +102,7 @@ public sealed class ZoneProfileTests
 		var profile = await Read (1, payload);
 		Assert.That (profile.Availability, Is.EqualTo (TimerReadingAvailability.Malformed));
 		Assert.That (profile.RecommendationsEnabled, Is.Null);
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), profile, false, Array.Empty<int> ()));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), profile, false, Array.Empty<int> ()));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[TestCase ("[30,30]")]
@@ -111,7 +111,7 @@ public sealed class ZoneProfileTests
 	public async Task InvalidSelectionCannotReachNetwork (string selection)
 		{
 		var before = await Read ();
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, JsonSerializer.Deserialize<int[]> (selection)!));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, JsonSerializer.Deserialize<int[]> (selection)!));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	[TestCase ("[999]")]
@@ -120,7 +120,7 @@ public sealed class ZoneProfileTests
 		{
 		var before = await Read ();
 		_handler.Reply (Catalog);
-		Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, JsonSerializer.Deserialize<int[]> (selection)!));
+		await Assert.ThrowsAsync<ArgumentException> (async () => await _client.SetZoneProfileAsync (Hub (), before, true, JsonSerializer.Deserialize<int[]> (selection)!));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (3));
 		}
 	[Test]
@@ -129,7 +129,7 @@ public sealed class ZoneProfileTests
 		var before = await Read ();
 		_handler.Reply (Catalog);
 		_handler.Reply (Discovery (Profile.Replace ("30", "31")));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
 		Assert.That (_handler.Requests.Count (r => r.Path == "/app/device/sub/update"), Is.Zero);
 		}
 	[Test]
@@ -139,8 +139,8 @@ public sealed class ZoneProfileTests
 		_handler.Reply (Catalog);
 		_handler.Reply (Discovery ());
 		_handler.Steps.Enqueue ((_, _) => throw new HttpRequestException ("fixture"));
-		Assert.ThrowsAsync<HttpRequestException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
+		await Assert.ThrowsAsync<HttpRequestException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetZoneProfileAsync (Hub (), before, false, new[] { 31 }));
 		Assert.That (_handler.Requests.Count (r => r.Path == "/app/device/sub/update"), Is.EqualTo (1));
 		}
 	[Test]
@@ -154,10 +154,10 @@ public sealed class ZoneProfileTests
 		}
 	[TestCase ("[{\"id\":1,\"langField\":\"plant\",\"subType\":null}]")]
 	[TestCase ("[{\"id\":1,\"langField\":\"plant\",\"subType\":[{\"id\":30,\"langField\":\"a\"},{\"id\":30,\"langField\":\"b\"}]}]")]
-	public void MalformedCatalogIsRejected (string data)
+	public async Task MalformedCatalogIsRejected (string data)
 		{
 		_handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetZoneProfileCatalogAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetZoneProfileCatalogAsync ());
 		}
 	[TestCase (1)]
 	[TestCase (2)]
@@ -184,11 +184,11 @@ public sealed class ZoneProfileTests
 	[TestCase ("[{\"day\":-1}]")]
 	[TestCase ("[{\"second\":-1}]")]
 	[TestCase ("[{\"second\":999999999999}]")]
-	public void InvalidRecommendationIsRejected (string data)
+	public async Task InvalidRecommendationIsRejected (string data)
 		{
 		_handler.Reply (Discovery ());
 		_handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetZoneRecommendationsAsync (Hub (), 2, 1));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetZoneRecommendationsAsync (Hub (), 2, 1));
 		}
 	private sealed class ProfileRequest
 		{

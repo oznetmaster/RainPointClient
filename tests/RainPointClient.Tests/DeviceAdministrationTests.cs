@@ -69,7 +69,7 @@ public sealed class DeviceAdministrationTests
 		{
 		var home = await Home (AdministrationTests.HOME.Replace ("101#201#3", encoded));
 		_handler.Reply (HUBS);
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetRoomDevicesAsync (home, 9));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetRoomDevicesAsync (home, 9));
 		}
 	[TestCase (false)]
 	[TestCase (true)]
@@ -94,7 +94,7 @@ public sealed class DeviceAdministrationTests
 		_handler.Reply (HUBS);
 		var hub = (await _client.GetHubsAsync (5)).Single ();
 		_handler.Reply (HUBS.Replace ("201", "202"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameDeviceAsync (home, hub, 2, "New"));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RenameDeviceAsync (home, hub, 2, "New"));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (4));
 		}
 	[TestCase (0)]
@@ -133,7 +133,7 @@ public sealed class DeviceAdministrationTests
 		_handler.Reply (MEMBERS);
 		var member = (await _client.GetMembersAsync (5)).Single ();
 		_handler.Reply (MEMBERS.Replace ("\"owner\":0", "\"owner\":1"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetMemberRoleAsync (home, member, RainPointMemberRole.Administrator));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.SetMemberRoleAsync (home, member, RainPointMemberRole.Administrator));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (4));
 		}
 	[TestCase (0)]

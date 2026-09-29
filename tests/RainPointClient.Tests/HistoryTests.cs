@@ -256,10 +256,10 @@ public sealed class HistoryTests
 	[TestCase (1)]
 	[TestCase (3)]
 	[TestCase (99)]
-	public void ZoneZeroDoesNotAdmitArbitraryEventKinds (int code)
+	public async Task ZoneZeroDoesNotAdmitArbitraryEventKinds (int code)
 		{
 		Events (Event.Replace ("\"port\":1", "\"port\":0").Replace ("\"code\":1", "\"code\":" + code));
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetEventsAsync (42, new RainPointEventQuery { HubId = 101, Address = 2, Zone = 2 }));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetEventsAsync (42, new RainPointEventQuery { HubId = 101, Address = 2, Zone = 2 }));
 		}
 
 	}

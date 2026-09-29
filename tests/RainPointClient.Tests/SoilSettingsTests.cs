@@ -110,7 +110,7 @@ public sealed class SoilSettingsTests
 		{
 		var before = await Read ();
 		int requests = _handler.Requests.Count;
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => _client.SetTimerMoistureStopAsync (_hub, before, percent));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => _client.SetTimerMoistureStopAsync (_hub, before, percent));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (requests));
 		}
 	[TestCase (0)]
@@ -120,14 +120,14 @@ public sealed class SoilSettingsTests
 		{
 		var before = await Read ();
 		int requests = _handler.Requests.Count;
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => _client.SetTimerSoilSensorAsync (_hub, before, address));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => _client.SetTimerSoilSensorAsync (_hub, before, address));
 		Assert.That (_handler.Requests.Count, Is.EqualTo (requests));
 		}
 	[Test]
 	public async Task CannotEnableThresholdWithoutSensor ()
 		{
 		var before = await Read (EMPTY.Replace ("1e000380", "1e000080"));
-		Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
+		await Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
 		}
 	[TestCase ("HCS005FRF")]
 	[TestCase ("HCS021FRF")]
@@ -145,7 +145,7 @@ public sealed class SoilSettingsTests
 		{
 		var before = await Read ();
 		Discovery (EMPTY);
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerSoilSensorAsync (_hub, before, 3));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerSoilSensorAsync (_hub, before, 3));
 		Assert.That (_handler.Requests.Count (r => r.Path == "/app/device/sub/update"), Is.Zero);
 		}
 	[TestCase ("58020a001e0003ff00004200fed7")]
@@ -155,20 +155,20 @@ public sealed class SoilSettingsTests
 		{
 		var before = await Read (EMPTY.Replace (Port.Split (',')[0], field));
 		Assert.That (before.SoilSensorAvailability, Is.EqualTo (TimerReadingAvailability.Malformed));
-		Assert.ThrowsAsync<NotSupportedException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
+		await Assert.ThrowsAsync<NotSupportedException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
 		}
 	[Test]
 	public async Task StaleAndUncertainWritesAreNotReplayed ()
 		{
 		var before = await Read ();
 		Discovery (EMPTY.Replace ("aux", "changed"));
-		Assert.ThrowsAsync<RainPointException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
+		await Assert.ThrowsAsync<RainPointException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
 		before = await Read ();
 		Discovery (EMPTY);
 		_handler.Steps.Enqueue ((_, _) => throw new HttpRequestException ("uncertain"));
-		Assert.ThrowsAsync<HttpRequestException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
+		await Assert.ThrowsAsync<HttpRequestException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
 		Discovery (EMPTY);
-		Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
+		await Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureStopAsync (_hub, before, 50));
 		Assert.That (_handler.Requests.Count (r => r.Path == "/app/device/sub/update"), Is.EqualTo (1));
 		}
 	}

@@ -72,7 +72,7 @@ public sealed class WeatherTests
 		Assert.That (handler.Requests.Last ().Method, Is.EqualTo (HttpMethod.Get));
 		Assert.That (handler.Requests.Last ().Path, Does.StartWith ("/weather/get?accessKey=fixtureKey&timestamp="));
 		Assert.That (handler.Requests.Last ().Path, Does.Contain ("hours=48&days=7"));
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await client.GetWeatherAsync (home, new ("fixtureKey", "fixtureSecret"), 49));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await client.GetWeatherAsync (home, new ("fixtureKey", "fixtureSecret"), 49));
 		Assert.That (handler.Requests, Has.Count.EqualTo (3));
 		}
 	[Test]

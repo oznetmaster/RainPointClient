@@ -67,7 +67,7 @@ public sealed class DeviceLifecycleTests
 		Assert.That (relation.GetProperty ("style").GetString (), Is.EqualTo ("preserve-me"));
 		Assert.That (relation.GetProperty ("param").GetString (), Is.EqualTo (original.Replace ("0380", "0080")));
 		int count = _handler.Requests.Count;
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveDeviceAsync (state.Home, state.Hub, 3));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveDeviceAsync (state.Home, state.Hub, 3));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (count));
 		}
 	[TestCase (true)]
@@ -93,7 +93,7 @@ public sealed class DeviceLifecycleTests
 		string hubs = kind == "other" ? Hubs (sibling: "Unknown") : Hubs ("unreadable");
 		var state = await Observe (hubs);
 		_handler.Reply (hubs);
-		Assert.ThrowsAsync<NotSupportedException> (async () => await _client.RemoveDeviceAsync (state.Home, state.Hub, 3));
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await _client.RemoveDeviceAsync (state.Home, state.Hub, 3));
 		Assert.That (_handler.Requests.Count (r => r.Method == HttpMethod.Post), Is.EqualTo (1));
 		}
 	[Test]
@@ -101,7 +101,7 @@ public sealed class DeviceLifecycleTests
 		{
 		var state = await Observe ();
 		_handler.Reply (Hubs ().Replace ("preserve-me", "changed"));
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
 		Assert.That (_handler.Requests.Count (r => r.Method == HttpMethod.Post), Is.EqualTo (1));
 		}
 	[TestCase (0)]
@@ -132,9 +132,9 @@ public sealed class DeviceLifecycleTests
 		_handler.Reply (Hubs ());
 		_handler.Reply (AdministrationTests.HOME);
 		_handler.Reply ("{\"code\":42}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
 		int count = _handler.Requests.Count;
-		Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
+		await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.RemoveHubAsync (state.Home, state.Hub));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (count));
 		}
 	}

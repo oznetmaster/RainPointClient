@@ -87,10 +87,10 @@ public sealed class DeviceInformationTests
 	[TestCase ("{\"softVer\":\"\",\"info\":null}")]
 	[TestCase ("{\"softVer\":\"1\",\"info\":{}}")]
 	[TestCase ("{\"softVer\":\"1\",\"info\":{\"versionName\":\"\"}}")]
-	public void MalformedFirmwareIsNotReportedUpToDate (string data)
+	public async Task MalformedFirmwareIsNotReportedUpToDate (string data)
 		{
 		_handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubFirmwareAsync (Hub ()));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubFirmwareAsync (Hub ()));
 		}
 
 	[Test]
@@ -119,10 +119,10 @@ public sealed class DeviceInformationTests
 		}
 
 	[Test]
-	public void AmbiguousConnectionReadingIsRejected ()
+	public async Task AmbiguousConnectionReadingIsRejected ()
 		{
 		_handler.Reply ("""{"code":0,"data":[{"mid":101,"status":[{"id":"connected","value":"1"},{"id":"connected","value":"0"}]}]}""");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubStatusAsync (Hub ()));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHubStatusAsync (Hub ()));
 		}
 
 	[Test]

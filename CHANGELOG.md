@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0] - 2026-09-29
+
+- Expose assigned zone names and typed home-configuration change notifications, scoped to the signed-in account and monitored home.
+
+- Add an opt-in monitor mode that pauses routine status polling after MQTT connects and a catch-up read succeeds. Startup, reconnection, polling fallback and manual refresh remain supported.
+- Expose synchronized live-update availability separately from physical device freshness.
+
+- Register account MQTT credentials for home-configuration notifications while retaining compatibility with temporary status observers.
+- Update development tests to NUnit 5.
+
 ## [1.0.1] - 2026-09-28
 
 Documentation updates. No functional changes.

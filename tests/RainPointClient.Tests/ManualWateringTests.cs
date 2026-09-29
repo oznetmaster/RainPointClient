@@ -113,9 +113,9 @@ public sealed class ManualWateringTests
 	[TestCase (false, 300, 60, 0)]
 	[TestCase (false, 300, 60, 61)]
 	[TestCase (false, 300, 60, 43260)]
-	public void InvalidTimingsNeverContactCloud (bool misting, double duration, double burst, double pause)
+	public async Task InvalidTimingsNeverContactCloud (bool misting, double duration, double burst, double pause)
 		{
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await Start (misting, 1,
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await Start (misting, 1,
 			 TimeSpan.FromSeconds (duration), TimeSpan.FromSeconds (burst), TimeSpan.FromSeconds (pause)));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
@@ -125,30 +125,30 @@ public sealed class ManualWateringTests
 	[TestCase ("119")]
 	[TestCase ("1.1.130")]
 	[TestCase ("-130")]
-	public void UnknownOrOldFirmwareNeverReceivesNewModes (string? firmware)
+	public async Task UnknownOrOldFirmwareNeverReceivesNewModes (string? firmware)
 		{
 		Assert.That (Hub (firmware).Devices[0].SupportsManualCycles, Is.False);
 		foreach (bool misting in new[] { true, false })
-			Assert.ThrowsAsync<NotSupportedException> (async () => await Start (misting, 1,
+			await Assert.ThrowsAsync<NotSupportedException> (async () => await Start (misting, 1,
 				 TimeSpan.FromMinutes (5), TimeSpan.FromMinutes (1), TimeSpan.FromMinutes (1), Hub (firmware)));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
 	[TestCase (0)]
 	[TestCase (4)]
-	public void InvalidZoneNeverContactsCloud (int zone)
+	public async Task InvalidZoneNeverContactsCloud (int zone)
 		{
 		foreach (bool misting in new[] { true, false })
-			Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await Start (misting, zone,
+			await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await Start (misting, zone,
 				 TimeSpan.FromMinutes (5), TimeSpan.FromMinutes (1), TimeSpan.FromMinutes (1)));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
 
 	[Test]
-	public void UnsupportedDeviceDoesNotInheritFirmwareCapability ()
+	public async Task UnsupportedDeviceDoesNotInheritFirmwareCapability ()
 		{
 		Assert.That (Hub ("130", "Other").Devices[0].SupportsManualCycles, Is.False);
-		Assert.ThrowsAsync<NotSupportedException> (async () => await Start (true, 1,
+		await Assert.ThrowsAsync<NotSupportedException> (async () => await Start (true, 1,
 			 TimeSpan.FromMinutes (1), TimeSpan.FromSeconds (10), TimeSpan.FromSeconds (20), Hub ("130", "Other")));
 		Assert.That (_handler.Requests, Is.Empty);
 		}
@@ -159,7 +159,7 @@ public sealed class ManualWateringTests
 		{
 		await Login ();
 		_handler.Reply ("unavailable", HttpStatusCode.ServiceUnavailable);
-		Assert.ThrowsAsync<RainPointException> (async () => await Start (misting, 1,
+		await Assert.ThrowsAsync<RainPointException> (async () => await Start (misting, 1,
 			 TimeSpan.FromMinutes (5), TimeSpan.FromMinutes (1), TimeSpan.FromMinutes (1)));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		_handler.Reply ("{\"code\":0}");

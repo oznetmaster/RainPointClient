@@ -111,7 +111,7 @@ dotnet test RainPointClient.slnx -c Release --logger trx
 
 `RainPointClient.Tests` includes offline dashboard behavior tests for both library targets. `RainPointClient.Desktop.Tests` exercises actual WPF controls and bindings on both Windows targets, using simulated HTTP responses and offscreen rendering. It records PNG attachments alongside NUnit results and requires Windows with WPF installed. Discovery and these tests do not log in to a real account or command hardware.
 
-The dependencies are NUnit 4.6.1, NUnit3TestAdapter 6.3.0, Microsoft.NET.Test.Sdk 18.10.1 and NUnit.Analyzers 4.15.0. The Windows test project marks them private. net472 uses Microsoft.NETFramework.ReferenceAssemblies 1.0.3 for compilation.
+The dependencies are NUnit 5.0.0, NUnit3TestAdapter 6.3.0, Microsoft.NET.Test.Sdk 18.10.1 and NUnit.Analyzers 4.15.0. The Windows test project marks them private. net472 uses Microsoft.NETFramework.ReferenceAssemblies 1.0.3 for compilation.
 
 The Windows tests cover DPAPI storage, startup sign-in, account/device selection, status binding, all-zone start/stop controls, settings editors, history navigation and saved-plan creation/replacement/enablement/deletion through actual WPF controls. Tests include rendered PNG attachments. Dashboard cases cover all three plan modes and five writable recurrence types in every zone, input bounds, unrelated-zone preservation, stale/uncertain writes, read-back failures, selection resets and cancellation.
 

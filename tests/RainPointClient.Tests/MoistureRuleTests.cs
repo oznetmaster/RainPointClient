@@ -115,7 +115,7 @@ public sealed class MoistureRuleTests
 		{
 		var before = await Read ();
 		var rule = new RainPointMoistureWateringRule { StartBelowMoisturePercent = value };
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
 		}
 	[TestCase (0)]
 	[TestCase (31)]
@@ -124,7 +124,7 @@ public sealed class MoistureRuleTests
 		{
 		var before = await Read ();
 		var rule = new RainPointMoistureWateringRule { Duration = TimeSpan.FromMinutes (minutes) };
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
 		}
 	[TestCase ("0.2")]
 	[TestCase ("6000.1")]
@@ -133,14 +133,14 @@ public sealed class MoistureRuleTests
 		{
 		var before = await Read ();
 		var rule = new RainPointMoistureWateringRule { WaterLimitLitres = decimal.Parse (value, System.Globalization.CultureInfo.InvariantCulture) };
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, rule));
 		}
 	[Test]
 	public async Task RequiresALimitAndAnAssociatedSensorToEnable ()
 		{
 		var before = await Read (EMPTY.Replace ("1e000380", "1e000080"));
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { Duration = null }));
-		Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { Enabled = true }));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { Duration = null }));
+		await Assert.ThrowsAsync<InvalidOperationException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { Enabled = true }));
 		}
 	[TestCase ("1e00")]
 	[TestCase ("1e0000005802000z")]
@@ -150,7 +150,7 @@ public sealed class MoistureRuleTests
 		{
 		var before = await Read (EMPTY.Replace ("1e00000058020000aabb", encoded));
 		Assert.That (before.MoistureRuleAvailability, Is.EqualTo (TimerReadingAvailability.Malformed));
-		Assert.ThrowsAsync<NotSupportedException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new ()));
+		await Assert.ThrowsAsync<NotSupportedException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new ()));
 		}
 	[TestCase (1)]
 	[TestCase (2)]
@@ -171,14 +171,14 @@ public sealed class MoistureRuleTests
 	public async Task ExclusionMustLeaveEnoughTime (int start, int end)
 		{
 		var before = await Read ();
-		Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { ExcludedFrom = TimeSpan.FromMinutes (start), ExcludedUntil = TimeSpan.FromMinutes (end) }));
+		await Assert.ThrowsAsync<ArgumentException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new () { ExcludedFrom = TimeSpan.FromMinutes (start), ExcludedUntil = TimeSpan.FromMinutes (end) }));
 		}
 	[Test]
 	public async Task StaleRuleDoesNotWrite ()
 		{
 		var before = await Read ();
 		Discovery (EMPTY.Replace ("tail", "external"));
-		Assert.ThrowsAsync<RainPointException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new ()));
+		await Assert.ThrowsAsync<RainPointException> (() => _client.SetTimerMoistureWateringRuleAsync (_hub, before, new ()));
 		Assert.That (_handler.Requests.Count (r => r.Path == "/app/device/sub/update"), Is.Zero);
 		}
 	}

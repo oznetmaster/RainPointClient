@@ -23,6 +23,7 @@ public sealed class RainPointMonitor
 	private readonly RainPointHub _hub;
 	private readonly TimeSpan _pollInterval;
 	private readonly bool _enablePush;
+	private readonly bool _pollWhilePushConnected;
 	private readonly IObserverTransport _transport;
 	private readonly Func<TimeSpan, CancellationToken, Task> _delay;
 	private readonly Func<DateTimeOffset> _now;
@@ -35,8 +36,12 @@ public sealed class RainPointMonitor
 	private RainPointStatusUpdate? _current;
 	private RainPointMonitorState _state = RainPointMonitorState.Stopped;
 	private volatile bool _pushConnected;
+	private long _pushGeneration;
+	private long _synchronizedPushGeneration = -1;
+	private object? _pushSessionIdentity;
 	private long _acceptedPushes;
 	private long _rejectedPushes;
+	private long _configurationRevision = -1;
 
 	public RainPointMonitor (RainPointCloudClient client, RainPointHub hub, RainPointMonitorOptions? options = null)
 		 : this (client, hub, options ?? new RainPointMonitorOptions (), new MqttObserverTransport (), Task.Delay, () => DateTimeOffset.UtcNow) { }
@@ -52,12 +57,15 @@ public sealed class RainPointMonitor
 			throw new ArgumentOutOfRangeException (nameof (options), "Polling must be between five seconds and one hour.");
 		_pollInterval = options.PollInterval;
 		_enablePush = options.EnablePush;
+		_pollWhilePushConnected = options.PollWhilePushConnected;
 		_transport = transport;
 		_delay = delay;
 		_now = now;
 		_merger = new StatusMerger (hub);
 		}
 
+	/// <summary>Raised for a newer configuration revision of this hub's home. Requires an identified login profile. Does not refresh configuration or mark status fresh.</summary>
+	public event EventHandler<RainPointConfigurationChange>? ConfigurationChanged;
 	public event EventHandler<RainPointStatusUpdate>? StatusReceived;
 	public event EventHandler<RainPointMonitorStateChangedEventArgs>? StateChanged;
 	public RainPointStatusUpdate? Current
@@ -76,6 +84,10 @@ public sealed class RainPointMonitor
 				return _state;
 			}
 		}
+	/// <summary>True after a successful catch-up read on the current MQTT connection and authenticated session. This is observer availability, not a physical-device heartbeat.</summary>
+	public bool LiveUpdatesAvailable => _pushConnected && _client.HasValidSession
+		&& ReferenceEquals (_pushSessionIdentity, _client.SessionIdentity)
+		&& Interlocked.Read (ref _pushGeneration) == Interlocked.Read (ref _synchronizedPushGeneration);
 	public long AcceptedPushCount => Interlocked.Read (ref _acceptedPushes);
 	public long RejectedPushCount => Interlocked.Read (ref _rejectedPushes);
 
@@ -121,6 +133,7 @@ public sealed class RainPointMonitor
 		await _pollGate.WaitAsync (cancellationToken).ConfigureAwait (false);
 		try
 			{
+			long generation = _pushConnected ? Interlocked.Read (ref _pushGeneration) : -1;
 			RainPointHubStatus status = await _client.GetHubStatusAsync (_hub, cancellationToken).ConfigureAwait (false);
 			RainPointStatusUpdate update;
 			lock (_gate)
@@ -130,6 +143,12 @@ public sealed class RainPointMonitor
 				_current = update;
 				}
 			Raise (StatusReceived, update);
+			if (generation >= 0 && _pushConnected && generation == Interlocked.Read (ref _pushGeneration))
+				{
+				Interlocked.Exchange (ref _synchronizedPushGeneration, generation);
+				if (LiveUpdatesAvailable)
+					SetState (RainPointMonitorState.PushConnected);
+				}
 			}
 		finally { _pollGate.Release (); }
 		}
@@ -171,8 +190,9 @@ public sealed class RainPointMonitor
 					SetState (RainPointMonitorState.AuthenticationRequired);
 				else
 					{
-					await RefreshAsync (token).ConfigureAwait (false);
-					SetState (_pushConnected ? RainPointMonitorState.PushConnected : RainPointMonitorState.Polling);
+					if (_pollWhilePushConnected || !LiveUpdatesAvailable)
+						await RefreshAsync (token).ConfigureAwait (false);
+					SetState (LiveUpdatesAvailable ? RainPointMonitorState.PushConnected : _pushConnected ? RainPointMonitorState.Reconnecting : RainPointMonitorState.Polling);
 					}
 				}
 			catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
@@ -205,8 +225,10 @@ public sealed class RainPointMonitor
 				using CancellationTokenSource connection = CancellationTokenSource.CreateLinkedTokenSource (token);
 				Task transport = _transport.RunAsync (credentials, () =>
 				{
+					Interlocked.Increment (ref _pushGeneration);
+					_pushSessionIdentity = credentials.SessionIdentity;
 					_pushConnected = true;
-					SetState (RainPointMonitorState.PushConnected);
+					SetState (_pollWhilePushConnected ? RainPointMonitorState.PushConnected : RainPointMonitorState.Reconnecting);
 				}, Receive, connection.Token);
 				try
 					{
@@ -266,6 +288,19 @@ public sealed class RainPointMonitor
 
 	private void Receive (byte[] payload)
 		{
+		RainPointConfigurationChange? change = PushDecoder.DecodeConfiguration (payload, _hub.HomeId, _client.AccountProfile?.Id);
+		if (change != null)
+			{
+			lock (_gate)
+				{
+				if (_stop is null || _stop.IsCancellationRequested || change.Revision <= _configurationRevision)
+					return;
+				_configurationRevision = change.Revision;
+				}
+			Interlocked.Increment (ref _acceptedPushes);
+			Raise (ConfigurationChanged, change);
+			return;
+			}
 		RainPointStatusUpdate? update;
 		lock (_gate)
 			{

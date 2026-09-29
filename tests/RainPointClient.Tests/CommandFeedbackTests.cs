@@ -129,10 +129,10 @@ public sealed class CommandFeedbackTests
 
 	[TestCase (1001)]
 	[TestCase (1004)]
-	public void InvalidOptionalDataCannotHideSessionRejection (int code)
+	public async Task InvalidOptionalDataCannotHideSessionRejection (int code)
 		{
 		_handler.Reply ("{\"data\":{\"state\":[]},\"code\":" + code + "}");
-		var error = Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
+		var error = await Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
 		Assert.That (error!.ApiCode, Is.EqualTo (code));
 		Assert.That (_client.HasValidSession, Is.False);
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
@@ -140,10 +140,10 @@ public sealed class CommandFeedbackTests
 
 	[TestCase ("{\"code\":0,\"data\":{\"state\":[}}")]
 	[TestCase ("{\"data\":null}")]
-	public void BrokenEnvelopeIsStillAnErrorAndNeverReplayed (string response)
+	public async Task BrokenEnvelopeIsStillAnErrorAndNeverReplayed (string response)
 		{
 		_handler.Reply (response);
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.StopWateringAsync (Hub (), 2, 1));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (2));
 		}
 	}

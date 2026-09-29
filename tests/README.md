@@ -1,17 +1,17 @@
 # Offline tests
 
-Latest verified full offline run (28 September 2026): **1,352 library/dashboard cases and 87 WPF cases on each target, 2,878 passes with zero failures/skips**. The release-preparation rerun also passed all 2,878 cases; its TRX files are under ignored `artifacts/release-tests`. Earlier completion results remain under `artifacts/completion-offline` and `artifacts/completion-wpf`. See [publication validation](../PUBLISHING.md#local-preparation-validation--28-september-2026) for package, workflow and documentation checks. The additions cover scene-history page translation and the vendor interval calendar across daylight-saving changes. Earlier results and failures remain retained; counts in dated sections below are historical. Live Android fixtures are excluded from offline runs.
+Latest verified full offline run (29 September 2026): **1,380 library/dashboard cases and 87 WPF cases on each target, 2,934 passes with zero failures/skips**, using NUnit 5. Results are retained under ignored `artifacts/release-110-tests`. The additions cover attributed zone names, home-configuration notifications, account observer registration, and push connection/session reconciliation. Earlier dated results below are historical. Live Android fixtures are excluded from offline runs.
 
 The suite targets net472 and net10.0 with C# 14. Every HTTP response is supplied by an in-process `HttpMessageHandler`; it cannot fall through to the network. Decoder fixtures include explicitly synthetic three-zone frames and a family-layout example from the protocol references, not captures from the owner's timer.
 
 | Dependency | Version | Purpose |
 | --- | --- | --- |
-| NUnit | 4.6.1 | Test framework |
+| NUnit | 5.0.0 | Test framework |
 | NUnit3TestAdapter | 6.3.0 | Visual Studio / VSTest discovery and execution |
 | Microsoft.NET.Test.Sdk | 18.10.1 | Test host |
 | NUnit.Analyzers | 4.15.0 | Compile-time test checks |
 | Microsoft.NETFramework.ReferenceAssemblies | 1.0.3 | net472 reference assemblies, build only |
-| System.Text.Json | 10.0.12 | Client serialization on net472; .NET 10 uses its built-in implementation |
+| System.Text.Json | 10.0.12 | Client serialization on both targets |
 
 Versions were checked against the stable NuGet feed on 23 September 2026.
 
@@ -498,3 +498,7 @@ The notification-pagination fixture now has a passing net10.0 run after correcti
 The separate processor workflow passed 2,704 local plus 1,352 processor cases on 28 September. Every stage passed and its reservation was released. A pre-existing package path was preserved during cleanup. The client has no processor packaging dependency; those files remain in their separate local repository.
 
 Final account-only password validation passed on the dedicated support account, including fresh authentication with both the temporary and restored original password. All temporary home, scene, schedule and password recovery journals were removed after verification. The final release solution build had zero warnings/errors and EditorConfig verification passed. BlueStacks was signed out, closed and released. All work remains local.
+
+## Configuration notifications and zone names — 29 September 2026
+
+The full library/dashboard offline suite passed 1,373 tests on net472 and 1,373 on net10.0, with no failures or skips. New cases cover attributed zone-name decoding, empty/missing positions, Unicode, configuration-message account/home routing, malformed payloads, revision deduplication/order, subscriber exceptions and callbacks after shutdown. Configuration notifications leave the current status object and its freshness unchanged. These cases use synthetic responses and do not claim live app-rename notification delivery. The Windows view suite was not rerun for this increment; its earlier results above are historical.

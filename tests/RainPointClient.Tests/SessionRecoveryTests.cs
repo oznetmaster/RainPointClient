@@ -119,7 +119,7 @@ public sealed class SessionRecoveryTests
 		Assert.That (_credentials, Is.EqualTo (1));
 		Assert.That (_handler.Requests.Last ().Path, Is.EqualTo ("/auth/basic/app/login"));
 		_handler.Reply ("{\"code\":1004}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
 		await worker.CheckAsync ();
 		await worker.CheckAsync ();
 		Assert.That (worker.State, Is.EqualTo (RainPointSessionState.AuthenticationRequired));
@@ -132,7 +132,7 @@ public sealed class SessionRecoveryTests
 		await Login ();
 		var hub = new RainPointHub { Id = 101, Model = "HWG023WBRF", HomeId = 5, DeviceName = "fixture", ProductKey = "fixture", Devices = new[] { new RainPointDevice { Address = 2, Model = "HTV345FRF" } } };
 		_handler.Reply ("{\"code\":1004}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.StartWateringAsync (hub, 2, 1, TimeSpan.FromMinutes (1)));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.StartWateringAsync (hub, 2, 1, TimeSpan.FromMinutes (1)));
 		Fresh ();
 		var worker = Worker (true);
 		await worker.CheckAsync ();
@@ -224,7 +224,7 @@ public sealed class SessionRecoveryTests
 		using var stop = new CancellationTokenSource ();
 		stop.Cancel ();
 		var worker = Worker ();
-		Assert.CatchAsync<OperationCanceledException> (async () => await worker.CheckAsync (stop.Token));
+		await Assert.CatchAsync<OperationCanceledException> (async () => await worker.CheckAsync (stop.Token));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	[Test]
@@ -253,7 +253,7 @@ public sealed class SessionRecoveryTests
 			var second = Worker ();
 			Assert.Throws<InvalidOperationException> (() => second.RunAsync ());
 			Assert.Throws<InvalidOperationException> (() => _client.LoginAsync ("fixture@example.invalid", "password", "44"));
-			Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.LogoutAsync ());
+			await Assert.ThrowsAsync<InvalidOperationException> (async () => await _client.LogoutAsync ());
 			}
 		finally { await worker.StopAsync (); await run; }
 		Assert.That (worker.State, Is.EqualTo (RainPointSessionState.Stopped));
@@ -277,7 +277,7 @@ public sealed class SessionRecoveryTests
 		var worker = Worker (true);
 		await worker.CheckAsync ();
 		_handler.Reply ("{\"code\":1004}");
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetHomesAsync ());
 		await worker.CheckAsync ();
 		Assert.That (worker.State, Is.EqualTo (RainPointSessionState.CoolingDown));
 		_now = _now.AddSeconds (119);

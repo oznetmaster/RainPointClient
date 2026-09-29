@@ -44,6 +44,21 @@ internal sealed class LoginRequest
 
 internal sealed class LoginUser
 	{
+	[JsonPropertyName ("deviceName")]
+	public string? DeviceName
+		{
+		get; set;
+		}
+	[JsonPropertyName ("productKey")]
+	public string? ProductKey
+		{
+		get; set;
+		}
+	[JsonPropertyName ("deviceSecret")]
+	public string? DeviceSecret
+		{
+		get; set;
+		}
 	[JsonPropertyName ("uid")]
 	public long? Id
 		{

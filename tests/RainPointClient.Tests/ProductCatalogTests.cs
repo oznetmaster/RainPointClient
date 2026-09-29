@@ -48,7 +48,7 @@ public sealed class ProductCatalogTests
 		handler.Reply ("{\"code\":0,\"data\":{\"token\":\"fixture\",\"tokenExpired\":3600}}");
 		await client.LoginAsync ("fixture@example.invalid", "password", "44");
 		handler.Reply ("{\"code\":0,\"data\":" + data + "}");
-		Assert.ThrowsAsync<RainPointException> (async () => await client.GetProductCatalogAsync ());
+		await Assert.ThrowsAsync<RainPointException> (async () => await client.GetProductCatalogAsync ());
 		}
 	[TestCase ("{}", null)]
 	[TestCase ("{\"recich\":0}", null)]

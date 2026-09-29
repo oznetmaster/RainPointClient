@@ -56,7 +56,7 @@ public sealed partial class RainPointCloudClient
 				}
 			double margin = Math.Min (60, data.ExpiresInSeconds / 10.0);
 			Session refreshed = new (data.Token!, started.AddSeconds (data.ExpiresInSeconds - margin),
-				 string.IsNullOrWhiteSpace (data.RefreshToken) ? original.RefreshToken : data.RefreshToken, original.Notifications, original.Profile);
+				 string.IsNullOrWhiteSpace (data.RefreshToken) ? original.RefreshToken : data.RefreshToken, original.Notifications, original.Profile, original.Observer);
 			if (!ReferenceEquals (Interlocked.CompareExchange (ref _session, refreshed, original), original))
 				{
 				throw new InvalidOperationException ("The session was invalidated while its refresh was pending; sign in again.");

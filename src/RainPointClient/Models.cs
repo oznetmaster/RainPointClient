@@ -113,6 +113,28 @@ public sealed class RainPointDevice
 		}
 	[JsonIgnore] public bool? SupportsSceneActions => SceneFunction.Supports (SceneFunctionParameter, AdvertisedSceneFlags, 2);
 
+	[JsonPropertyName ("portDescribe"), JsonInclude]
+	internal string? PortDescriptions
+		{
+		get; set;
+		}
+
+	/// <summary>Assigned names in zone order; an empty entry means no assigned name. Unknown timer models return an empty list.</summary>
+	[JsonIgnore]
+	public IReadOnlyList<string> ZoneNames
+		{
+		get
+			{
+			if (SupportedZoneCount is not { } count)
+				return Array.Empty<string> ();
+			string[] parts = (PortDescriptions ?? string.Empty).Split ('|');
+			string[] names = new string[count];
+			for (int i = 0; i < count; i++)
+				names[i] = i < parts.Length ? parts[i] : string.Empty;
+			return Array.AsReadOnly (names);
+			}
+		}
+
 	[JsonPropertyName ("style"), JsonInclude]
 	internal string? Style
 		{

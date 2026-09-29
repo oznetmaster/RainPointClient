@@ -86,26 +86,26 @@ public sealed class SceneHistoryTests
 	[TestCase ("[{}]")]
 	[TestCase ("[{\"aid\":1,\"mid\":0}]")]
 	[TestCase ("[{\"aid\":1,\"mid\":-1,\"addr\":0,\"rt\":0}]")]
-	public void MalformedResultsFailWithoutExposingTheirContents (string result)
+	public async Task MalformedResultsFailWithoutExposingTheirContents (string result)
 		{
 		_handler.Reply (Response (result));
-		var error = Assert.ThrowsAsync<RainPointException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start));
+		var error = await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start));
 		Assert.That (error!.Message, Does.Not.Contain (result));
 		}
 	[TestCase (6, 12)]
 	[TestCase (5, 13)]
-	public void WrongHomeOrFilteredSceneIsRejected (long home, long scene)
+	public async Task WrongHomeOrFilteredSceneIsRejected (long home, long scene)
 		{
 		_handler.Reply (Response ("[]", home, scene));
-		Assert.ThrowsAsync<RainPointException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start, sceneId: 12));
+		await Assert.ThrowsAsync<RainPointException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start, sceneId: 12));
 		}
 	[TestCase (-1, 50)]
 	[TestCase (int.MaxValue, 50)]
 	[TestCase (0, 0)]
 	[TestCase (0, 101)]
-	public void InvalidPagingMakesNoRequest (int page, int size)
+	public async Task InvalidPagingMakesNoRequest (int page, int size)
 		{
-		Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start, page, size));
+		await Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await _client.GetSceneHistoryAsync (5, Start, Start, page, size));
 		Assert.That (_handler.Requests, Has.Count.EqualTo (1));
 		}
 	// Live server evidence: pageNum 0 aliases 1; pageNum 2 contains the second record.

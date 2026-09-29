@@ -87,4 +87,7 @@ public sealed class RainPointMonitorOptions
 	{
 	public TimeSpan PollInterval { get; set; } = TimeSpan.FromSeconds (30);
 	public bool EnablePush { get; set; } = true;
+	/// <summary>When false, automatic REST reads run at startup, after each MQTT connection, and while live updates are unavailable. Manual refresh remains available.</summary>
+	/// <remarks>The default preserves periodic reconciliation for existing callers. A quiet connected observer need not emit timer changes.</remarks>
+	public bool PollWhilePushConnected { get; set; } = true;
 	}
