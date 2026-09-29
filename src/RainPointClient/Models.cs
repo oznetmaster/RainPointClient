@@ -191,12 +191,18 @@ public sealed class RainPointDevice
 
 	/// <summary>Whether discovery identifies the supported timer with firmware 120 or newer for manual misting/cycle commands.</summary>
 	[JsonIgnore]
-	public bool SupportsManualCycles => SupportedZoneCount.HasValue
+	public bool SupportsManualCycles => SupportedZoneCount == 3
 		 && int.TryParse (FirmwareVersion, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture,
 			  out int version) && version >= 120;
 
 	[JsonIgnore]
-	public int? SupportedZoneCount => string.Equals (Model, "HTV345FRF", StringComparison.OrdinalIgnoreCase) ? 3 : null;
+	public int? SupportedZoneCount => Model?.ToUpperInvariant () switch
+		{
+			"HTV145FRF" => 1,
+			"HTV245FRF" => 2,
+			"HTV345FRF" => 3,
+			_ => null
+		};
 	}
 
 public enum TimerReadingAvailability
@@ -318,11 +324,11 @@ public sealed class RainPointZoneStatus
 		get;
 		}
 
-	/// <summary>Last reported water usage in litres for the supported HTV345FRF timer.</summary>
+	/// <summary>Last reported water usage in litres for recognized RF timers.</summary>
 	/// <remarks>
 	/// Uses 0.1 litre per count, supported by an owner app comparison of 14 counts with 1.4 litres.
 	/// This is a last-usage reading, not a flow rate or cumulative meter; it may lag or reset during watering.
-	/// Missing usage remains unknown. The conversion has not been validated for other timer models.
+	/// Missing usage remains unknown. The added one- and two-zone models use the reference conversion without project hardware validation.
 	/// </remarks>
 	public decimal? LastWaterUsageLitres => LastWaterUsageCounts / 10m;
 

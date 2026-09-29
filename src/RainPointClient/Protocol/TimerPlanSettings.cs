@@ -17,13 +17,13 @@ internal static class TimerPlanSettings
 		snapshot.RainDelayAvailability = TimerReadingAvailability.NotReported;
 		if (string.IsNullOrEmpty (snapshot.Parameter))
 			return;
-		if (snapshot.PortNumber != 3 || snapshot.Parameter!.IndexOf ('=') >= 0)
+		if (snapshot.PortNumber is not (>= 1 and <= 3) || snapshot.Parameter!.IndexOf ('=') >= 0)
 			{
 			snapshot.SeasonalAdjustmentAvailability = snapshot.RainDelayAvailability = TimerReadingAvailability.UnsupportedFormat;
 			return;
 			}
 		string[] ports = snapshot.Parameter.Split ('|');
-		if (ports.Length != 3 || snapshot.Zone is < 1 or > 3)
+		if (ports.Length != snapshot.PortNumber || snapshot.Zone < 1 || snapshot.Zone > snapshot.PortNumber)
 			{
 			snapshot.SeasonalAdjustmentAvailability = snapshot.RainDelayAvailability = TimerReadingAvailability.Malformed;
 			return;

@@ -24,12 +24,13 @@ internal static class TimerDecoder
 			return Empty (TimerReadingAvailability.NotReported);
 			}
 
-		if (!value!.StartsWith ("11#", StringComparison.Ordinal) && !value.StartsWith ("01#", StringComparison.Ordinal))
+		bool compact = zoneCount == 1 && value!.StartsWith ("10#", StringComparison.Ordinal);
+		if (!compact && !value!.StartsWith ("11#", StringComparison.Ordinal) && !value.StartsWith ("01#", StringComparison.Ordinal))
 			{
 			return Empty (TimerReadingAvailability.UnsupportedFormat);
 			}
 
-		string hex = value.Substring (3);
+		string hex = value!.Substring (3);
 		if (hex.Length == 0 || hex.Length % 2 != 0)
 			{
 			return Empty (TimerReadingAvailability.Malformed);
@@ -49,8 +50,8 @@ internal static class TimerDecoder
 		int offset = 0;
 		while (offset < bytes.Length)
 			{
-			int dp = bytes[offset++];
-			if (offset == bytes.Length)
+			int dp = compact ? 0 : bytes[offset++];
+			if (!compact && offset == bytes.Length)
 				{
 				return Empty (TimerReadingAvailability.Malformed);
 				}
@@ -94,7 +95,7 @@ internal static class TimerDecoder
 			records[(dp << 9) | field] = data;
 			}
 
-		byte[]? Read (int dp, int field) => records.TryGetValue ((dp << 9) | field, out byte[]? data) ? data : null;
+		byte[]? Read (int dp, int field) => records.TryGetValue (((compact ? 0 : dp) << 9) | field, out byte[]? data) ? data : null;
 		List<RainPointZoneStatus> zones = [];
 		for (int zone = 1; zone <= zoneCount; zone++)
 			{

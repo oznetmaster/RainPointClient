@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] - 2026-09-29
+
+- Add HTV145FRF and HTV245FRF normal control, status/MQTT decoding, zone names and per-zone saved-plan reads with offline protocol fixtures.
+- Document the added models separately from hardware-validated HTV345FRF behavior. Advanced write restrictions are unchanged.
+- Update documentation.
+
+
 ## [1.1.0] - 2026-09-29
 
 - Expose assigned zone names and typed home-configuration change notifications, scoped to the signed-in account and monitored home.

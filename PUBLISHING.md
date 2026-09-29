@@ -14,7 +14,7 @@ The release is for the cloud client. Local-protocol research, additional hardwar
 
 ## Workflow comparison
 
-The local workflows were compared with the released OverkizClient 2.0.0, AppleTVControlLibrary 2.2.6, KasaTapoClient 2.0.1 and TeslaPowerwallLibrary 2.0.0 repositories. The first three are the direct models used during this project; the fourth confirms the independent-library documentation boundary.
+The local workflows cover validation, package publication and independent client documentation.
 
 | Area | Established pattern | RainPoint setup |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ The local workflows were compared with the released OverkizClient 2.0.0, AppleTV
 | Hardware override | Manual-only, explicit reason; hosted checks still mandatory | Same policy; an override is recorded as unverified hardware, never a pass |
 | NuGet | Stable package version, release build/pack, repository secret, duplicate-safe push | GitHub OIDC through `NuGet/login@v1`; metadata/version/package inspection and all assets prepared before any upload |
 | GitHub release | Reviewed notes, package/library assets and reference-app ZIPs | Versioned notes, nupkg, both DLL/XML targets, both Windows ZIPs and SHA-256 manifest |
-| Documentation | DocFX API/guides, Pages artifact and deployment environment | Pinned local DocFX 2.75.3 from the Overkiz model; PR build only, deployment only from default branch |
+| Documentation | DocFX API/guides, Pages artifact and deployment environment | Pinned local DocFX 2.75.3; PR build only, deployment only from default branch |
 | Post-release | Explicit default-branch validation dispatch | `post-release-validation.yml` dispatches unit and documentation workflows |
 
 Deliberate improvements over older templates: manual publication cannot build an arbitrary branch under a release version; secrets and user inputs enter PowerShell through environment variables; package contents and documentation are checked before upload; manual and tag runs both create/update the matching GitHub release; documentation permissions are limited to the deployment job. NuGet authentication now follows the requested Trusted Publishing approach instead of the older models' stored API key. A duplicate NuGet response cannot prove that remote bytes match a rebuilt package, so the post-publication download check below remains required.
@@ -72,7 +72,7 @@ NuGet versions are immutable. Correct documentation before upload; a later sourc
 
 - Release solution build: passed with zero warnings/errors.
 - Offline NUnit: 1,352 library/dashboard tests on net472 and 1,352 on net10.0; 87 WPF tests on net472 and 87 on net10.0-windows. All 2,878 passed, with no skipped tests. TRX files are retained locally under `artifacts/release-tests/`.
-- Release policy: 40 inherited policy scenarios and six metadata rejection scenarios passed. The two shared release-check scripts match the OverkizClient model byte-for-byte.
+- Release policy: 40 inherited policy scenarios and six metadata rejection scenarios passed.
 - All four workflow files passed actionlint 1.7.12; the official binary was checked against its published SHA-256 manifest. Local PowerShell scripts passed syntax parsing.
 - Clean DocFX metadata and site builds passed with zero warnings/errors. API, release notes, test guide and feature guides were generated; all 130 generated HTML files passed a local resource/link check. Framework references are staged only in ignored documentation output and never shipped as runtime assemblies.
 - `artifacts/release-preview-2/` contains the inspected 1.0.0 nupkg, both DLL/XML targets, both Windows ZIPs, release documents and SHA-256 manifest. Package dependency groups match their respective runtimes; both ZIPs include dependency licenses/notices, and all release asset hashes matched the manifest.
@@ -88,3 +88,7 @@ The remote repository and Pages source are now configured. Hosted runs, exact-ta
 - The full solution and DocFX site built with zero warnings/errors. Release policy, metadata rejection, source notices and editor configuration checks passed.
 - `artifacts/release-110-candidate-a` contains the validated local 1.1.0 package, DLL/XML target files, both Windows archives, release documents and SHA-256 manifest. This is local candidate evidence, not proof of public NuGet publication.
 - Live testing identified configuration notifications with an empty description; regression cases now accept these while preserving recipient/home/revision validation. Shared-account rename and disabled-plan updates passed without an explicit consumer refresh. A standalone consumer restored the local candidate into a fresh package cache, compiled the README example and loaded 1.1.0.0 on both targets without cloud calls. Hosted publication and public-package verification remain the release steps.
+
+## Version 1.2.0
+
+Adds reference-tested HTV145FRF and HTV245FRF normal control, status and saved-plan reads. Offline results: 1,399 library/dashboard and 87 Windows app cases on each target (2,972 passes). Added models have no project hardware validation.

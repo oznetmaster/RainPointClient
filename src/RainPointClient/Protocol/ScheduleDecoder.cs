@@ -20,12 +20,12 @@ internal static class ScheduleDecoder
 			return Result (TimerReadingAvailability.NotReported);
 			}
 		// This decoder supports the RF container only. DP key/value layouts need their own schema.
-		if (device.Parameter.IndexOf ('=') >= 0 || device.PortNumber is not 3)
+		if (device.Parameter.IndexOf ('=') >= 0 || device.PortNumber is not (>= 1 and <= 3))
 			{
 			return Result (TimerReadingAvailability.UnsupportedFormat);
 			}
 		string[] ports = device.Parameter.Split ('|');
-		if (ports.Length != 3 || zone < 1 || zone > 3)
+		if (ports.Length != device.PortNumber || zone < 1 || zone > device.PortNumber)
 			{
 			return Result (TimerReadingAvailability.Malformed);
 			}

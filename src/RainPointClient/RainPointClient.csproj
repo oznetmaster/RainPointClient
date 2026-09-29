@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/oznetmaster/RainPointClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/oznetmaster/RainPointClient</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/oznetmaster/RainPointClient/blob/v1.1.0/release-notes/v1.1.0.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oznetmaster/RainPointClient/blob/v1.2.0/release-notes/v1.2.0.md</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

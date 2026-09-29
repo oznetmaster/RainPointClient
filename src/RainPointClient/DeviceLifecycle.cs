@@ -72,10 +72,10 @@ public sealed partial class RainPointCloudClient
 			throw new NotSupportedException ("Removal requires known timer/sensor siblings with complete cloud identities.");
 		var removed = current.Devices.SingleOrDefault (d => d.Address == address) ?? throw new ArgumentException ("Choose a discovered child address.", nameof (address));
 		List<RemoveRelationWire> relations = new ();
-		foreach (var timer in current.Devices.Where (d => d.Address != address && d.SupportedZoneCount == 3))
+		foreach (var timer in current.Devices.Where (d => d.Address != address && d.SupportedZoneCount.HasValue))
 			{
 			string? parameter = timer.Parameter;
-			for (int zone = 1; zone <= 3; zone++)
+			for (int zone = 1; zone <= timer.SupportedZoneCount; zone++)
 				{
 				var snapshot = new RainPointScheduleSnapshot (timer.Address, zone, ScheduleDecoder.Decode (timer, zone).Availability, Array.Empty<RainPointSchedule> ()) { Parameter = parameter, PortNumber = timer.PortNumber, FirmwareVersion = timer.FirmwareVersion };
 				TimerSoilSettings.Decode (snapshot);

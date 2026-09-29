@@ -317,7 +317,7 @@ public sealed partial class RainPointCloudClient : IDisposable
 		RainPointDevice? timer = hub.Devices.FirstOrDefault (device => device.Address == address) ?? throw new ArgumentException ("The timer address is not paired with this hub.", nameof (address));
 
 		return !timer.SupportedZoneCount.HasValue
-			? throw new NotSupportedException ("This initial client supports HTV345FRF RF timers.")
+			? throw new NotSupportedException ("This client supports HTV145FRF, HTV245FRF and HTV345FRF RF timers.")
 			: timer;
 		}
 

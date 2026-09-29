@@ -149,7 +149,7 @@ public sealed partial class RainPointCloudClient
 			throw new RainPointException ("The hub's current configuration could not be uniquely located.");
 			}
 		RainPointDevice fresh = GetTimer (matches[0], address);
-		if (fresh.Id != timer.Id)
+		if (fresh.Id != timer.Id || fresh.Model != timer.Model || fresh.SupportedZoneCount != timer.SupportedZoneCount)
 			{
 			throw new RainPointException ("The paired timer changed; discover devices again before reading schedules.");
 			}

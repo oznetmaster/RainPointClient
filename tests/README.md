@@ -1,6 +1,6 @@
 # Offline tests
 
-Latest verified full offline run (29 September 2026): **1,380 library/dashboard cases and 87 WPF cases on each target, 2,934 passes with zero failures/skips**, using NUnit 5. Results are retained under ignored `artifacts/release-110-tests`. The additions cover attributed zone names, home-configuration notifications, account observer registration, and push connection/session reconciliation. Earlier dated results below are historical. Live Android fixtures are excluded from offline runs.
+Latest verified full offline run (29 September 2026): **1,399 library/dashboard cases and 87 WPF cases on each target, 2,972 passes with zero failures/skips**, using NUnit 5. Results are retained under ignored `artifacts/test-results/zone-variants`. The additions cover single/two-zone reference captures, compact framing validation, MQTT model discovery, absent-zone command rejection and per-zone plan containers. Earlier dated results below are historical. Live Android fixtures are excluded from offline runs.
 
 The suite targets net472 and net10.0 with C# 14. Every HTTP response is supplied by an in-process `HttpMessageHandler`; it cannot fall through to the network. Decoder fixtures include explicitly synthetic three-zone frames and a family-layout example from the protocol references, not captures from the owner's timer.
 

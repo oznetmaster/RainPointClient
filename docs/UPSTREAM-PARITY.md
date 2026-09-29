@@ -49,7 +49,7 @@ The expanded vendor-app target is tracked in [ANDROID-APP-AUDIT.md](ANDROID-APP-
 
 ## Deferred device families
 
-The references also cover one/two/four-zone timers, hub-paired Bluetooth valves and DP control, multi-station controllers, soil/moisture sensors, rain gauges/detectors, temperature/humidity/CO2/pool sensors, flow meters and weather/display hubs. Discovery alone does not establish functional support for those devices. Their decoders, model variants, units, settings and control paths need separate implementation and fixtures when the scope expands.
+One- and two-zone HTV145FRF/HTV245FRF normal control, status and saved-plan reads now have offline reference coverage; see [variant scope](TIMER-VARIANTS.md). Full feature parity for those models remains outside this update. The references also cover four-zone timers, hub-paired Bluetooth valves and DP control, multi-station controllers, soil/moisture sensors, rain gauges/detectors, temperature/humidity/CO2/pool sensors, flow meters and weather/display hubs. Discovery alone does not establish functional support for those devices. Their decoders, model variants, units, settings and control paths need separate implementation and fixtures when the scope expands.
 
 ## Test workflow
 

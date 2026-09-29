@@ -1,3 +1,5 @@
+- name: Timer variants
+  href: TIMER-VARIANTS.md
 - name: Windows app
   href: WINDOWS-APP.md
 - name: MQTT feedback

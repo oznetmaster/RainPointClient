@@ -27,7 +27,7 @@ No generic send-payload method is exposed. [Typed command-response observations]
 
 ## Deliberate differences and unresolved details
 
-- No inferred battery percentage. Water-usage factors differ between references; for HTV345FRF, the client uses 0.1 L per count based on the owner comparison below. It does not copy the primary reference's speculative 1/500 gallon factor or extend this conversion to other models.
+- No inferred battery percentage. Water-usage factors differ between references; for HTV345FRF, the client uses 0.1 L per count based on the owner comparison below. The added HTV145FRF/HTV245FRF models use the reference 0.1-litre scale without project hardware validation; see [timer variants](TIMER-VARIANTS.md).
 - No ASCII state interpretation: implementations differ, and treating every nonzero status as open can misread latched state flags. Unsupported formats are explicit.
 - No automatic retry of watering commands. A transport error can happen after the device accepts a request.
 - Normal manual watering is limited to 60..43200 whole seconds. Page 21 (PDF page 22) of the exact manufacturer manual specifies one minute to 12 hours. The one-second range belongs to misting, a separate mode. Earlier 10-/30-second normal-mode tests showed cloud transitions but the owner saw no water; those are not successful hardware tests.

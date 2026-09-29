@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 # Builds local artifacts only. Never uploads, tags, logs in or operates a device.
 [CmdletBinding()]
-param([string]$Version = '1.1.0', [string]$OutputDirectory = 'artifacts/release')
+param([string]$Version = '1.2.0', [string]$OutputDirectory = 'artifacts/release')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Version $Version -Root $root

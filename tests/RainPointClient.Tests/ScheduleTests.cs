@@ -117,7 +117,7 @@ public sealed class ScheduleTests
 		}
 
 	[TestCase (null)]
-	[TestCase (1)]
+	[TestCase (4)]
 	public void UnknownPortLayoutIsNotGuessed (int? ports)
 		{
 		Assert.That (Decode ("settings,|settings,|settings,", ports: ports).Availability,
