@@ -7,8 +7,15 @@ using System.Globalization;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Decodes and edits the recognized flow-calibration percentage without changing unrelated configuration.
+/// </summary>
 internal static class TimerFlowCalibration
 	{
+	/// <summary>
+	/// Populates the typed snapshot with decoded flow-calibration percentage and explicit section availability.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
 	internal static void Decode (RainPointScheduleSnapshot snapshot)
 		{
 		snapshot.FlowCalibrationPercent = null;
@@ -66,6 +73,15 @@ internal static class TimerFlowCalibration
 		snapshot.FlowCalibrationAvailability = TimerReadingAvailability.Decoded;
 		}
 
+	/// <summary>
+	/// Validates and replaces the selected flow-calibration percentage fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="percentage">The signed flow-calibration correction in percent, from -20 through 20.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentOutOfRangeException">Use a whole correction percentage from -20 to 20.</exception>
+	/// <exception cref="System.NotSupportedException">Use a decoded three-zone calibration snapshot with firmware 120 or newer. Unsupported timer configuration. A complete modern calibration field is required; missing defaults are not invented.</exception>
 	internal static string Edit (RainPointScheduleSnapshot snapshot, int percentage)
 		{
 		if (snapshot is null)

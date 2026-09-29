@@ -54,6 +54,13 @@
         ],
         "src": ".."
       }
+    ],
+    "overwrite": [
+      {
+        "files": [
+          "overrides/**.md"
+        ]
+      }
     ]
   }
 }

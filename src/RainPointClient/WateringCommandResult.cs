@@ -9,6 +9,13 @@ namespace RainPointClient;
 /// <summary>Cloud acknowledgement and optional reported status; neither confirms physical water flow.</summary>
 public sealed class RainPointWateringCommandResult
 	{
+	/// <summary>
+	/// Initializes watering command result from the supplied typed values.
+	/// </summary>
+	/// <param name="outcome">The cloud command acknowledgement classification.</param>
+	/// <param name="requestedZone">The one-based zone addressed by the command.</param>
+	/// <param name="status">The accepted typed hub or timer observation.</param>
+	/// <param name="responseTimestamp">The command response's cloud timestamp, or null when absent or invalid.</param>
 	internal RainPointWateringCommandResult (RainPointCommandOutcome outcome, int requestedZone,
 		 RainPointTimerStatus status, DateTimeOffset? responseTimestamp)
 		{
@@ -18,10 +25,16 @@ public sealed class RainPointWateringCommandResult
 		ResponseTimestamp = responseTimestamp;
 		}
 
+	/// <summary>
+	/// Gets the cloud acknowledgement classification, not physical confirmation.
+	/// </summary>
 	public RainPointCommandOutcome Outcome
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the one-based zone addressed by the command.
+	/// </summary>
 	public int RequestedZone
 		{
 		get;

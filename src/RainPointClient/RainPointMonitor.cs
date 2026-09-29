@@ -43,9 +43,27 @@ public sealed class RainPointMonitor
 	private long _rejectedPushes;
 	private long _configurationRevision = -1;
 
+	/// <summary>
+	/// Creates an unstarted observer for a discovered hub; the caller retains ownership of the cloud client.
+	/// </summary>
+	/// <param name="client">The caller-owned cloud client; this helper does not dispose it.</param>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="options">Monitor settings; null selects defaults where allowed.</param>
 	public RainPointMonitor (RainPointCloudClient client, RainPointHub hub, RainPointMonitorOptions? options = null)
 		 : this (client, hub, options ?? new RainPointMonitorOptions (), new MqttObserverTransport (), Task.Delay, () => DateTimeOffset.UtcNow) { }
 
+	/// <summary>
+	/// Creates an unstarted observer for a discovered hub; the caller retains ownership of the cloud client.
+	/// </summary>
+	/// <param name="client">The caller-owned cloud client; this helper does not dispose it.</param>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="options">Monitor settings; null selects defaults where allowed.</param>
+	/// <param name="transport">The MQTT transport used by the observer.</param>
+	/// <param name="delay">The cancellable delay implementation used by the worker.</param>
+	/// <param name="now">The UTC clock used for deterministic expiry and cooldown calculations.</param>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Use a hub discovered through a home.</exception>
+	/// <exception cref="System.ArgumentOutOfRangeException">Polling must be between five seconds and one hour.</exception>
 	internal RainPointMonitor (RainPointCloudClient client, RainPointHub hub, RainPointMonitorOptions options,
 		 IObserverTransport transport, Func<TimeSpan, CancellationToken, Task> delay, Func<DateTimeOffset> now)
 		{
@@ -66,8 +84,17 @@ public sealed class RainPointMonitor
 
 	/// <summary>Raised for a newer configuration revision of this hub's home. Requires an identified login profile. Does not refresh configuration or mark status fresh.</summary>
 	public event EventHandler<RainPointConfigurationChange>? ConfigurationChanged;
+	/// <summary>
+	/// Occurs on a background thread after accepting and merging a hub or timer observation.
+	/// </summary>
 	public event EventHandler<RainPointStatusUpdate>? StatusReceived;
+	/// <summary>
+	/// Occurs on a background thread when the monitor's connection lifecycle state changes.
+	/// </summary>
 	public event EventHandler<RainPointMonitorStateChangedEventArgs>? StateChanged;
+	/// <summary>
+	/// Gets the latest merged observation, or null before a successful observation is accepted.
+	/// </summary>
 	public RainPointStatusUpdate? Current
 		{
 		get
@@ -76,6 +103,9 @@ public sealed class RainPointMonitor
 				return _current;
 			}
 		}
+	/// <summary>
+	/// Gets the monitor's current connection lifecycle state.
+	/// </summary>
 	public RainPointMonitorState State
 		{
 		get
@@ -88,10 +118,19 @@ public sealed class RainPointMonitor
 	public bool LiveUpdatesAvailable => _pushConnected && _client.HasValidSession
 		&& ReferenceEquals (_pushSessionIdentity, _client.SessionIdentity)
 		&& Interlocked.Read (ref _pushGeneration) == Interlocked.Read (ref _synchronizedPushGeneration);
+	/// <summary>
+	/// Gets the count of accepted status pushes, not a count of physical valve transitions.
+	/// </summary>
 	public long AcceptedPushCount => Interlocked.Read (ref _acceptedPushes);
+	/// <summary>
+	/// Gets the count of status pushes rejected by scope, decoding or ordering checks.
+	/// </summary>
 	public long RejectedPushCount => Interlocked.Read (ref _rejectedPushes);
 
 	/// <summary>Runs until cancelled or stopped. A monitor instance can be started once.</summary>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task representing the operation lifetime.</returns>
+	/// <exception cref="System.InvalidOperationException">This monitor has already been started. This client already has a running monitor.</exception>
 	public Task RunAsync (CancellationToken cancellationToken = default)
 		{
 		lock (_gate)
@@ -106,6 +145,10 @@ public sealed class RainPointMonitor
 			}
 		}
 
+	/// <summary>
+	/// Cancels observation and waits for the running monitor to finish; does not dispose the caller's client.
+	/// </summary>
+	/// <returns>A task representing the operation lifetime.</returns>
 	public async Task StopAsync ()
 		{
 		Task? running;
@@ -119,6 +162,9 @@ public sealed class RainPointMonitor
 		}
 
 	/// <summary>Requests a read now. Polls are serialized; watering commands are never issued or retried.</summary>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task representing the operation lifetime.</returns>
+	/// <exception cref="System.InvalidOperationException">Start the monitor before refreshing it.</exception>
 	public async Task RefreshAsync (CancellationToken cancellationToken = default)
 		{
 		CancellationTokenSource refresh;
@@ -271,6 +317,13 @@ public sealed class RainPointMonitor
 			}
 		}
 
+	/// <summary>
+	/// Calculates the delay before observer credentials should be renewed, using their reported expiry.
+	/// </summary>
+	/// <param name="credentials">The session-bound observer credentials.</param>
+	/// <param name="now">The current instant used for expiry and timestamp checks.</param>
+	/// <returns>The bounded delay until observer credentials should be renewed.</returns>
+	/// <exception cref="RainPointException">The observer credentials have expired or are too close to expiry.</exception>
 	internal static TimeSpan RenewalDelay (ObserverCredentials credentials, DateTimeOffset now)
 		{
 		// Upstream observed a roughly 570-second observer lifetime. Missing expiry uses that bounded fallback.

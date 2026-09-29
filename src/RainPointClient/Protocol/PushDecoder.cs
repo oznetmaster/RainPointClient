@@ -15,42 +15,87 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Internal push envelope representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class PushEnvelope
 	{
+	/// <summary>
+	/// Stores the method protocol field for push envelope.
+	/// </summary>
 	[JsonPropertyName ("method"), JsonRequired] public string Method { get; set; } = string.Empty;
+	/// <summary>
+	/// Stores the params protocol field for push envelope.
+	/// </summary>
 	[JsonPropertyName ("params"), JsonRequired] public PushParameters Parameters { get; set; } = new ();
 	}
+/// <summary>
+/// Internal push parameters representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class PushParameters
 	{
+	/// <summary>
+	/// Stores the original encoded configuration field for bounded decoding and guarded updates.
+	/// </summary>
 	[JsonPropertyName ("param"), JsonRequired] public string Parameter { get; set; } = string.Empty;
 	}
+/// <summary>
+/// Internal push value representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class PushValue
 	{
+	/// <summary>
+	/// Stores the value protocol field for push value.
+	/// </summary>
 	[JsonPropertyName ("value"), JsonRequired] public string Value { get; set; } = string.Empty;
+	/// <summary>
+	/// Stores the time protocol field for push value.
+	/// </summary>
 	[JsonPropertyName ("time"), JsonRequired]
 	public long Time
 		{
 		get; set;
 		}
 	}
+/// <summary>
+/// Internal push reading representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class PushReading
 	{
+	/// <summary>
+	/// Stores the connected for push reading.
+	/// </summary>
 	internal bool? Connected
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the connection changed for push reading.
+	/// </summary>
 	internal DateTimeOffset? ConnectionChanged
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the timers for push reading.
+	/// </summary>
 	internal List<RainPointTimerStatus> Timers { get; } = [];
 	}
 
+/// <summary>
+/// Internal push timer values representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class PushTimerValues
 	{
+	/// <summary>
+	/// Stores the timers for push timer values.
+	/// </summary>
 	[JsonIgnore] public Dictionary<int, PushValue?> Timers { get; } = [];
 	}
 
+/// <summary>
+/// Internal push decoder representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal static class PushDecoder
 	{
 	private static readonly JsonSerializerOptions Json = new () { AllowDuplicateProperties = false, MaxDepth = 16 };
@@ -58,6 +103,13 @@ internal static class PushDecoder
 
 	// The official app treats command 04 as a home-configuration invalidation and rereads that home.
 	// Validate recipient and home independently; never interpret these notifications as valve feedback.
+	/// <summary>
+	/// Decodes an identified account/home configuration revision without treating it as timer feedback.
+	/// </summary>
+	/// <param name="payload">The received MQTT payload bytes; parsing is bounded and scope-checked.</param>
+	/// <param name="homeId">The positive cloud home identifier.</param>
+	/// <param name="accountId">The identified account used to scope configuration notifications, or null when unavailable.</param>
+	/// <returns>A matching configuration change, or null when the notification cannot be accepted.</returns>
 	internal static RainPointConfigurationChange? DecodeConfiguration (byte[] payload, long homeId, long? accountId)
 		{
 		if (payload.Length is 0 or > 8192 || homeId <= 0 || accountId is not > 0)
@@ -89,6 +141,13 @@ internal static class PushDecoder
 		catch (Exception error) when (error is JsonException or DecoderFallbackException or ArgumentOutOfRangeException) { return null; }
 		}
 
+	/// <summary>
+	/// Decodes a bounded MQTT status payload scoped to the discovered hub and supported timers.
+	/// </summary>
+	/// <param name="payload">The received MQTT payload bytes; parsing is bounded and scope-checked.</param>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="now">The current instant used for expiry and timestamp checks.</param>
+	/// <returns>A decoded push reading, or null when no acceptable reading can be produced.</returns>
 	internal static PushReading? Decode (byte[] payload, RainPointHub hub, DateTimeOffset now)
 		{
 		if (payload.Length is 0 or > 8192)
@@ -162,6 +221,12 @@ internal static class PushDecoder
 		return new JsonSerializerOptions { AllowDuplicateProperties = false, MaxDepth = 16, TypeInfoResolver = resolver };
 		}
 
+	/// <summary>
+	/// Converts a plausible vendor timestamp without manufacturing a fresh receipt time.
+	/// </summary>
+	/// <param name="value">The encoded protocol value to decode or serialize; absent or invalid values follow the method result contract.</param>
+	/// <param name="now">The current instant used for expiry and timestamp checks.</param>
+	/// <returns>The accepted instant, or null when absent, invalid or implausible.</returns>
 	internal static DateTimeOffset? Timestamp (long value, DateTimeOffset now)
 		{
 		if (value <= 0)

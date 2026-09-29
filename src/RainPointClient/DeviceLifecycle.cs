@@ -18,6 +18,17 @@ namespace RainPointClient;
 public sealed partial class RainPointCloudClient
 	{
 	/// <summary>Starts the hub's RF discovery window for one supported catalog model. This can pair a device in pairing mode. The returned duration is the cloud's search window, not proof of pairing.</summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="expected">An unused, current hub observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="model">The supported child product entry from the vendor catalog.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed time span result.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.NotSupportedException">Pairing supports the HTV345FRF timer and HCS005FRF/HCS021FRF soil sensors. The discovered hub must provide its model code.</exception>
+	/// <exception cref="System.InvalidOperationException">The selected model is no longer in the catalog.</exception>
+	/// <exception cref="RainPointException">The pairing response contains an invalid search duration. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<TimeSpan> StartDevicePairingAsync (RainPointHomeDetails home, RainPointHub expected, RainPointProductModel model, CancellationToken cancellationToken = default)
 		{
 		if (model is null)
@@ -47,6 +58,12 @@ public sealed partial class RainPointCloudClient
 		return TimeSpan.FromSeconds (window.Seconds);
 		}
 	/// <summary>Cancels RF discovery. Does not undo devices already paired; rediscover the hub afterwards.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task CancelDevicePairingAsync (RainPointHub hub, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);
@@ -59,12 +76,29 @@ public sealed partial class RainPointCloudClient
 		CheckResult (response, session);
 		}
 	/// <summary>Removes the hub and its children from the home. Requires a fresh home/hub observation; never retries.</summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="expected">An unused, current hub observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task RemoveHubAsync (RainPointHomeDetails home, RainPointHub expected, CancellationToken cancellationToken = default)
 		{
 		await CurrentLifecycleHubAsync (home, expected, cancellationToken).ConfigureAwait (false);
 		await WriteHomeAsync (home, "app/device/main/delete", new RemoveHubWire { HubId = expected.Id.ToString (CultureInfo.InvariantCulture) }, cancellationToken).ConfigureAwait (false);
 		}
 	/// <summary>Removes a supported paired child, clearing matching soil-sensor associations on every supported timer zone in the same request. Unknown sibling families are rejected because their relationships cannot be safely updated.</summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="expected">An unused, current hub observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.NotSupportedException">Removal requires known timer/sensor siblings with complete cloud identities. A remaining zone's sensor relationship cannot be read.</exception>
+	/// <exception cref="System.ArgumentException">Choose a discovered child address.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task RemoveDeviceAsync (RainPointHomeDetails home, RainPointHub expected, int address, CancellationToken cancellationToken = default)
 		{
 		var current = await CurrentLifecycleHubAsync (home, expected, cancellationToken).ConfigureAwait (false);
@@ -109,19 +143,40 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class PairingRequest
 		{
+		/// <summary>
+		/// Stores the mid protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("mid")] public string HubId { get; set; } = "";
+		/// <summary>
+		/// Stores the deviceName protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("deviceName")] public string DeviceName { get; set; } = "";
+		/// <summary>
+		/// Stores the productKey protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("productKey")] public string ProductKey { get; set; } = "";
+		/// <summary>
+		/// Stores the parentModelCode protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("parentModelCode")]
 		public int ParentModelCode
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the modelCode protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("modelCode")] public int[] ModelCodes { get; set; } = Array.Empty<int> ();
+		/// <summary>
+		/// Stores the did protocol field for pairing request.
+		/// </summary>
 		[JsonPropertyName ("did")] public string DeviceId { get; set; } = "";
 		}
 	private sealed class PairingWindowWire
 		{
+		/// <summary>
+		/// Stores the time protocol field for pairing window wire.
+		/// </summary>
 		[JsonPropertyName ("time"), JsonRequired]
 		public int Seconds
 			{
@@ -130,22 +185,50 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class PairingCancelWire
 		{
-		[JsonPropertyName ("deviceName")] public string DeviceName { get; set; } = ""; [JsonPropertyName ("productKey")] public string ProductKey { get; set; } = "";
+		/// <summary>
+		/// Stores the deviceName protocol field for pairing cancel wire.
+		/// </summary>
+		[JsonPropertyName ("deviceName")] public string DeviceName { get; set; } = "";
+		/// <summary>
+		/// Stores the productKey protocol field for pairing cancel wire.
+		/// </summary>
+		[JsonPropertyName ("productKey")] public string ProductKey { get; set; } = "";
 		}
 	private sealed class RemoveHubWire
 		{
+		/// <summary>
+		/// Stores the mid protocol field for remove hub wire.
+		/// </summary>
 		[JsonPropertyName ("mid")] public string HubId { get; set; } = "";
 		}
 	private sealed class RemoveChildWire
 		{
+		/// <summary>
+		/// Stores the mid protocol field for remove child wire.
+		/// </summary>
 		[JsonPropertyName ("mid")] public string HubId { get; set; } = "";
+		/// <summary>
+		/// Stores the sid protocol field for remove child wire.
+		/// </summary>
 		[JsonPropertyName ("sid")] public string DeviceId { get; set; } = "";
+		/// <summary>
+		/// Stores the updateList protocol field for remove child wire.
+		/// </summary>
 		[JsonPropertyName ("updateList")] public List<RemoveRelationWire> Relations { get; set; } = new ();
 		}
 	private sealed class RemoveRelationWire
 		{
+		/// <summary>
+		/// Stores the sid protocol field for remove relation wire.
+		/// </summary>
 		[JsonPropertyName ("sid")] public string DeviceId { get; set; } = "";
+		/// <summary>
+		/// Stores the original encoded configuration field for bounded decoding and guarded updates.
+		/// </summary>
 		[JsonPropertyName ("param")] public string Parameter { get; set; } = "";
+		/// <summary>
+		/// Stores the vendor style field used when preserving device configuration.
+		/// </summary>
 		[JsonPropertyName ("style")] public string Style { get; set; } = "";
 		}
 	}

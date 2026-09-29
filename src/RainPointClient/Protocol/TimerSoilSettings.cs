@@ -7,8 +7,15 @@ using System.Globalization;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Decodes and edits the recognized soil-sensor association and moisture-stop settings without changing unrelated configuration.
+/// </summary>
 internal static class TimerSoilSettings
 	{
+	/// <summary>
+	/// Populates the typed snapshot with decoded soil-sensor association and moisture-stop settings and explicit section availability.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
 	internal static void Decode (RainPointScheduleSnapshot snapshot)
 		{
 		snapshot.SoilSensorSettings = null;
@@ -50,6 +57,18 @@ internal static class TimerSoilSettings
 		snapshot.SoilSensorSettings = new RainPointSoilSensorSettings (data[6], threshold);
 		snapshot.SoilSensorAvailability = TimerReadingAvailability.Decoded;
 		}
+	/// <summary>
+	/// Validates and replaces the selected soil-sensor association and moisture-stop settings fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="percent">The soil-moisture stop threshold from 1 through 100 percent, or null to disable it.</param>
+	/// <param name="association">Whether this edit changes sensor association rather than only the moisture threshold.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
+	/// <exception cref="System.NotSupportedException">Use readable modern sensor settings on firmware 120 or newer. Only modern timer settings can be edited.</exception>
+	/// <exception cref="System.InvalidOperationException">Associate a sensor before enabling moisture stop.</exception>
 	internal static string Edit (RainPointScheduleSnapshot snapshot, int? address, int? percent, bool association)
 		{
 		if (snapshot is null)

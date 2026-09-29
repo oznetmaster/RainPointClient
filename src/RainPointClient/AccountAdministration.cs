@@ -13,13 +13,27 @@ using System.Threading.Tasks;
 using RainPointClient.Protocol;
 namespace RainPointClient;
 
+/// <summary>
+/// Identifies the account operation for which an email verification code is requested.
+/// </summary>
 public enum RainPointEmailVerificationPurpose
 	{
-	Registration = 0, PasswordReset = 1
+	/// <summary>Verification for a new account registration.</summary>
+	Registration = 0,
+	/// <summary>Verification for resetting an existing account password.</summary>
+	PasswordReset = 1
 	}
 /// <summary>Instructions for the vendor's manual registration verification route. The client does not send this email.</summary>
 public sealed class RainPointRegistrationEmail
 	{
+	/// <summary>
+	/// Initializes registration email from the supplied typed values.
+	/// </summary>
+	/// <param name="owner">The client identity to which the verification result belongs.</param>
+	/// <param name="email">The account email address.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="destination">The vendor mailbox used by the manual registration-verification route.</param>
+	/// <param name="content">The message content required by that manual verification route.</param>
 	internal RainPointRegistrationEmail (object owner, string email, string areaCode, string destination, string content)
 		{
 		Owner = owner;
@@ -28,22 +42,37 @@ public sealed class RainPointRegistrationEmail
 		Destination = destination;
 		Content = content;
 		}
+	/// <summary>
+	/// Gets the client identity that owns this verification result.
+	/// </summary>
 	internal object Owner
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the email address associated with this verification or profile.
+	/// </summary>
 	public string Email
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the account country calling code as digits without a plus sign.
+	/// </summary>
 	public string AreaCode
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the vendor address to which the caller must send the manual verification email.
+	/// </summary>
 	public string Destination
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the required manual verification-email content; the library does not send it.
+	/// </summary>
 	public string Content
 		{
 		get;
@@ -52,6 +81,14 @@ public sealed class RainPointRegistrationEmail
 /// <summary>A successful email verification, usable for one matching registration/reset attempt on the same client.</summary>
 public sealed class RainPointVerifiedEmail
 	{
+	/// <summary>
+	/// Initializes verified email from the supplied typed values.
+	/// </summary>
+	/// <param name="owner">The client identity to which the verification result belongs.</param>
+	/// <param name="email">The account email address.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="purpose">The registration or password-reset purpose of the verification.</param>
+	/// <param name="code">The verification code received by email.</param>
 	internal RainPointVerifiedEmail (object owner, string email, string areaCode, RainPointEmailVerificationPurpose purpose, string code)
 		{
 		Owner = owner;
@@ -60,30 +97,55 @@ public sealed class RainPointVerifiedEmail
 		Purpose = purpose;
 		Code = code;
 		}
+	/// <summary>
+	/// Gets the client identity that owns this verification result.
+	/// </summary>
 	internal object Owner
 		{
 		get;
 		}
+	/// <summary>
+	/// Stores the verified email code for one matching account operation.
+	/// </summary>
 	internal string Code
 		{
 		get;
 		}
+	/// <summary>
+	/// Tracks whether this observation has already been used for a write attempt.
+	/// </summary>
 	internal int Attempted;
+	/// <summary>
+	/// Gets the email address associated with this verification or profile.
+	/// </summary>
 	public string Email
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the account country calling code as digits without a plus sign.
+	/// </summary>
 	public string AreaCode
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the account operation for which this email was verified.
+	/// </summary>
 	public RainPointEmailVerificationPurpose Purpose
 		{
 		get;
 		}
 	}
+/// <summary>
+/// Captures the signed-in account profile for guarded nickname and photo updates.
+/// </summary>
 public sealed class RainPointAccountProfile
 	{
+	/// <summary>
+	/// Initializes account profile from the supplied typed values.
+	/// </summary>
+	/// <param name="user">The authenticated profile returned by the login response.</param>
 	internal RainPointAccountProfile (LoginUser user)
 		{
 		Id = user.Id;
@@ -92,23 +154,41 @@ public sealed class RainPointAccountProfile
 		Photo = user.Photo;
 		Language = user.Language;
 		}
+	/// <summary>
+	/// Tracks whether this observation has already been used for a write attempt.
+	/// </summary>
 	internal int Attempted;
+	/// <summary>
+	/// Gets the signed-in account identifier, or null when not supplied.
+	/// </summary>
 	public long? Id
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the profile email address, or null when not supplied.
+	/// </summary>
 	public string? Email
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the profile display nickname, or null when not supplied.
+	/// </summary>
 	public string? Nickname
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the reported profile-image address, or null when not supplied.
+	/// </summary>
 	public string? Photo
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the reported profile language code, or null when not supplied.
+	/// </summary>
 	public string? Language
 		{
 		get;
@@ -125,6 +205,17 @@ public sealed partial class RainPointCloudClient
 			return session?.ExpiresAt > DateTimeOffset.UtcNow && session.Profile?.Attempted == 0 ? session.Profile : null;
 			}
 		}
+	/// <summary>
+	/// Requests that the service email a verification code for registration or password reset.
+	/// </summary>
+	/// <param name="email">The account email address.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="purpose">The registration or password-reset purpose of the verification.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SendEmailVerificationCodeAsync (string email, string areaCode, RainPointEmailVerificationPurpose purpose, CancellationToken cancellationToken = default)
 		{
 		ValidateEmailVerification (email, areaCode, purpose);
@@ -135,6 +226,18 @@ public sealed partial class RainPointCloudClient
 			Type = (int)purpose
 			}, cancellationToken);
 		}
+	/// <summary>
+	/// Verifies an emailed code and returns a token bound to this client, account and purpose.
+	/// </summary>
+	/// <param name="email">The account email address.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="purpose">The registration or password-reset purpose of the verification.</param>
+	/// <param name="code">The verification code received by email.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed verified email result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointVerifiedEmail> VerifyEmailCodeAsync (string email, string areaCode, RainPointEmailVerificationPurpose purpose, string code, CancellationToken cancellationToken = default)
 		{
 		ValidateEmailVerification (email, areaCode, purpose);
@@ -149,6 +252,16 @@ public sealed partial class RainPointCloudClient
 			}, cancellationToken).ConfigureAwait (false);
 		return new (this, email, areaCode, purpose, code);
 		}
+	/// <summary>
+	/// Obtains the vendor's manual registration-email instructions without sending an email.
+	/// </summary>
+	/// <param name="email">The account email address.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed registration email result.</returns>
+	/// <exception cref="RainPointException">Registration email instructions are incomplete. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointRegistrationEmail> GetRegistrationEmailAsync (string email, string areaCode, CancellationToken cancellationToken = default)
 		{
 		ValidateEmailVerification (email, areaCode, RainPointEmailVerificationPurpose.Registration);
@@ -163,6 +276,17 @@ public sealed partial class RainPointCloudClient
 			throw new RainPointException ("Registration email instructions are incomplete.");
 		return new (this, email, areaCode, data.Email!, data.Content!);
 		}
+	/// <summary>
+	/// Checks completion of the manual registration-email route for instructions issued by this client.
+	/// </summary>
+	/// <param name="instructions">Manual-email instructions issued by this client for the matching account.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed verified email result.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Use registration instructions from this client.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointVerifiedEmail> VerifyRegistrationEmailAsync (RainPointRegistrationEmail instructions, CancellationToken cancellationToken = default)
 		{
 		if (instructions is null)
@@ -178,6 +302,17 @@ public sealed partial class RainPointCloudClient
 		return new (this, instructions.Email, instructions.AreaCode, RainPointEmailVerificationPurpose.Registration, instructions.Content);
 		}
 	/// <summary>Registers the verified email. The caller must obtain the user's agreement and supply their selected country. Never automatically retries.</summary>
+	/// <param name="verified">An unused verification result from this client matching the account and requested operation.</param>
+	/// <param name="password">The account password; it is not persisted or logged by the client.</param>
+	/// <param name="countryIsoCode">The caller-selected country ISO code for registration.</param>
+	/// <param name="deviceId">The caller-selected app/device identity for the account operation.</param>
+	/// <param name="agreementVersion">The accepted agreement version, where supplied by the registration flow.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentException">Use a two-letter uppercase country code.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task RegisterEmailAsync (RainPointVerifiedEmail verified, string password, string countryIsoCode, string deviceId, string? agreementVersion = null, CancellationToken cancellationToken = default)
 		{
 		ValidateAccountPassword (password);
@@ -188,6 +323,16 @@ public sealed partial class RainPointCloudClient
 		var request = new EmailAccountRequest { Email = verified.Email, AreaCode = verified.AreaCode, Code = verified.Code, Type = 0, Password = Hash (password), PushId = "", DeviceType = 1, DeviceModel = "RainPointClient", Language = "en", Country = countryIsoCode, DeviceId = deviceId, AgreementVersion = agreementVersion };
 		return AnonymousAccountAsync<EmailAccountRequest, ApiResult> ("app/common/core/account/email/register", request, cancellationToken, verified);
 		}
+	/// <summary>
+	/// Submits one password-reset attempt using a matching verified email token.
+	/// </summary>
+	/// <param name="verified">An unused verification result from this client matching the account and requested operation.</param>
+	/// <param name="newPassword">The replacement account password.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task ResetPasswordByEmailAsync (RainPointVerifiedEmail verified, string newPassword, CancellationToken cancellationToken = default)
 		{
 		ValidateAccountPassword (newPassword);
@@ -202,6 +347,15 @@ public sealed partial class RainPointCloudClient
 			}, cancellationToken, verified);
 		}
 	/// <summary>Changes the signed-in account password. Stop automatic recovery first. Any submitted attempt clears the local session; sign in explicitly to reconcile uncertainty.</summary>
+	/// <param name="oldPassword">The current account password.</param>
+	/// <param name="newPassword">The replacement account password.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentException">The new password must differ.</exception>
+	/// <exception cref="System.InvalidOperationException">Stop automatic recovery before changing account credentials.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task ChangePasswordAsync (string oldPassword, string newPassword, CancellationToken cancellationToken = default)
 		{
 		ValidateAccountPassword (oldPassword);
@@ -229,6 +383,16 @@ public sealed partial class RainPointCloudClient
 			}
 		finally { _loginGate.Release (); }
 		}
+	/// <summary>
+	/// Changes the nickname from a matching account-profile observation without replaying the write.
+	/// </summary>
+	/// <param name="expected">An unused, current account profile observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="nickname">The new account display nickname.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SetAccountNicknameAsync (RainPointAccountProfile expected, string nickname, CancellationToken cancellationToken = default)
 		{
 		RequireText (nickname, nameof (nickname));
@@ -238,6 +402,14 @@ public sealed partial class RainPointCloudClient
 			}, cancellationToken);
 		}
 	/// <summary>Associates an already uploaded HTTPS profile image. This does not upload or fetch a local image.</summary>
+	/// <param name="expected">An unused, current account profile observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="photo">The HTTPS address of an already uploaded profile image; the method does not upload or fetch an image.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentException">Use an absolute HTTPS image URL.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SetAccountPhotoAsync (RainPointAccountProfile expected, Uri photo, CancellationToken cancellationToken = default)
 		{
 		if (photo is null || !photo.IsAbsoluteUri || photo.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty (photo.UserInfo))
@@ -308,58 +480,97 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class EmailAccountRequest
 		{
+		/// <summary>
+		/// Stores the email protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("email")] public string Email { get; set; } = "";
+		/// <summary>
+		/// Stores the areaCode protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("areaCode")] public string AreaCode { get; set; } = "";
+		/// <summary>
+		/// Stores the type protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("type")]
 		public int Type
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the verified email code for one matching account operation.
+		/// </summary>
 		[JsonPropertyName ("code"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Code
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the appCode protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("appCode"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? AppCode
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the password protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("password"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Password
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the pushId protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("pushId"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? PushId
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the deviceType protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("deviceType"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? DeviceType
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the deviceModel protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("deviceModel"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? DeviceModel
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the language protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("language"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Language
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the isocode protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("isocode"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Country
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the deviceId protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("deviceId"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? DeviceId
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the agreementVer protocol field for email account request.
+		/// </summary>
 		[JsonPropertyName ("agreementVer"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? AgreementVersion
 			{
@@ -368,11 +579,17 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class ManualEmailWire
 		{
+		/// <summary>
+		/// Stores the email protocol field for manual email wire.
+		/// </summary>
 		[JsonPropertyName ("email")]
 		public string? Email
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the content protocol field for manual email wire.
+		/// </summary>
 		[JsonPropertyName ("content")]
 		public string? Content
 			{
@@ -381,15 +598,28 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class PasswordChangeWire
 		{
-		[JsonPropertyName ("password")] public string Password { get; set; } = ""; [JsonPropertyName ("newPassword")] public string NewPassword { get; set; } = "";
+		/// <summary>
+		/// Stores the password protocol field for password change wire.
+		/// </summary>
+		[JsonPropertyName ("password")] public string Password { get; set; } = "";
+		/// <summary>
+		/// Stores the newPassword protocol field for password change wire.
+		/// </summary>
+		[JsonPropertyName ("newPassword")] public string NewPassword { get; set; } = "";
 		}
 	private sealed class ProfilePatch
 		{
+		/// <summary>
+		/// Stores the nickname protocol field for profile patch.
+		/// </summary>
 		[JsonPropertyName ("nickname"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Nickname
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the photo protocol field for profile patch.
+		/// </summary>
 		[JsonPropertyName ("photo"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? Photo
 			{

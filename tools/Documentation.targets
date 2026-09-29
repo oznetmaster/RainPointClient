@@ -1,0 +1,9 @@
+<!-- Copyright (c) 2026 Neil Colvin. MIT License; see LICENSE. -->
+<Project>
+  <Target Name="ValidateProductionXmlDocumentation" BeforeTargets="CoreCompile" Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <DocumentationPolicyArtifacts>$(MSBuildProjectDirectory)/obj/documentation-policy/$(Configuration)/$(TargetFramework)</DocumentationPolicyArtifacts>
+    </PropertyGroup>
+    <Exec Command="dotnet run --project &quot;$(MSBuildThisFileDirectory)Documentation/Documentation.csproj&quot; --configuration Release --artifacts-path &quot;$(DocumentationPolicyArtifacts)&quot; --no-launch-profile -- &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+</Project>

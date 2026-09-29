@@ -8,8 +8,17 @@ using System.Globalization;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Internal schedule decoder representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal static class ScheduleDecoder
 	{
+	/// <summary>
+	/// Decodes one recognized zone configuration and reports unavailable or unsupported sections explicitly.
+	/// </summary>
+	/// <param name="device">The discovered paired device whose encoded configuration is being decoded.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <returns>A typed snapshot whose availability describes what could be decoded.</returns>
 	internal static RainPointScheduleSnapshot Decode (RainPointDevice device, int zone)
 		{
 		RainPointScheduleSnapshot Result (TimerReadingAvailability availability, RainPointSchedule[]? plans = null)

@@ -13,6 +13,13 @@ namespace RainPointClient;
 /// <summary>A room's hub, child device or individual child zone assignment.</summary>
 public sealed class RainPointRoomDevice
 	{
+	/// <summary>
+	/// Creates a typed room assignment for a hub, paired child or child zone.
+	/// </summary>
+	/// <param name="hubId">The positive cloud hub identifier, distinct from child RF addresses.</param>
+	/// <param name="deviceId">The child cloud database ID, or null for a hub assignment.</param>
+	/// <param name="zone">The one-based zone number, or null for a whole-child or hub assignment.</param>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
 	public RainPointRoomDevice (long hubId, long? deviceId = null, int? zone = null)
 		{
 		if (hubId <= 0)
@@ -25,23 +32,43 @@ public sealed class RainPointRoomDevice
 		DeviceId = deviceId;
 		Zone = zone;
 		}
+	/// <summary>
+	/// Gets the cloud hub ID associated with the room assignment.
+	/// </summary>
 	public long HubId
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the child cloud ID, or null for a hub-level assignment.
+	/// </summary>
 	public long? DeviceId
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the optional one-based zone number for a zone-level assignment.
+	/// </summary>
 	public int? Zone
 		{
 		get;
 		}
+	/// <summary>
+	/// Encodes the validated assignment using the current cloud device-ID representation.
+	/// </summary>
+	/// <returns>The encoded assignment using cloud device identifiers.</returns>
 	internal string Encode () => HubId.ToString (CultureInfo.InvariantCulture) + (DeviceId.HasValue ? "#" + DeviceId.Value.ToString (CultureInfo.InvariantCulture) : "") + (Zone.HasValue ? "#" + Zone.Value.ToString (CultureInfo.InvariantCulture) : "");
 	}
 public sealed partial class RainPointCloudClient
 	{
 	/// <summary>Resolves both current device-ID and legacy RF-address room assignments. Unsupported assignments fail explicitly.</summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="roomId">The positive identifier of a room in the observed home.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the requested room device records.</returns>
+	/// <exception cref="RainPointException">Unsupported room device assignment. Room references an unavailable hub. Unsupported room child assignment. Room child identity is unavailable or ambiguous. Unsupported room zone assignment. Duplicate room assignments. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<IReadOnlyList<RainPointRoomDevice>> GetRoomDevicesAsync (RainPointHomeDetails home, long roomId, CancellationToken cancellationToken = default)
 		{
 		RequireRoom (home, roomId);
@@ -83,6 +110,16 @@ public sealed partial class RainPointCloudClient
 		return result.AsReadOnly ();
 		}
 	/// <summary>Replaces only the selected room's assignments using discovered devices, including zones 1–3.</summary>
+	/// <param name="expected">An unused, current home details observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="roomId">The positive identifier of a room in the observed home.</param>
+	/// <param name="assignments">The complete replacement room assignments, using discovered hubs, children and optional zones.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Assignments must be present and distinct. Assignment hub is not in this home. Assignment child or zone is unavailable.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task SetRoomDevicesAsync (RainPointHomeDetails expected, long roomId, IReadOnlyList<RainPointRoomDevice> assignments, CancellationToken cancellationToken = default)
 		{
 		RequireRoom (expected, roomId);
@@ -104,7 +141,30 @@ public sealed partial class RainPointCloudClient
 			}
 		await WriteHomeAsync (expected, "app/member/appHome/room/update", new RoomPatch { HomeId = expected.Id, Id = roomId, Devices = string.Join (",", values.Select (v => v.Encode ())) }, cancellationToken).ConfigureAwait (false);
 		}
+	/// <summary>
+	/// Changes the assigned hub name after validating the observed home and hub.
+	/// </summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="expected">An unused, current hub observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="name">The nonempty display name to assign.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task RenameHubAsync (RainPointHomeDetails home, RainPointHub expected, string name, CancellationToken cancellationToken = default) => RenameDeviceCoreAsync (home, expected, null, name, cancellationToken);
+	/// <summary>
+	/// Changes the assigned name of a paired child identified by its RF address.
+	/// </summary>
+	/// <param name="home">A current home-management observation from the authenticated session.</param>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="name">The nonempty display name to assign.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task RenameDeviceAsync (RainPointHomeDetails home, RainPointHub hub, int address, string name, CancellationToken cancellationToken = default) => RenameDeviceCoreAsync (home, hub, address, name, cancellationToken);
 	private async Task RenameDeviceCoreAsync (RainPointHomeDetails home, RainPointHub expected, int? address, string name, CancellationToken token)
 		{
@@ -131,16 +191,25 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class RenameDeviceRequest
 		{
+		/// <summary>
+		/// Stores the mid protocol field for rename device request.
+		/// </summary>
 		[JsonPropertyName ("mid")]
 		public long HubId
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the sid protocol field for rename device request.
+		/// </summary>
 		[JsonPropertyName ("sid"), JsonIgnore (Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public long? DeviceId
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the name protocol field for rename device request.
+		/// </summary>
 		[JsonPropertyName ("name")] public string Name { get; set; } = string.Empty;
 		}
 	}

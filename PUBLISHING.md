@@ -2,7 +2,7 @@
 
 ## Current release
 
-Version **1.1.0** adds assigned zone names, account-scoped configuration notifications and optional push-only monitoring. Consult the [GitHub release](https://github.com/oznetmaster/RainPointClient/releases/tag/v1.1.0), [workflow runs](https://github.com/oznetmaster/RainPointClient/actions) and [NuGet package](https://www.nuget.org/packages/RainPointClient/1.1.0) for publication status.
+Version **1.2.1** updates documentation without functional changes. Consult the [GitHub release](https://github.com/oznetmaster/RainPointClient/releases/tag/v1.2.1), [workflow runs](https://github.com/oznetmaster/RainPointClient/actions) and [NuGet package](https://www.nuget.org/packages/RainPointClient/1.2.1) for publication status.
 
 ## Release configuration
 
@@ -49,7 +49,7 @@ From the repository root in PowerShell:
 dotnet test tests/RainPointClient.Tests -c Release --filter "TestCategory!=Live"
 dotnet test tests/RainPointClient.Desktop.Tests -c Release --filter "TestCategory!=Live"
 ./tools/Build-Documentation.ps1
-./tools/New-ReleaseAssets.ps1 -Version 1.1.0 -OutputDirectory artifacts/release-preview
+./tools/New-ReleaseAssets.ps1 -Version 1.2.1 -OutputDirectory artifacts/release-preview
 ```
 
 Choose a new empty output directory for each asset run. The asset script never uploads or tags. Review its NuGet archive, README, versioned notes, XML documentation, framework-dependent Windows ZIPs and SHA-256 manifest. The package must contain only the reviewed stable direct dependencies (MQTTnet 4.3.7.1207 on both targets and System.Text.Json 10.0.12 on both targets), with no test, desktop, private-settings or capture files. XML API docs are emitted for both targets; missing public-member comments are suppressed separately from other compiler warnings. DocFX reflects the Release net472 assembly to avoid relying on its older source parser for C# 14.
@@ -58,7 +58,7 @@ The explicit pack items include the MIT license and upstream notices. NuGet's em
 
 ## Publish after approval
 
-Confirm `Directory.Build.props`, package release-note URL, changelog and `release-notes/v1.1.0.md` match. Review all embedded release documents and the release date before the final commit. Create `v1.1.0` on the validated commit and push that tag, or manually dispatch `dotnet-publish.yml` for the already existing tag. Do not move an existing published tag.
+Confirm `Directory.Build.props`, package release-note URL, changelog and `release-notes/v1.2.1.md` match. Review all embedded release documents and the release date before the final commit. Create `v1.2.1` on the validated commit and push that tag, or manually dispatch `dotnet-publish.yml` for the already existing tag. Do not move an existing published tag.
 
 The workflow verifies exact-tag metadata and checks, runs all offline tests, builds the documentation and every asset, validates the nupkg, retains assets, then pushes NuGet and creates the GitHub release from the versioned notes. No RainPoint login or hardware command is permitted in these jobs. A failed pre-publication step prevents upload. NuGet and GitHub publication are separate external operations; a partial failure must be reconciled against the existing tag and immutable package, not silently replaced.
 

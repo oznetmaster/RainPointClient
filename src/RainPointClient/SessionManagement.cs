@@ -15,15 +15,34 @@ namespace RainPointClient;
 public sealed partial class RainPointCloudClient
 	{
 	private int _sessionRecoveryActive;
+	/// <summary>
+	/// Claims the single session-recovery slot for this client.
+	/// </summary>
+	/// <returns>True if this worker claimed the slot; false if another worker already owns it.</returns>
 	internal bool AcquireSessionRecovery () => Interlocked.CompareExchange (ref _sessionRecoveryActive, 1, 0) == 0;
+	/// <summary>
+	/// Releases the client's session-recovery slot when its worker stops.
+	/// </summary>
 	internal void ReleaseSessionRecovery () => Volatile.Write (ref _sessionRecoveryActive, 0);
 	/// <summary>Local session expiry; a server-side rejection can invalidate a session earlier.</summary>
 	public DateTimeOffset? SessionExpiresAt => Volatile.Read (ref _session)?.ExpiresAt;
+	/// <summary>
+	/// Gets whether the locally held session is within its calculated expiry; this does not probe server validity.
+	/// </summary>
 	public bool HasValidSession => SessionExpiresAt > DateTimeOffset.UtcNow;
+	/// <summary>
+	/// Gets whether the current session has a refresh token available for an explicit renewal attempt.
+	/// </summary>
 	public bool CanRefreshSession => !string.IsNullOrWhiteSpace (Volatile.Read (ref _session)?.RefreshToken);
 
 	/// <summary>Refreshes the session using its refresh token, without retaining or resending the password.</summary>
 	/// <remarks>Explicit operation: no watering command is retried. Expiry must be supplied by the server.</remarks>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.InvalidOperationException">There is no session to refresh. The session has no refresh token; sign in again. The session was invalidated while its refresh was pending; sign in again.</exception>
+	/// <exception cref="RainPointException">The refresh response did not contain a usable session and expiry. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task RefreshSessionAsync (CancellationToken cancellationToken = default)
 		{
 		ThrowIfDisposed ();
@@ -69,6 +88,12 @@ public sealed partial class RainPointCloudClient
 		}
 
 	/// <summary>Logs out remotely and clears the matching local session even if the request fails.</summary>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.InvalidOperationException">Stop session recovery before signing out.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task LogoutAsync (CancellationToken cancellationToken = default)
 		{
 		if (Volatile.Read (ref _sessionRecoveryActive) != 0)

@@ -9,9 +9,8 @@
     <RepositoryUrl>https://github.com/oznetmaster/RainPointClient</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/oznetmaster/RainPointClient</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/oznetmaster/RainPointClient/blob/v1.2.0/release-notes/v1.2.0.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oznetmaster/RainPointClient/blob/v1.2.1/release-notes/v1.2.1.md</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Authors>Neil Colvin</Authors>
     <Copyright>Copyright © 2026 Neil Colvin</Copyright>
@@ -36,4 +35,13 @@
     <Reference Include="System.Net.Http" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- XML documentation is part of the supported source/API contract in both configurations. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1581;CS1584;CS1587;CS1711;CS1712</WarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Debug'">true</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors Condition="'$(Configuration)' == 'Debug'">true</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+  <Import Project="../../tools/Documentation.targets" />
 </Project>

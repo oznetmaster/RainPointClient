@@ -22,16 +22,43 @@ using MQTTnet.Formatter;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Internal iobserver transport representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal interface IObserverTransport
 	{
+	/// <summary>
+	/// Runs one authenticated observer connection and forwards connection and payload callbacks.
+	/// </summary>
+	/// <param name="credentials">The session-bound observer credentials.</param>
+	/// <param name="connected">Callback invoked after a successful MQTT connection.</param>
+	/// <param name="received">Callback receiving an MQTT message payload.</param>
+	/// <param name="token">Cancellation for this operation.</param>
+	/// <returns>A task representing the observer connection lifetime.</returns>
 	Task RunAsync (ObserverCredentials credentials, Action connected, Action<byte[]> received, CancellationToken token);
 	}
 
+/// <summary>
+/// Internal mqtt observer transport representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class MqttObserverTransport : IObserverTransport
 	{
 	private readonly Func<IMqttClient> _createClient;
+	/// <summary>
+	/// Initializes mqtt observer transport from the supplied typed values.
+	/// </summary>
+	/// <param name="createClient">An optional MQTT client factory; null uses the production factory.</param>
 	internal MqttObserverTransport (Func<IMqttClient>? createClient = null) => _createClient = createClient ?? (() => new MqttFactory ().CreateMqttClient ());
 
+	/// <summary>
+	/// Runs an MQTT observer connection using session-bound credentials and TLS validation.
+	/// </summary>
+	/// <param name="credentials">The session-bound observer credentials.</param>
+	/// <param name="connected">Callback invoked after a successful MQTT connection.</param>
+	/// <param name="received">Callback receiving an MQTT message payload.</param>
+	/// <param name="token">Cancellation for this operation.</param>
+	/// <returns>A task representing the observer connection lifetime.</returns>
+	/// <exception cref="RainPointException">The MQTT observer connection was rejected.</exception>
 	public async Task RunAsync (ObserverCredentials credentials, Action connected, Action<byte[]> received, CancellationToken token)
 		{
 		using IMqttClient mqtt = _createClient ();
@@ -75,6 +102,14 @@ internal sealed class MqttObserverTransport : IObserverTransport
 			}
 		}
 
+	/// <summary>
+	/// Builds MQTT connection options from validated observer credentials and the trusted root.
+	/// </summary>
+	/// <param name="credentials">The session-bound observer credentials.</param>
+	/// <param name="now">The current instant used for expiry and timestamp checks.</param>
+	/// <param name="root">The trusted IoT root certificate used by observer TLS validation.</param>
+	/// <returns>The configured MQTT client options.</returns>
+	/// <exception cref="RainPointException">The observer identity is malformed.</exception>
 	internal static MqttClientOptions BuildOptions (ObserverCredentials credentials, DateTimeOffset now, X509Certificate2 root)
 		{
 		string host = BrokerHost (credentials);
@@ -98,6 +133,12 @@ internal sealed class MqttObserverTransport : IObserverTransport
 			 .Build ();
 		}
 
+	/// <summary>
+	/// Validates and extracts the permitted MQTT broker host from observer credentials.
+	/// </summary>
+	/// <param name="credentials">The session-bound observer credentials.</param>
+	/// <returns>The validated broker hostname.</returns>
+	/// <exception cref="RainPointException">The cloud returned an unsupported MQTT broker address.</exception>
 	internal static string BrokerHost (ObserverCredentials credentials)
 		{
 		string value = credentials.HostUrl ?? credentials.ProductKey + ".iot-as-mqtt.us-west-1.aliyuncs.com";
@@ -111,6 +152,14 @@ internal sealed class MqttObserverTransport : IObserverTransport
 		return uri.DnsSafeHost;
 		}
 
+	/// <summary>
+	/// Validates broker identity and trust against the embedded IoT root and supplied TLS errors.
+	/// </summary>
+	/// <param name="certificate">The broker certificate presented by the TLS connection, or null when absent.</param>
+	/// <param name="supplied">The chain supplied by TLS validation, or null when absent.</param>
+	/// <param name="errors">The platform TLS policy errors to evaluate alongside the trusted IoT root.</param>
+	/// <param name="root">The trusted IoT root certificate used by observer TLS validation.</param>
+	/// <returns>True only when the certificate passes the configured TLS policy.</returns>
 	internal static bool ValidateCertificate (X509Certificate? certificate, X509Chain? supplied,
 		 SslPolicyErrors errors, X509Certificate2 root)
 		{
@@ -151,6 +200,11 @@ internal sealed class MqttObserverTransport : IObserverTransport
 		return usage.EnhancedKeyUsages.Cast<Oid> ().Any (oid => oid.Value is "1.3.6.1.5.5.7.3.1" or "2.5.29.37.0");
 		}
 
+	/// <summary>
+	/// Loads the embedded IoT trust anchor for observer TLS validation.
+	/// </summary>
+	/// <returns>The loaded root certificate; the caller owns its disposal.</returns>
+	/// <exception cref="System.InvalidOperationException">The MQTT trust anchor is missing.</exception>
 	internal static X509Certificate2 LoadRoot ()
 		{
 		using Stream stream = typeof (MqttObserverTransport).Assembly.GetManifestResourceStream ("RainPointClient.Protocol.AliyunIoTRoot.pem")

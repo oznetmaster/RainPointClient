@@ -10,28 +10,60 @@ using System.Text.Json.Serialization;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Selects a single guarded plan-list editing operation.
+/// </summary>
 internal enum ScheduleEdit
 	{
-	Add, Replace, Delete, SetEnabled
+	/// <summary>Append a validated plan.</summary>
+	Add,
+	/// <summary>Replace the selected observed plan.</summary>
+	Replace,
+	/// <summary>Remove the selected observed plan.</summary>
+	Delete,
+	/// <summary>Change only the selected plan enablement.</summary>
+	SetEnabled
 	}
 
+/// <summary>
+/// Internal timer parameter request representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class TimerParameterRequest
 	{
+	/// <summary>
+	/// Stores the mid protocol field for timer parameter request.
+	/// </summary>
 	[JsonPropertyName ("mid")]
 	public long HubId
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the sid protocol field for timer parameter request.
+	/// </summary>
 	[JsonPropertyName ("sid")]
 	public long DeviceId
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the original encoded configuration field for bounded decoding and guarded updates.
+	/// </summary>
 	[JsonPropertyName ("param")] public string Parameter { get; set; } = string.Empty;
 	}
 
+/// <summary>
+/// Internal schedule editor representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal static class ScheduleEditor
 	{
+	/// <summary>
+	/// Validates and encodes a supported normal-irrigation plan.
+	/// </summary>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <returns>The encoded plan record.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Normal duration must be 60..43200 whole seconds.</exception>
 	internal static string Encode (RainPointIrrigationSchedule schedule)
 		{
 		if (schedule is null)
@@ -43,6 +75,13 @@ internal static class ScheduleEditor
 			 schedule.Interval, schedule.EffectiveDate, schedule.WaterLimitLitres, 1, (int)schedule.Duration.TotalSeconds, 0, 0);
 		}
 
+	/// <summary>
+	/// Validates and encodes a supported cycle-and-soak plan.
+	/// </summary>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <returns>The encoded plan record.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Cycle-and-soak requires 5..1440 whole watering minutes; each cycle and pause must be 1..720 whole minutes, with a cycle no longer than total watering.</exception>
 	internal static string EncodeCycleAndSoak (RainPointCycleAndSoakSchedule schedule)
 		{
 		if (schedule is null)
@@ -57,6 +96,13 @@ internal static class ScheduleEditor
 			 (int)schedule.CycleWateringTime.TotalMinutes, (int)schedule.CyclePauseTime.TotalMinutes);
 		}
 
+	/// <summary>
+	/// Validates and encodes a supported misting plan.
+	/// </summary>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <returns>The encoded plan record.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Misting requires 1..720 whole duration minutes and 5..3600 whole seconds for each burst and pause.</exception>
 	internal static string EncodeMisting (RainPointMistingSchedule schedule)
 		{
 		if (schedule is null)
@@ -151,6 +197,18 @@ internal static class ScheduleEditor
 		return minimum;
 		}
 
+	/// <summary>
+	/// Edits one plan in an observed zone configuration while preserving unrelated zones and settings.
+	/// </summary>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="edit">The requested add, replace, delete or switch operation.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="record">The encoded replacement plan record when required by the selected operation.</param>
+	/// <param name="enabled">Whether the selected feature or saved plan should be enabled.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.NotSupportedException">Schedule writes require the three-zone HTV345FRF configuration and firmware 120 or newer. This schedule container cannot be safely edited. The zone configuration is incomplete. The plan list cannot be safely edited. Once plans cannot be enabled on the supported HTV345FRF timer; disable or delete the existing record.</exception>
+	/// <exception cref="System.ArgumentException">A zone supports at most six plans.</exception>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
 	internal static string Edit (RainPointScheduleSnapshot expected, ScheduleEdit edit, int index, string? record, bool enabled)
 		{
 		if (expected.PortNumber != 3 || !int.TryParse (expected.FirmwareVersion, NumberStyles.None, CultureInfo.InvariantCulture, out int version) || version < 120)

@@ -7,8 +7,15 @@ using System.Globalization;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Decodes and edits the recognized saved manual-watering defaults without changing unrelated configuration.
+/// </summary>
 internal static class TimerZoneDefaults
 	{
+	/// <summary>
+	/// Populates the typed snapshot with decoded saved manual-watering defaults and explicit section availability.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
 	internal static void Decode (RainPointScheduleSnapshot snapshot)
 		{
 		snapshot.ZoneDefaults = null;
@@ -58,12 +65,25 @@ internal static class TimerZoneDefaults
 		snapshot.ZoneDefaultsAvailability = TimerReadingAvailability.Decoded;
 		}
 
+	/// <summary>
+	/// Validates and replaces the selected saved manual-watering defaults fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="duration">The configured watering duration; use the operation's documented range and mode-specific treatment of pauses.</param>
+	/// <returns>The complete updated parameter field.</returns>
 	internal static string EditDuration (RainPointScheduleSnapshot snapshot, TimeSpan? duration)
 		{
 		int seconds = Seconds (duration, 60, 43200, TimeSpan.TicksPerMinute, nameof (duration));
 		return Edit (snapshot, 0, Encode (seconds));
 		}
 
+	/// <summary>
+	/// Validates and replaces the selected saved manual-watering defaults fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="runTime">The saved misting burst duration, from 5 through 3600 whole seconds, or null for the app-default sentinel.</param>
+	/// <param name="interval">The saved misting pause interval, or null for the app-default sentinel.</param>
+	/// <returns>The complete updated parameter field.</returns>
 	internal static string EditMisting (RainPointScheduleSnapshot snapshot, TimeSpan? runTime, TimeSpan? interval)
 		{
 		int run = Seconds (runTime, 5, 3600, TimeSpan.TicksPerSecond, nameof (runTime));

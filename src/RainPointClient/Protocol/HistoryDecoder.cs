@@ -8,8 +8,16 @@ using System.Linq;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Internal history decoder representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal static class HistoryDecoder
 	{
+	/// <summary>
+	/// Decodes recognized history details while retaining unknown or malformed-detail availability.
+	/// </summary>
+	/// <param name="row">The attributed history record to decode.</param>
+	/// <returns>The typed event with any independently decoded details retained.</returns>
 	internal static RainPointEvent Decode (EventResponse row)
 		{
 		RainPointEvent result = new ()

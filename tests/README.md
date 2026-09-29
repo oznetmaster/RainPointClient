@@ -502,3 +502,6 @@ Final account-only password validation passed on the dedicated support account, 
 ## Configuration notifications and zone names — 29 September 2026
 
 The full library/dashboard offline suite passed 1,373 tests on net472 and 1,373 on net10.0, with no failures or skips. New cases cover attributed zone-name decoding, empty/missing positions, Unicode, configuration-message account/home routing, malformed payloads, revision deduplication/order, subscriber exceptions and callbacks after shutdown. Configuration notifications leave the current status object and its freshness unchanged. These cases use synthetic responses and do not claim live app-rename notification delivery. The Windows view suite was not rerun for this increment; its earlier results above are historical.
+## XML documentation checks
+
+The production library project generates XML documentation in Debug and Release. Compiler documentation warnings are errors. `tools/Documentation` additionally checks public, protected and internal declarations for summaries, parameter descriptions and return descriptions. The checker uses Roslyn from the .NET 10 SDK and has nine regression scenarios, run by the release/offline validation script.

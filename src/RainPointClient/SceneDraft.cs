@@ -15,40 +15,78 @@ using System.Threading.Tasks;
 using RainPointClient.Protocol;
 namespace RainPointClient;
 
+/// <summary>
+/// Selects an optional daylight or nighttime execution window for a smart scene.
+/// </summary>
 public enum RainPointSceneSolarPeriod
 	{
-	None, Daytime, Nighttime
+	/// <summary>Do not restrict execution by the daylight window.</summary>
+	None,
+	/// <summary>Restrict execution to the vendor-defined daytime window.</summary>
+	Daytime,
+	/// <summary>Restrict execution to the vendor-defined nighttime window.</summary>
+	Nighttime
 	}
 
 /// <summary>A complete scene definition. Saving can activate future automation immediately; there is no disabled-draft guarantee.</summary>
 public sealed class RainPointSceneDraft
 	{
+	/// <summary>
+	/// Gets or sets the required scene display name.
+	/// </summary>
 	public string Name { get; set; } = string.Empty;
+	/// <summary>
+	/// Gets or sets an optional daylight or nighttime effective window, mutually exclusive with clock boundaries.
+	/// </summary>
 	public RainPointSceneSolarPeriod SolarPeriod
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets the local-date recurrence of the scene's effective period.
+	/// </summary>
 	public RainPointSceneRepeat EffectiveRepeat
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets the weekday mask, used only with a weekday effective recurrence.
+	/// </summary>
 	public RainPointSceneWeekdays EffectiveWeekdays
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets whether every condition must match; false permits any matching condition.
+	/// </summary>
 	public bool MatchAll
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets the vendor daily execution-frequency value, from 0 through 30; defaults to 1.
+	/// </summary>
 	public int MaximumRunsPerDay { get; set; } = 1;
+	/// <summary>
+	/// Gets or sets the minimum interval between executions, from 1 through 1440 minutes; defaults to 120.
+	/// </summary>
 	public int MinimumIntervalMinutes { get; set; } = 120;
+	/// <summary>
+	/// Gets or sets one to five supported, enabled conditions to save.
+	/// </summary>
 	public IReadOnlyList<RainPointSceneCondition> Conditions { get; set; } = Array.Empty<RainPointSceneCondition> ();
+	/// <summary>
+	/// Gets or sets one to five supported, enabled actions to save.
+	/// </summary>
 	public IReadOnlyList<RainPointSceneAction> Actions { get; set; } = Array.Empty<RainPointSceneAction> ();
 	/// <summary>Optional inclusive home-local date, at midnight with Unspecified kind.</summary>
 	public DateTime? StartsOn
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets the optional inclusive final home-local date, at midnight with Unspecified kind.
+	/// </summary>
 	public DateTime? EndsOn
 		{
 		get; set;
@@ -58,10 +96,21 @@ public sealed class RainPointSceneDraft
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets or sets the final clock boundary of the effective window; both boundaries are required.
+	/// </summary>
 	public TimeSpan? WindowEndsAt
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Validates the complete scene definition and creates fresh wire copies without retained child IDs.
+	/// </summary>
+	/// <param name="hubId">The positive cloud hub identifier, distinct from child RF addresses.</param>
+	/// <returns>Fresh attributed wire models representing the validated complete scene definition.</returns>
+	/// <exception cref="System.ArgumentException">A scene name is required. Use one to five conditions and actions. Only supported, enabled conditions and actions can be saved. Solar periods cannot also contain clock boundaries. An all-conditions scene cannot require multiple time triggers. Effective windows need both boundaries and cannot accompany a time trigger. The effective date range is reversed. Duplicate rain-delay actions target the same zone.</exception>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
 	internal SceneWire Encode (long hubId)
 		{
 		if (string.IsNullOrWhiteSpace (Name))
@@ -130,6 +179,13 @@ public sealed class RainPointSceneDraft
 public sealed partial class RainPointCloudClient
 	{
 	/// <summary>Reads devices and their product-catalog scene capabilities. Plain discovery does not supply the catalog flags.</summary>
+	/// <param name="homeId">The positive cloud home identifier.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the requested hub records.</returns>
+	/// <exception cref="System.InvalidOperationException">Session changed during capability discovery.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<IReadOnlyList<RainPointHub>> GetSceneDevicesAsync (long homeId, CancellationToken cancellationToken = default)
 		{
 		Session session = GetSession ();
@@ -151,6 +207,14 @@ public sealed partial class RainPointCloudClient
 		}
 
 	/// <summary>Saves a new scene which may be active immediately. This can cause future watering, delays or notifications. Discover again after any attempt; never retry an uncertain creation blindly.</summary>
+	/// <param name="executingHub">A discovered hub with reported scene-execution capability.</param>
+	/// <param name="draft">The complete scene definition to save; saving can activate future automation immediately.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task CreateSceneAsync (RainPointHub executingHub, RainPointSceneDraft draft, CancellationToken cancellationToken = default)
 		{
 		if (executingHub is null)
@@ -164,6 +228,16 @@ public sealed partial class RainPointCloudClient
 		CheckResult (result, session);
 		}
 	/// <summary>Replaces the entire scene definition, including effective dates and conditions. Saving can activate automation; no automatic replay occurs.</summary>
+	/// <param name="expected">An unused, current scene observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="executingHub">A discovered hub with reported scene-execution capability.</param>
+	/// <param name="replacement">The complete supported replacement definition, including all intended conditions and actions.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">The scene and executing hub must belong to the same home.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task ReplaceSceneAsync (RainPointScene expected, RainPointHub executingHub, RainPointSceneDraft replacement, CancellationToken cancellationToken = default)
 		{
 		if (expected is null || executingHub is null || replacement is null)
@@ -215,13 +289,26 @@ public sealed partial class RainPointCloudClient
 			throw new InvalidOperationException ("Session changed before the scene write.");
 		}
 	}
+/// <summary>
+/// Internal scene function representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class SceneFunction
 	{
+	/// <summary>
+	/// Stores the original bit field, including unknown bits.
+	/// </summary>
 	[JsonPropertyName ("SM")]
 	public int? Flags
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Reads one scene-capability bit, preferring decoded function data and retaining unknown capability state.
+	/// </summary>
+	/// <param name="function">The reported encoded scene-capability field, or null when absent.</param>
+	/// <param name="advertised">Catalog scene-capability flags, or null when absent.</param>
+	/// <param name="bit">The capability bit being queried.</param>
+	/// <returns>True or false for a recognized capability bit, or null when capability data is unknown.</returns>
 	internal static bool? Supports (string? function, int? advertised, int bit)
 		{
 		if (advertised.HasValue && (advertised.Value & (1 << bit)) == 0)

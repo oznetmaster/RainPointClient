@@ -11,27 +11,45 @@ namespace RainPointClient.Protocol;
 
 // The endpoint returns either data.state or a direct data string. Keep this union internal;
 // object properties are deserialized through attributed models, without a JSON DOM.
+/// <summary>
+/// Internal command data representation or processing contract for the RainPoint protocol.
+/// </summary>
 [JsonConverter (typeof (CommandDataConverter))]
 internal sealed class CommandData
 	{
+	/// <summary>
+	/// Stores the reading for command data.
+	/// </summary>
 	internal CommandState? Reading
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the unavailable for command data.
+	/// </summary>
 	internal TimerReadingAvailability? Unavailable
 		{
 		get; set;
 		}
 	}
 
+/// <summary>
+/// Internal command state representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class CommandState
 	{
+	/// <summary>
+	/// Stores the state protocol field for command state.
+	/// </summary>
 	[JsonPropertyName ("state")]
 	public string? State
 		{
 		get; set;
 		}
 
+	/// <summary>
+	/// Stores the timestamp protocol field for command state.
+	/// </summary>
 	[JsonPropertyName ("timestamp"), JsonConverter (typeof (OptionalCommandTimestampConverter))]
 	public long? Timestamp
 		{
@@ -39,8 +57,12 @@ internal sealed class CommandState
 		}
 	}
 
+/// <summary>
+/// Internal command data converter representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class CommandDataConverter : JsonConverter<CommandData>
 	{
+	/// <inheritdoc/>
 	public override CommandData? Read (ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 		if (reader.TokenType == JsonTokenType.String)
@@ -65,12 +87,17 @@ internal sealed class CommandDataConverter : JsonConverter<CommandData>
 		return new CommandData { Unavailable = TimerReadingAvailability.UnsupportedFormat };
 		}
 
+	/// <inheritdoc/>
 	public override void Write (Utf8JsonWriter writer, CommandData value, JsonSerializerOptions options) =>
 		 throw new NotSupportedException ("Command response models are read-only.");
 	}
 
+/// <summary>
+/// Internal optional command timestamp converter representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal sealed class OptionalCommandTimestampConverter : JsonConverter<long?>
 	{
+	/// <inheritdoc/>
 	public override long? Read (ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 		if (reader.TokenType == JsonTokenType.Number && reader.TryGetInt64 (out long number))
@@ -82,6 +109,7 @@ internal sealed class OptionalCommandTimestampConverter : JsonConverter<long?>
 		return null;
 		}
 
+	/// <inheritdoc/>
 	public override void Write (Utf8JsonWriter writer, long? value, JsonSerializerOptions options) =>
 		 throw new NotSupportedException ("Command response models are read-only.");
 	}

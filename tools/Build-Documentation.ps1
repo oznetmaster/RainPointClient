@@ -35,7 +35,19 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'DocFX metadata failed.' }
     dotnet tool run docfx build docfx/docfx.json --warningsAsErrors
     if ($LASTEXITCODE -ne 0) { throw 'DocFX site build failed.' }
-    foreach ($page in @('index.html','README.html','api/RainPointClient.RainPointCloudClient.html','docs/CALENDAR.html','release-notes/v1.1.0.html','tests/README.html')) {
+    foreach ($page in @('index.html','README.html','api/RainPointClient.RainPointCloudClient.html','docs/CALENDAR.html','release-notes/v1.2.1.html','tests/README.html')) {
         if (!(Test-Path -LiteralPath (Join-Path 'artifacts/docs-site' $page))) { throw "Missing documentation page: $page" }
     }
+    $summaryCount = 0
+    foreach ($page in Get-ChildItem -LiteralPath (Join-Path $root 'artifacts/docs-site/api') -Filter '*.html') {
+        $html = Get-Content -LiteralPath $page.FullName -Raw -Encoding utf8
+        foreach ($summary in [regex]::Matches($html, '<div class="markdown level1 summary">(.*?)</div>', 'Singleline')) {
+            $summaryCount++
+            if ([string]::IsNullOrWhiteSpace([regex]::Replace($summary.Groups[1].Value, '<[^>]*>', ''))) {
+                throw "Empty rendered API summary: $($page.Name)"
+            }
+        }
+    }
+    if ($summaryCount -eq 0) { throw 'No rendered API summaries found.' }
+    Write-Output "Rendered API summaries verified: $summaryCount."
 } finally { Pop-Location }

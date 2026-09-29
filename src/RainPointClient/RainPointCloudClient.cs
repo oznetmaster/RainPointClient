@@ -42,6 +42,12 @@ public sealed partial class RainPointCloudClient : IDisposable
 	private DateTimeOffset _loginNotBefore;
 	private bool _disposed;
 
+	/// <summary>
+	/// Creates a cloud client with optional caller-managed HTTP transport and service origin.
+	/// </summary>
+	/// <param name="httpClient">Optional caller-owned HTTP transport, which is not disposed by this client. Null creates an owned transport.</param>
+	/// <param name="serviceAddress">Optional absolute HTTPS service origin without user information, path, query or fragment; null uses the default regional origin.</param>
+	/// <exception cref="System.ArgumentException">The service address must be an HTTPS origin.</exception>
 	public RainPointCloudClient (HttpClient? httpClient = null, Uri? serviceAddress = null)
 		{
 		_serviceAddress = serviceAddress ?? new Uri ("https://region3.homgarus.com/");
@@ -62,12 +68,27 @@ public sealed partial class RainPointCloudClient : IDisposable
 
 	/// <summary>Logs into appCode 2. Area code is the account's country calling code, e.g. "44".</summary>
 	/// <remarks>Credentials are not retained. A login can displace an existing app session on the same account.</remarks>
+	/// <param name="email">The account email address.</param>
+	/// <param name="password">The account password; it is not persisted or logged by the client.</param>
+	/// <param name="areaCode">The account country calling code as digits without a plus sign.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.InvalidOperationException">Stop session recovery before signing in explicitly.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task LoginAsync (string email, string password, string areaCode, CancellationToken cancellationToken = default)
 		{
 		if (Volatile.Read (ref _sessionRecoveryActive) != 0)
 			throw new InvalidOperationException ("Stop session recovery before signing in explicitly.");
 		return LoginCoreAsync (email, password, areaCode, cancellationToken);
 		}
+	/// <summary>
+	/// Performs the recovery worker's explicitly authorized credential-login attempt.
+	/// </summary>
+	/// <param name="credentials">The caller-supplied credentials for the same account.</param>
+	/// <param name="token">Cancellation for this operation.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
 	internal Task LoginForRecoveryAsync (RainPointCredentials credentials, CancellationToken token) => LoginCoreAsync (credentials.Email, credentials.Password, credentials.AreaCode, token);
 	private async Task LoginCoreAsync (string email, string password, string areaCode, CancellationToken cancellationToken)
 		{
@@ -125,6 +146,14 @@ public sealed partial class RainPointCloudClient : IDisposable
 			}
 		}
 
+	/// <summary>
+	/// Lists the cloud homes accessible to the authenticated account.
+	/// </summary>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the requested home records.</returns>
+	/// <exception cref="RainPointException">The home list contained an invalid identifier. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<IReadOnlyList<RainPointHome>> GetHomesAsync (CancellationToken cancellationToken = default)
 		{
 		List<RainPointHome> homes = await GetAsync<List<RainPointHome>> (
@@ -134,6 +163,16 @@ public sealed partial class RainPointCloudClient : IDisposable
 			: (IReadOnlyList<RainPointHome>)homes.AsReadOnly ();
 		}
 
+	/// <summary>
+	/// Discovers a home's hubs and paired children, validating their identifiers and RF addresses.
+	/// </summary>
+	/// <param name="homeId">The positive cloud home identifier.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the requested hub records.</returns>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
+	/// <exception cref="RainPointException">The device list contained invalid or ambiguous addressing. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<IReadOnlyList<RainPointHub>> GetHubsAsync (long homeId, CancellationToken cancellationToken = default)
 		{
 		if (homeId <= 0)
@@ -160,6 +199,13 @@ public sealed partial class RainPointCloudClient : IDisposable
 		}
 
 	/// <summary>Reads a supported RF timer through its discovered parent hub.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed timer status result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointTimerStatus> GetTimerStatusAsync (RainPointHub hub, int address,
 		 CancellationToken cancellationToken = default)
 		{
@@ -169,6 +215,12 @@ public sealed partial class RainPointCloudClient : IDisposable
 		}
 
 	/// <summary>Reads hub connectivity, Wi-Fi signal and all supported timers in one cloud request.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed hub status result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointHubStatus> GetHubStatusAsync (RainPointHub hub, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);
@@ -253,6 +305,16 @@ public sealed partial class RainPointCloudClient : IDisposable
 		}
 
 	/// <summary>Starts normal irrigation for 60..43200 whole seconds, matching the HTV345FRF manual range.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="duration">The configured watering duration; use the operation's documented range and mode-specific treatment of pauses.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing cloud acceptance and any separately reported watering feedback.</returns>
+	/// <exception cref="System.ArgumentOutOfRangeException">Normal irrigation requires a whole number of seconds between 60 and 43200.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task<RainPointWateringCommandResult> StartWateringAsync (RainPointHub hub, int address, int zone,
 		 TimeSpan duration, CancellationToken cancellationToken = default)
 		{
@@ -261,6 +323,17 @@ public sealed partial class RainPointCloudClient : IDisposable
 			: ControlAsync (hub, address, zone, 1, (int)duration.TotalSeconds, cancellationToken);
 		}
 
+	/// <summary>
+	/// Requests that the selected zone stop watering and returns cloud acknowledgement with optional reported state.
+	/// </summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing cloud acceptance and any separately reported watering feedback.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task<RainPointWateringCommandResult> StopWateringAsync (RainPointHub hub, int address, int zone,
 		 CancellationToken cancellationToken = default) => ControlAsync (hub, address, zone, 0, 0, cancellationToken);
 
@@ -435,6 +508,9 @@ public sealed partial class RainPointCloudClient : IDisposable
 			}
 		}
 
+	/// <summary>
+	/// Releases resources owned by this client; finish outstanding operations and stop background workers first.
+	/// </summary>
 	public void Dispose ()
 		{
 		if (_disposed)
@@ -453,11 +529,29 @@ public sealed partial class RainPointCloudClient : IDisposable
 
 	private sealed class Session (string token, DateTimeOffset expiresAt, string? refreshToken = null, RainPointNotificationPreferences? notifications = null, RainPointAccountProfile? profile = null, Protocol.ObserverCredentials? observer = null)
 		{
+		/// <summary>
+		/// Stores the notifications for session.
+		/// </summary>
 		internal RainPointNotificationPreferences? Notifications { get; } = notifications;
+		/// <summary>
+		/// Stores the profile for session.
+		/// </summary>
 		internal RainPointAccountProfile? Profile { get; } = profile;
+		/// <summary>
+		/// Stores the observer for session.
+		/// </summary>
 		internal Protocol.ObserverCredentials? Observer { get; } = observer;
+		/// <summary>
+		/// Stores the token for session.
+		/// </summary>
 		internal string Token { get; } = token;
+		/// <summary>
+		/// Stores the expires at for session.
+		/// </summary>
 		internal DateTimeOffset ExpiresAt { get; } = expiresAt;
+		/// <summary>
+		/// Stores the refresh token for session.
+		/// </summary>
 		internal string? RefreshToken { get; } = refreshToken;
 		}
 	}

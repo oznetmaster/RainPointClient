@@ -15,12 +15,32 @@ namespace RainPointClient;
 
 public sealed partial class RainPointCloudClient
 	{
+	/// <summary>
+	/// Reads installed and offered hub firmware metadata without installing an update.
+	/// </summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed firmware status result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task<RainPointFirmwareStatus> GetHubFirmwareAsync (RainPointHub hub, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);
 		return GetFirmwareAsync ("app/device/firmware/upgrade/info/v2?mid=" + hub.Id.ToString (CultureInfo.InvariantCulture), cancellationToken);
 		}
 
+	/// <summary>
+	/// Reads firmware metadata for a paired timer without installing an update.
+	/// </summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed firmware status result.</returns>
+	/// <exception cref="System.ArgumentException">The discovered timer has no usable cloud sub-device identifier.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task<RainPointFirmwareStatus> GetTimerFirmwareAsync (RainPointHub hub, int address, CancellationToken cancellationToken = default)
 		{
 		RainPointDevice device = GetTimer (hub, address);
@@ -42,6 +62,14 @@ public sealed partial class RainPointCloudClient
 
 	/// <summary>Changes the hub's automatic time-broadcast setting, preserving unrelated settings.</summary>
 	/// <remarks>Reads fresh settings before writing. The result is a cloud acknowledgement, not RF delivery confirmation.</remarks>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="enabled">Whether the selected feature or saved plan should be enabled.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentException">Use a discovered hub with its home identifier.</exception>
+	/// <exception cref="RainPointException">The hub's current settings could not be uniquely located. The hub's time-broadcast setting is unreadable. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task SetAutomaticTimeBroadcastAsync (RainPointHub hub, bool enabled, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);
@@ -63,6 +91,12 @@ public sealed partial class RainPointCloudClient
 		}
 
 	/// <summary>Requests a one-shot hub time broadcast; it does not actuate a valve.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed command outcome result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointCommandOutcome> BroadcastTimeAsync (RainPointHub hub, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);

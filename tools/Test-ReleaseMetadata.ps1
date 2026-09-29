@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 [CmdletBinding()]
-param([string]$Version = '1.2.0', [string]$Root = (Split-Path $PSScriptRoot -Parent), [switch]$RequireTag)
+param([string]$Version = '1.2.1', [string]$Root = (Split-Path $PSScriptRoot -Parent), [switch]$RequireTag)
 $ErrorActionPreference = 'Stop'
 if ($Version -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$') { throw 'Use a canonical three-part package version, optionally with a prerelease suffix.' }
 [xml]$props = Get-Content -LiteralPath (Join-Path $Root 'Directory.Build.props') -Raw

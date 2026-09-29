@@ -12,8 +12,19 @@ namespace RainPointClient.Protocol;
 
 // Wire framing is based on the attributed upstream references in THIRD-PARTY-NOTICES.md.
 // Walk record boundaries; never search value bytes for apparent header markers.
+/// <summary>
+/// Internal timer decoder representation or processing contract for the RainPoint protocol.
+/// </summary>
 internal static class TimerDecoder
 	{
+	/// <summary>
+	/// Decodes bounded compact or per-data-point timer status for a recognized zone count.
+	/// </summary>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="zoneCount">The recognized timer model's zone count, from one through three.</param>
+	/// <param name="value">The encoded protocol value to decode or serialize; absent or invalid values follow the method result contract.</param>
+	/// <param name="changed">The reported data-change instant, or null when unavailable.</param>
+	/// <returns>A timer snapshot with explicit decoding availability and unknown values preserved.</returns>
 	internal static RainPointTimerStatus Decode (int address, int zoneCount, string? value, DateTimeOffset? changed)
 		{
 		RainPointTimerStatus Empty (TimerReadingAvailability availability) =>

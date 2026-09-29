@@ -15,7 +15,15 @@ namespace RainPointClient;
 
 public sealed partial class RainPointCloudClient
 	{
-	/// <summary>Reads fresh saved schedules for an HTV345FRF zone. Sends no configuration or valve commands.</summary>
+	/// <summary>Reads fresh saved schedules for a supported HTV145FRF, HTV245FRF or HTV345FRF zone. Sends no configuration or valve commands.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed schedule snapshot result.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointScheduleSnapshot> GetTimerSchedulesAsync (RainPointHub hub, int address, int zone,
 		 CancellationToken cancellationToken = default)
 		{
@@ -36,51 +44,135 @@ public sealed partial class RainPointCloudClient
 		}
 
 	/// <summary>Adds a normal-irrigation plan, preserving other plans and settings. Read a fresh snapshot before each edit.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task AddTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, RainPointIrrigationSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Add, -1, ScheduleEditor.Encode (schedule), false, cancellationToken);
 
 	/// <summary>Replaces one plan with a normal-irrigation plan. Index is from the supplied snapshot.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task UpdateTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, int index, RainPointIrrigationSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Replace, index, ScheduleEditor.Encode (schedule), false, cancellationToken);
 
 	/// <summary>Adds a cycle-and-soak plan. Read a fresh snapshot before each edit.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task AddTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, RainPointCycleAndSoakSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Add, -1, ScheduleEditor.EncodeCycleAndSoak (schedule), false, cancellationToken);
 
 	/// <summary>Replaces one plan with a cycle-and-soak plan. Index is from the supplied snapshot.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task UpdateTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, int index, RainPointCycleAndSoakSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Replace, index, ScheduleEditor.EncodeCycleAndSoak (schedule), false, cancellationToken);
 
 	/// <summary>Adds a misting plan. Read a fresh snapshot before each edit.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task AddTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, RainPointMistingSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Add, -1, ScheduleEditor.EncodeMisting (schedule), false, cancellationToken);
 
 	/// <summary>Replaces one plan with a misting plan. Index is from the supplied snapshot.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="schedule">The complete typed plan to validate and encode.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task UpdateTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, int index, RainPointMistingSchedule schedule,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Replace, index, ScheduleEditor.EncodeMisting (schedule), false, cancellationToken);
 
 	/// <summary>Deletes one saved plan, preserving other plans and settings.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task DeleteTimerScheduleAsync (RainPointHub hub, RainPointScheduleSnapshot expected, int index,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.Delete, index, null, false, cancellationToken);
 
 	/// <summary>Enables or disables one existing plan without rewriting its timing fields.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="index">The zero-based plan position in this snapshot, not a durable plan identifier.</param>
+	/// <param name="enabled">Whether the selected feature or saved plan should be enabled.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SetTimerScheduleEnabledAsync (RainPointHub hub, RainPointScheduleSnapshot expected, int index, bool enabled,
 		 CancellationToken cancellationToken = default) =>
 		 EditTimerScheduleAsync (hub, expected, ScheduleEdit.SetEnabled, index, null, enabled, cancellationToken);
 
 	/// <summary>Replaces January..December percentages (10..200) for one zone. Use a fresh snapshot before each write.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="percentages">Twelve seasonal duration percentages in January-to-December order, validated by the operation.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SetTimerSeasonalAdjustmentAsync (RainPointHub hub, RainPointScheduleSnapshot expected, IReadOnlyList<int> percentages,
 		 CancellationToken cancellationToken = default) =>
 		 WriteTimerParameterAsync (hub, expected, TimerPlanSettings.EditSeason (expected, percentages), cancellationToken);
 
 	/// <summary>Sets one zone's rain-delay end time in the home's local calendar, to whole seconds. Null clears the field to zero. Does not send a valve stop command.</summary>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="expected">An unused, current schedule snapshot observation from this session. Read again after any submitted write attempt.</param>
+	/// <param name="endsAtLocal">The rain-delay end in home-local wall time with Unspecified kind, or null to clear the delay.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public Task SetTimerRainDelayAsync (RainPointHub hub, RainPointScheduleSnapshot expected, DateTime? endsAtLocal,
 		 CancellationToken cancellationToken = default) =>
 		 WriteTimerParameterAsync (hub, expected, TimerPlanSettings.EditRainDelay (expected, endsAtLocal), cancellationToken);

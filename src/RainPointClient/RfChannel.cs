@@ -19,6 +19,16 @@ public sealed partial class RainPointCloudClient
 	/// <remarks>Uses a discovered hub as the expected channel/identity snapshot, reads again before writing,
 	/// and consumes that snapshot after one write attempt. Read again after any attempted write.
 	/// Completion is cloud acceptance, not RF delivery; concurrent updates are not atomic.</remarks>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="channel">The supported RF receive channel number, from 1 through 3; this is not a Wi-Fi channel.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task that completes when the operation finishes. A successful cloud write is not physical-device confirmation.</returns>
+	/// <exception cref="System.ArgumentOutOfRangeException">RF channel must be 1, 2 or 3.</exception>
+	/// <exception cref="System.ArgumentException">Use a discovered hub with a known RF channel and home.</exception>
+	/// <exception cref="System.InvalidOperationException">This channel snapshot has already been used. Read again before another write. Hub identity or RF channel changed. Read again before writing.</exception>
+	/// <exception cref="RainPointException">The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task SetRfChannelAsync (RainPointHub hub, int channel, CancellationToken cancellationToken = default)
 		{
 		ValidateHub (hub);
@@ -44,11 +54,17 @@ public sealed partial class RainPointCloudClient
 		}
 	private sealed class RfChannelRequest
 		{
+		/// <summary>
+		/// Stores the mid protocol field for rf channel request.
+		/// </summary>
 		[JsonPropertyName ("mid")]
 		public long Id
 			{
 			get; set;
 			}
+		/// <summary>
+		/// Stores the recich protocol field for rf channel request.
+		/// </summary>
 		[JsonPropertyName ("recich")]
 		public int Channel
 			{

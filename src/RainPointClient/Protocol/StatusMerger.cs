@@ -8,6 +8,10 @@ using System.Linq;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Internal status merger representation or processing contract for the RainPoint protocol.
+/// </summary>
+/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
 internal sealed class StatusMerger (RainPointHub hub)
 	{
 	private readonly Dictionary<int, RainPointTimerObservation> _timers = [];
@@ -17,6 +21,13 @@ internal sealed class StatusMerger (RainPointHub hub)
 	private DateTimeOffset? _lastPoll;
 	private long _revision;
 
+	/// <summary>
+	/// Merges a REST snapshot without replacing newer accepted timer feedback with older data.
+	/// </summary>
+	/// <param name="status">The accepted typed hub or timer observation.</param>
+	/// <param name="received">The local receipt instant of this accepted observation.</param>
+	/// <returns>The merged status update with per-timer source and receipt metadata.</returns>
+	/// <exception cref="System.ArgumentException">The reading belongs to another hub.</exception>
 	internal RainPointStatusUpdate ApplyPoll (RainPointHubStatus status, DateTimeOffset received)
 		{
 		if (status.HubId != hub.Id)
@@ -29,6 +40,12 @@ internal sealed class StatusMerger (RainPointHub hub)
 		return Snapshot (RainPointUpdateSource.Poll, received);
 		}
 
+	/// <summary>
+	/// Merges an accepted push only when its scoped feedback can advance the current observation.
+	/// </summary>
+	/// <param name="reading">The accepted decoded push update to merge.</param>
+	/// <param name="received">The local receipt instant of this accepted observation.</param>
+	/// <returns>The resulting merged update, or null when nothing was accepted.</returns>
 	internal RainPointStatusUpdate? ApplyPush (PushReading reading, DateTimeOffset received)
 		{
 		bool changed = ApplyConnection (reading.Connected, reading.ConnectionChanged, received);

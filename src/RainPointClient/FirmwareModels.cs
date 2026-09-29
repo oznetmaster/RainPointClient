@@ -9,6 +9,9 @@ namespace RainPointClient;
 /// <summary>A read-only firmware check. This client does not install firmware.</summary>
 public sealed class RainPointFirmwareStatus
 	{
+	/// <summary>
+	/// Gets the reported installed firmware version.
+	/// </summary>
 	[JsonPropertyName ("softVer"), JsonRequired, JsonInclude]
 	public string InstalledVersion { get; internal set; } = string.Empty;
 
@@ -20,17 +23,29 @@ public sealed class RainPointFirmwareStatus
 		}
 	}
 
+/// <summary>
+/// Describes a firmware version advertised by the cloud; the client does not install it.
+/// </summary>
 public sealed class RainPointFirmwareOffer
 	{
+	/// <summary>
+	/// Gets the version string reported for this firmware or catalog record.
+	/// </summary>
 	[JsonPropertyName ("versionName"), JsonRequired, JsonInclude]
 	public string Version { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the numeric vendor model code associated with the firmware offer.
+	/// </summary>
 	[JsonPropertyName ("modelCode"), JsonInclude]
 	public int? ModelCode
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the firmware release notes supplied by the vendor.
+	/// </summary>
 	[JsonPropertyName ("mark"), JsonInclude]
 	public string? ReleaseNotes
 		{

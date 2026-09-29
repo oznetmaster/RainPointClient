@@ -9,8 +9,15 @@ using System.Linq;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Decodes and edits the recognized seasonal adjustment and rain-delay settings without changing unrelated configuration.
+/// </summary>
 internal static class TimerPlanSettings
 	{
+	/// <summary>
+	/// Populates the typed snapshot with decoded seasonal adjustment and rain-delay settings and explicit section availability.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
 	internal static void Decode (RainPointScheduleSnapshot snapshot)
 		{
 		snapshot.SeasonalAdjustmentAvailability = TimerReadingAvailability.NotReported;
@@ -65,6 +72,15 @@ internal static class TimerPlanSettings
 		snapshot.RainDelayAvailability = TimerReadingAvailability.Decoded;
 		}
 
+	/// <summary>
+	/// Validates and replaces the selected seasonal adjustment and rain-delay settings fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="percentages">Twelve seasonal duration percentages in January-to-December order, validated by the operation.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.ArgumentException">Supply twelve monthly percentages, January through December, each from 10 to 200.</exception>
+	/// <exception cref="System.NotSupportedException">A complete existing monthly adjustment is required; missing defaults are not guessed.</exception>
 	internal static string EditSeason (RainPointScheduleSnapshot snapshot, IReadOnlyList<int> percentages)
 		{
 		string[] ports = WritablePorts (snapshot);
@@ -82,6 +98,14 @@ internal static class TimerPlanSettings
 		return string.Join ("|", ports);
 		}
 
+	/// <summary>
+	/// Validates and replaces the selected seasonal adjustment and rain-delay settings fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="endsAtLocal">The rain-delay end in home-local wall time with Unspecified kind, or null to clear the delay.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.NotSupportedException">A readable existing rain-delay field is required.</exception>
+	/// <exception cref="System.ArgumentException">Use home-local time with Unspecified kind, whole seconds, in 2020..2083.</exception>
 	internal static string EditRainDelay (RainPointScheduleSnapshot snapshot, DateTime? endsAtLocal)
 		{
 		string[] ports = WritablePorts (snapshot);

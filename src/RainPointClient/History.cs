@@ -17,6 +17,19 @@ public sealed partial class RainPointCloudClient
 	{
 	/// <summary>Reads sparse daily or monthly water totals for one timer zone. Dates are inclusive home-calendar dates, not UTC instants.</summary>
 	/// <remarks>Use Unspecified midnight dates. Requests are limited to 30 days or one calendar year, matching the app's chart windows. Monthly buckets can cover a partial month; no missing periods are filled.</remarks>
+	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="period">Daily or monthly aggregation of water usage.</param>
+	/// <param name="startDate">The inclusive first home-calendar date at midnight with Unspecified kind.</param>
+	/// <param name="endDate">The inclusive final home-calendar date at midnight with Unspecified kind.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the requested water usage records.</returns>
+	/// <exception cref="System.ArgumentOutOfRangeException">An argument is outside the supported range described above.</exception>
+	/// <exception cref="System.ArgumentException">Use an ordered home-calendar range of at most 30 days or one year, with Unspecified midnight dates.</exception>
+	/// <exception cref="RainPointException">Water history contained an invalid, duplicate or out-of-range calendar bucket. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<IReadOnlyList<RainPointWaterUsage>> GetTimerWaterUsageAsync (RainPointHub hub, int address, int zone,
 	 RainPointUsagePeriod period, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
 		{
@@ -59,6 +72,14 @@ public sealed partial class RainPointCloudClient
 
 	/// <summary>Reads one event page for a home, with optional hub, address, zone, code and cloud-timestamp filters. Zone queries may include timer-wide power-on events with Zone=0.</summary>
 	/// <remarks>No automatic pagination or deduplication. An empty result does not establish the service's retention period.</remarks>
+	/// <param name="homeId">The positive cloud home identifier.</param>
+	/// <param name="query">Optional history filters and a bounded result limit; null uses the default query.</param>
+	/// <param name="cancellationToken">Cancellation for this operation; cancelling after submission does not prove that a cloud write was undone.</param>
+	/// <returns>A task containing the typed event page result.</returns>
+	/// <exception cref="System.ArgumentException">Use a positive home/hub, nonnegative address/zone/code, ordered bounds and a limit of 1–50. Address requires hub; zone requires address.</exception>
+	/// <exception cref="RainPointException">Event history exceeded the requested page limit. Event history contained invalid metadata or mismatched addressing/filter codes. The service rejects the request or returns an unusable response.</exception>
+	/// <exception cref="System.Net.Http.HttpRequestException">The HTTP transport fails.</exception>
+	/// <exception cref="System.OperationCanceledException">The operation is cancelled or the HTTP request times out.</exception>
 	public async Task<RainPointEventPage> GetEventsAsync (long homeId, RainPointEventQuery? query = null, CancellationToken cancellationToken = default)
 		{
 		query ??= new RainPointEventQuery ();

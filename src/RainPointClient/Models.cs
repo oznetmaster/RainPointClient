@@ -11,12 +11,18 @@ namespace RainPointClient;
 /// <summary>A home shared with the authenticated account.</summary>
 public sealed class RainPointHome
 	{
+	/// <summary>
+	/// Gets the cloud home identifier used for subsequent discovery and history requests.
+	/// </summary>
 	[JsonPropertyName ("hid"), JsonRequired, JsonInclude]
 	public long Id
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the assigned home name; an omitted wire name remains an empty string.
+	/// </summary>
 	[JsonPropertyName ("homeName"), JsonInclude]
 	public string Name { get; internal set; } = string.Empty;
 	}
@@ -24,76 +30,127 @@ public sealed class RainPointHome
 /// <summary>A cloud gateway and its RF children. Discover again after pairing changes.</summary>
 public sealed class RainPointHub
 	{
+	/// <summary>
+	/// Stores the encoded scene-capability field for explicit capability decoding.
+	/// </summary>
 	[JsonPropertyName ("function"), JsonInclude]
 	internal string? SceneFunctionParameter
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores optional catalog scene-capability flags.
+	/// </summary>
 	[JsonPropertyName ("supportSmart"), JsonInclude]
 	internal int? AdvertisedSceneFlags
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets the vendor model code, or null when not reported.
+	/// </summary>
 	[JsonPropertyName ("modelCode"), JsonInclude]
 	public int? ModelCode
 		{
 		get; internal set;
 		}
+	/// <summary>
+	/// Gets advertised scene-execution capability, or null when the capability metadata is unknown.
+	/// </summary>
 	[JsonIgnore] public bool? SupportsSceneExecution => SceneFunction.Supports (SceneFunctionParameter, AdvertisedSceneFlags, 1);
 
+	/// <summary>
+	/// Gets the owning home ID assigned during discovery.
+	/// </summary>
 	[JsonIgnore]
 	public long HomeId
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the reported firmware version string, or null when absent.
+	/// </summary>
 	[JsonPropertyName ("softVer"), JsonInclude]
 	public string? FirmwareVersion
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the reported MAC address, or null when absent.
+	/// </summary>
 	[JsonPropertyName ("mac"), JsonInclude]
 	public string? MacAddress
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Stores the original encoded configuration field for bounded decoding and guarded updates.
+	/// </summary>
 	[JsonPropertyName ("param"), JsonInclude]
 	internal string? Parameter
 		{
 		get; set;
 		}
 
+	/// <summary>
+	/// Gets the decoded automatic RF time-broadcast setting, or null when unavailable or unsupported.
+	/// </summary>
 	[JsonIgnore]
 	public bool? AutomaticTimeBroadcastEnabled => Protocol.HubSettings.ReadBroadcast (Parameter);
+	/// <summary>
+	/// Stores the reported RF receive-channel number before range interpretation.
+	/// </summary>
 	[JsonPropertyName ("recich"), JsonInclude]
 	internal int? ReportedRfChannel
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Tracks whether this hub observation has already been used for an RF-channel write attempt.
+	/// </summary>
 	internal int RfChannelWriteAttempted;
 	/// <summary>Reported RF receive channel. Writes support channels 1..3 for supported hubs.</summary>
 	[JsonIgnore] public int? RfChannel => ReportedRfChannel > 0 ? ReportedRfChannel : null;
 
+	/// <summary>
+	/// Gets the cloud hub identifier, distinct from a child's RF address.
+	/// </summary>
 	[JsonPropertyName ("mid"), JsonRequired, JsonInclude]
 	public long Id
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the assigned hub name; an omitted wire name remains an empty string.
+	/// </summary>
 	[JsonPropertyName ("name"), JsonInclude]
 	public string Name { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the hub model identifier reported by the cloud.
+	/// </summary>
 	[JsonPropertyName ("model"), JsonInclude]
 	public string Model { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the vendor IoT device identity used to address hub operations.
+	/// </summary>
 	[JsonPropertyName ("deviceName"), JsonRequired, JsonInclude]
 	public string DeviceName { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the vendor IoT product identity used with the device name.
+	/// </summary>
 	[JsonPropertyName ("productKey"), JsonRequired, JsonInclude]
 	public string ProductKey { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the paired RF children reported by discovery; refresh discovery after pairing changes.
+	/// </summary>
 	[JsonPropertyName ("subDevices"), JsonInclude]
 	public IReadOnlyList<RainPointDevice> Devices { get; internal set; } = [];
 	}
@@ -101,18 +158,30 @@ public sealed class RainPointHub
 /// <summary>A paired device. Address is the RF address, not the cloud database ID.</summary>
 public sealed class RainPointDevice
 	{
+	/// <summary>
+	/// Stores the encoded scene-capability field for explicit capability decoding.
+	/// </summary>
 	[JsonPropertyName ("function"), JsonInclude]
 	internal string? SceneFunctionParameter
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores optional catalog scene-capability flags.
+	/// </summary>
 	[JsonPropertyName ("supportSmart"), JsonInclude]
 	internal int? AdvertisedSceneFlags
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Gets advertised scene-action capability, or null when capability metadata is unknown.
+	/// </summary>
 	[JsonIgnore] public bool? SupportsSceneActions => SceneFunction.Supports (SceneFunctionParameter, AdvertisedSceneFlags, 2);
 
+	/// <summary>
+	/// Stores the vendor zone-name field used to derive assigned zone names.
+	/// </summary>
 	[JsonPropertyName ("portDescribe"), JsonInclude]
 	internal string? PortDescriptions
 		{
@@ -135,17 +204,26 @@ public sealed class RainPointDevice
 			}
 		}
 
+	/// <summary>
+	/// Stores the vendor style field used when preserving device configuration.
+	/// </summary>
 	[JsonPropertyName ("style"), JsonInclude]
 	internal string? Style
 		{
 		get; set;
 		}
+	/// <summary>
+	/// Stores the original encoded configuration field for bounded decoding and guarded updates.
+	/// </summary>
 	[JsonPropertyName ("param"), JsonInclude]
 	internal string? Parameter
 		{
 		get; set;
 		}
 
+	/// <summary>
+	/// Stores the reported port count used to validate configuration section boundaries.
+	/// </summary>
 	[JsonPropertyName ("portNumber"), JsonInclude]
 	internal int? PortNumber
 		{
@@ -159,30 +237,48 @@ public sealed class RainPointDevice
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the reported firmware version string, or null when absent.
+	/// </summary>
 	[JsonPropertyName ("softVer"), JsonInclude]
 	public string? FirmwareVersion
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the child device's RF address within its hub, distinct from its cloud ID.
+	/// </summary>
 	[JsonPropertyName ("addr"), JsonRequired, JsonInclude]
 	public int Address
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Gets the child's assigned display name; an omitted wire name remains an empty string.
+	/// </summary>
 	[JsonPropertyName ("name"), JsonInclude]
 	public string Name { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the reported child-device model identifier.
+	/// </summary>
 	[JsonPropertyName ("model"), JsonRequired, JsonInclude]
 	public string Model { get; internal set; } = string.Empty;
 
+	/// <summary>
+	/// Gets the vendor model code, or null when absent.
+	/// </summary>
 	[JsonPropertyName ("modelCode"), JsonInclude]
 	public int? ModelCode
 		{
 		get; internal set;
 		}
 
+	/// <summary>
+	/// Stores the encoded recommendation-profile configuration.
+	/// </summary>
 	[JsonPropertyName ("planJson"), JsonInclude]
 	internal string? ProfileParameter
 		{
@@ -195,6 +291,9 @@ public sealed class RainPointDevice
 		 && int.TryParse (FirmwareVersion, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture,
 			  out int version) && version >= 120;
 
+	/// <summary>
+	/// Gets 1, 2 or 3 for HTV145FRF, HTV245FRF or HTV345FRF respectively, or null for unrecognized models.
+	/// </summary>
 	[JsonIgnore]
 	public int? SupportedZoneCount => Model?.ToUpperInvariant () switch
 		{
@@ -205,17 +304,42 @@ public sealed class RainPointDevice
 		};
 	}
 
+/// <summary>
+/// Distinguishes decoded data from absent, malformed and unsupported representations.
+/// </summary>
 public enum TimerReadingAvailability
 	{
+	/// <summary>
+	/// No usable field was reported; no state or empty configuration is inferred.
+	/// </summary>
 	NotReported,
+	/// <summary>
+	/// The recognized representation was decoded successfully.
+	/// </summary>
 	Decoded,
+	/// <summary>
+	/// A reported representation is not supported by this decoder.
+	/// </summary>
 	UnsupportedFormat,
+	/// <summary>
+	/// The expected representation was present but malformed.
+	/// </summary>
 	Malformed
 	}
 
 /// <summary>A snapshot from the cloud; absent readings are unknown, never assumed closed.</summary>
 public sealed class RainPointTimerStatus
 	{
+	/// <summary>
+	/// Initializes timer status from the supplied typed values.
+	/// </summary>
+	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
+	/// <param name="availability">The decoding result; unavailable data must not be interpreted as an empty configuration or closed valve.</param>
+	/// <param name="zones">The decoded per-zone observations.</param>
+	/// <param name="signalStrength">Reported timer RF signal strength in dBm, or null when unavailable.</param>
+	/// <param name="batteryFlag">The vendor battery-condition code, not a charge percentage; null means absent.</param>
+	/// <param name="lastDataChange">The timer's cloud data-change instant, or null when absent.</param>
+	/// <param name="reportedAtLocal">The device-reported wall-clock time with Unspecified kind, or null when unavailable.</param>
 	internal RainPointTimerStatus (int address, TimerReadingAvailability availability,
 		 IReadOnlyList<RainPointZoneStatus> zones, int? signalStrength = null, byte? batteryFlag = null,
 		 DateTimeOffset? lastDataChange = null, DateTime? reportedAtLocal = null)
@@ -229,18 +353,30 @@ public sealed class RainPointTimerStatus
 		ReportedAtLocal = reportedAtLocal;
 		}
 
+	/// <summary>
+	/// Gets the timer's RF address within the hub.
+	/// </summary>
 	public int Address
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets whether the timer status was decoded, absent, unsupported or malformed.
+	/// </summary>
 	public TimerReadingAvailability Availability
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets decoded zone states; consult availability before interpreting an empty list.
+	/// </summary>
 	public IReadOnlyList<RainPointZoneStatus> Zones
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets reported timer-to-hub RF signal strength in dBm, or null when unavailable.
+	/// </summary>
 	public int? SignalStrengthDbm
 		{
 		get;
@@ -272,16 +408,41 @@ public sealed class RainPointTimerStatus
 /// <summary>Reported irrigation program state, including the cycle-and-soak pause. This is not independent physical valve feedback.</summary>
 public enum RainPointWateringMode
 	{
+	/// <summary>
+	/// The reported irrigation program is idle.
+	/// </summary>
 	Idle = 0,
+	/// <summary>
+	/// Normal timed irrigation is reported active.
+	/// </summary>
 	Normal = 1,
+	/// <summary>
+	/// A misting program is reported active.
+	/// </summary>
 	Misting = 2,
+	/// <summary>
+	/// The watering phase of a cycle-and-soak program is reported active.
+	/// </summary>
 	CycleAndSoak = 3,
 	/// <summary>The cycle-and-soak program is still active, but reports its soaking pause.</summary>
 	CycleAndSoakPause = 7
 	}
 
+/// <summary>
+/// Contains reported state for one irrigation zone; missing values remain unknown.
+/// </summary>
 public sealed class RainPointZoneStatus
 	{
+	/// <summary>
+	/// Initializes zone status from the supplied typed values.
+	/// </summary>
+	/// <param name="zone">The one-based zone number on the selected timer.</param>
+	/// <param name="isOpen">Reported irrigation activity, including active cyclic pauses, or null when unknown.</param>
+	/// <param name="durationSeconds">The reported configured run duration in seconds, or null when absent.</param>
+	/// <param name="usageCounts">The underlying last-usage counter, or null when absent; recognized timers use 0.1 litre per count.</param>
+	/// <param name="eventTimeLocal">The reported device event wall time, or null when unavailable.</param>
+	/// <param name="alarmCode">Reported alarm bits, or null when absent; unknown bits are retained.</param>
+	/// <param name="workModeCode">The reported work-mode code, or null when absent.</param>
 	internal RainPointZoneStatus (int zone, bool? isOpen, uint? durationSeconds, uint? usageCounts,
 		 DateTime? eventTimeLocal = null, byte? alarmCode = null, byte? workModeCode = null)
 		{
@@ -294,6 +455,9 @@ public sealed class RainPointZoneStatus
 		WorkModeCode = workModeCode;
 		}
 
+	/// <summary>
+	/// Gets the one-based irrigation zone number.
+	/// </summary>
 	public int Zone
 		{
 		get;
@@ -310,6 +474,9 @@ public sealed class RainPointZoneStatus
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets a recognized reported watering mode, or null for an absent or unknown mode code.
+	/// </summary>
 	public RainPointWateringMode? WorkMode => WorkModeCode is (>= 0 and <= 3) or 7 ? (RainPointWateringMode)WorkModeCode.Value : null;
 
 	/// <summary>Commanded run length retained by the timer; not a remaining-time countdown.</summary>
@@ -357,6 +524,12 @@ public sealed class RainPointZoneStatus
 /// <summary>Cloud acknowledgement only. Polled status may also lag physical valve state.</summary>
 public enum RainPointCommandOutcome
 	{
+	/// <summary>
+	/// The cloud accepted the request; physical valve actuation is not confirmed.
+	/// </summary>
 	Accepted,
+	/// <summary>
+	/// The service reports the requested state or a transition already in progress.
+	/// </summary>
 	AlreadyInRequestedStateOrTransitioning
 	}

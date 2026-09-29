@@ -8,8 +8,15 @@ using System.Linq;
 
 namespace RainPointClient.Protocol;
 
+/// <summary>
+/// Decodes and edits the recognized automatic low-moisture watering rule without changing unrelated configuration.
+/// </summary>
 internal static class TimerMoistureRule
 	{
+	/// <summary>
+	/// Populates the typed snapshot with decoded automatic low-moisture watering rule and explicit section availability.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
 	internal static void Decode (RainPointScheduleSnapshot snapshot)
 		{
 		snapshot.MoistureWateringRule = null;
@@ -69,6 +76,16 @@ internal static class TimerMoistureRule
 			};
 		snapshot.MoistureRuleAvailability = TimerReadingAvailability.Decoded;
 		}
+	/// <summary>
+	/// Validates and replaces the selected automatic low-moisture watering rule fields while preserving unrelated bytes.
+	/// </summary>
+	/// <param name="snapshot">The observed zone configuration; unrelated encoded fields are preserved when editing.</param>
+	/// <param name="rule">The complete low-moisture watering rule for the selected zone.</param>
+	/// <returns>The complete updated parameter field.</returns>
+	/// <exception cref="System.ArgumentNullException">A required argument is null.</exception>
+	/// <exception cref="System.NotSupportedException">Use a readable modern timer snapshot on firmware 120 or newer. Only the verified modern settings container can be edited.</exception>
+	/// <exception cref="System.ArgumentException">Use moisture 1..99 and normal or misting mode. Duration must be 1..30 whole minutes. Use 0.3..6000 litres in 0.1 litre steps. Supply a duration or volume limit. Supply both exclusion times. Use distinct whole-minute home-local exclusion times within one day. Duration exceeds the daily watering window.</exception>
+	/// <exception cref="System.InvalidOperationException">Associate a soil sensor before enabling automatic watering.</exception>
 	internal static string Edit (RainPointScheduleSnapshot snapshot, RainPointMoistureWateringRule rule)
 		{
 		if (snapshot is null)

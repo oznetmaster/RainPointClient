@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.1] - 2026-09-29
+
+- Documentation updates. No functional changes.
+
 ## [1.2.0] - 2026-09-29
 
 - Add HTV145FRF and HTV245FRF normal control, status/MQTT decoding, zone names and per-zone saved-plan reads with offline protocol fixtures.

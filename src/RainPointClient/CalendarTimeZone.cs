@@ -17,10 +17,16 @@ public sealed class RainPointCalendarTimeZone
 		DaylightAdjustment = TimeSpan.FromMinutes (adjustment);
 		Transitions = Array.AsReadOnly (transitions);
 		}
+	/// <summary>
+	/// Gets the home's standard-time offset from UTC.
+	/// </summary>
 	public TimeSpan BaseOffset
 		{
 		get;
 		}
+	/// <summary>
+	/// Gets the additional daylight-saving offset reported by the home.
+	/// </summary>
 	public TimeSpan DaylightAdjustment
 		{
 		get;
@@ -30,6 +36,12 @@ public sealed class RainPointCalendarTimeZone
 		{
 		get;
 		}
+	/// <summary>
+	/// Decodes the vendor's base offset and daylight-transition table without consulting the machine time zone.
+	/// </summary>
+	/// <param name="offset">The reported base UTC offset in minutes, or null when unavailable.</param>
+	/// <param name="encoded">The original vendor-encoded field to decode without guessing unsupported values.</param>
+	/// <returns>The decoded calendar rules, or null when the offset or transition table is absent or malformed.</returns>
 	internal static RainPointCalendarTimeZone? Decode (int? offset, string? encoded)
 		{
 		if (offset is null or < -840 or > 840 || encoded is null || encoded.Length > 8192)
@@ -52,6 +64,11 @@ public sealed class RainPointCalendarTimeZone
 			}
 		return new (offset.Value, adjustment, transitions.ToArray ());
 		}
+	/// <summary>
+	/// Maps a local date to the vendor calendar's UTC-day number using its reported offset rules.
+	/// </summary>
+	/// <param name="localDate">The home-local calendar date with Unspecified kind.</param>
+	/// <returns>The UTC-day number used by the vendor calendar.</returns>
 	internal long UtcDayNumber (DateTime localDate)
 		{
 		// The app tests DST against the base-offset instant before applying the daylight adjustment.
