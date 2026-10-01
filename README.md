@@ -102,3 +102,6 @@ The software is provided **AS IS**, without warranty, under the MIT License. Clo
 ## License
 
 Copyright © 2026 Neil Colvin. Licensed under the [MIT License](https://github.com/oznetmaster/RainPointClient/blob/v1.2.1/LICENSE). Third-party components retain their respective copyrights and licenses.
+## NUnit 5 test tooling
+
+All maintained NUnit suites use the official NUnit 5.0.0 framework. Async exception assertions are awaited, and discarded-task warnings fail test builds. Processor test packages use CrestronHomeNUnit SDK 2.2.0; workflow and Android suites, where provided, use the released 2.2.0 adapter. Tests remain available in Visual Studio, VS Code and the command line. Live and manual tests still require their documented devices and permissions. This is a test-tooling update; the published product version and runtime behavior are unchanged.
