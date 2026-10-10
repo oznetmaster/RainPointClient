@@ -1,17 +1,17 @@
 # Changelog
 
-## [1.2.1] - 2026-09-29
+## 1.2.1 — 2026-09-29
 
 - Documentation updates. No functional changes.
 
-## [1.2.0] - 2026-09-29
+## 1.2.0 — 2026-09-29
 
 - Add HTV145FRF and HTV245FRF normal control, status/MQTT decoding, zone names and per-zone saved-plan reads with offline protocol fixtures.
 - Document the added models separately from hardware-validated HTV345FRF behavior. Advanced write restrictions are unchanged.
 - Update documentation.
 
 
-## [1.1.0] - 2026-09-29
+## 1.1.0 — 2026-09-29
 
 - Expose assigned zone names and typed home-configuration change notifications, scoped to the signed-in account and monitored home.
 
@@ -21,11 +21,11 @@
 - Register account MQTT credentials for home-configuration notifications while retaining compatibility with temporary status observers.
 - Update development tests to NUnit 5.
 
-## [1.0.1] - 2026-09-28
+## 1.0.1 — 2026-09-28
 
 Documentation updates. No functional changes.
 
-## [1.0.0] - 2026-09-28
+## 1.0.0 — 2026-09-28
 
 Initial release of the RainPoint Home / Smart+ cloud client for .NET Framework 4.7.2 and .NET 10, written in C# 14.
 
