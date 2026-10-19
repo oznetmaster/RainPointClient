@@ -57,9 +57,13 @@ public sealed class MonitorTests
 		_monitor.ConfigurationChanged += (_, _) => throw new InvalidOperationException ("Consumer failure");
 		var revisions = new System.Collections.Generic.List<long> ();
 		_monitor.ConfigurationChanged += (_, change) => revisions.Add (change.Revision);
+		TaskCompletionSource<bool> initialStatus = new (TaskCreationOptions.RunContinuationsAsynchronously);
+		_monitor.StatusReceived += (_, _) => initialStatus.TrySetResult (true);
 		Task running = _monitor.RunAsync ();
 		await Within (transport.Started.Task);
+		await Within (initialStatus.Task);
 		var status = _monitor.Current;
+		Assert.That (status, Is.Not.Null, "Capture a completed status observation before testing configuration-only pushes.");
 		int requests = _handler.Requests.Count;
 		foreach (string body in new[] { "42||100", "42||100", "42||99", "43||101", "42||101" })
 			transport.Received! (System.Text.Encoding.UTF8.GetBytes ("#P260929120000000000012304" + body + "#"));
