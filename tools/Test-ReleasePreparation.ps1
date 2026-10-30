@@ -32,6 +32,14 @@ try {
     Copy-Item -LiteralPath "$root/release-notes/v1.2.1.md" -Destination "$temporary/release-notes/v1.2.1.md"
     [IO.File]::WriteAllText("$temporary/CHANGELOG.md",'# Changelog')
     Reject { & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary }
+    foreach ($heading in @('## 1.2.1 — 2026-09-29','## [1.2.1] - 2026-09-29')) {
+        [IO.File]::WriteAllText("$temporary/CHANGELOG.md", "# Changelog`n`n$heading`n`nValid entry.`n")
+        & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary | Out-Null
+    }
+    foreach ($heading in @('## 1.2.10 — 2026-09-29','## [1.2.10] - 2026-09-29','## [1.2.1 - 2026-09-29','### 1.2.1 - 2026-09-29')) {
+        [IO.File]::WriteAllText("$temporary/CHANGELOG.md", "# Changelog`n`n$heading`n`nInvalid entry.`n")
+        Reject { & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary }
+    }
     Copy-Item -LiteralPath "$root/CHANGELOG.md" -Destination "$temporary/CHANGELOG.md"
     & "$PSScriptRoot/Test-SourceNotices.ps1" -Root $temporary | Out-Null
     [IO.File]::WriteAllText("$temporary/src/RainPointClient/MissingHeader.cs",'class MissingHeader {}')
@@ -42,7 +50,7 @@ try {
     Copy-Item -LiteralPath "$root/README.md" -Destination "$temporary/README.md"
     [IO.File]::WriteAllText("$temporary/ATTRIBUTIONS.md",'# Attributions')
     Reject { & "$PSScriptRoot/Test-SourceNotices.ps1" -Root $temporary }
-    Write-Output 'Release rejection tests: seven metadata and three source-notice scenarios passed.'
+    Write-Output 'Release checks: two changelog formats accepted; eleven metadata and three source-notice rejection scenarios passed.'
 
 } finally {
     $resolved = [IO.Path]::GetFullPath($temporary)
