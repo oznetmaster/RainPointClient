@@ -20,7 +20,7 @@ $notesText = Get-Content -LiteralPath $notes -Raw
 $notesLines = $notesText -split "\r?\n", 2
 if ($notesLines[0] -cne "# RainPointClient $Version" -or $notesLines.Count -lt 2 -or [string]::IsNullOrWhiteSpace($notesLines[1])) { throw 'Release notes are missing or inconsistent.' }
 $changelog = Get-Content -LiteralPath (Join-Path $Root 'CHANGELOG.md') -Raw
-if ($changelog -notmatch ('(?m)^##[ \t]+(?:\[' + [regex]::Escape($Version) + '\]|' + [regex]::Escape($Version) + ')(?=\s|$)')) { throw 'No changelog entry matches this version.' }
+if ($changelog -notmatch ('(?m)^##[ \t]+(?:\[v?' + [regex]::Escape($Version) + '\](?:\([^\s)]+\))?|v?' + [regex]::Escape($Version) + ')(?=\s|$)')) { throw 'No changelog entry matches this version.' }
 foreach ($file in @('README.md','ATTRIBUTIONS.md','LICENSE','THIRD-PARTY-NOTICES.md','PUBLISHING.md','tests/README.md')) {
     if (!(Test-Path -LiteralPath (Join-Path $Root $file) -PathType Leaf)) { throw "Missing release document: $file" }
 }
