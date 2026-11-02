@@ -1,18 +1,10 @@
-- name: Overview
+- name: Home
   href: index.md
-- name: Getting started
-  href: ../README.md
-- name: API reference
-  href: api/toc.yml
-- name: Feature guides
-  href: ../docs/toc.yml
-- name: Release notes
-  href: ../release-notes/v1.2.1.md
-- name: Changelog
-  href: ../CHANGELOG.md
-- name: Testing
-  href: ../tests/README.md
-- name: Publication
-  href: ../PUBLISHING.md
-- name: Attributions and notices
-  href: ../ATTRIBUTIONS.md
+- name: Guides
+  href: guides/
+- name: API Reference
+  href: reference/
+- name: GitHub
+  href: https://github.com/oznetmaster/RainPointClient
+- name: NuGet
+  href: https://www.nuget.org/profiles/oznetmaster

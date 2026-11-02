@@ -38,7 +38,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Run offline NUnit tests
-        uses: oznetmaster/BuildAutomation@ae6f311e530a18dc705971dcc655fc97de03e368
+        uses: oznetmaster/BuildAutomation@c0a215e202dc1e05a37707720ab12032be610518
         with:
           task: unit-tests-test-run-offline-nunit-tests
         env:
@@ -61,6 +61,6 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Validate release metadata and check policy
-        uses: oznetmaster/BuildAutomation@ae6f311e530a18dc705971dcc655fc97de03e368
+        uses: oznetmaster/BuildAutomation@c0a215e202dc1e05a37707720ab12032be610518
         with:
           task: unit-tests-release-policy-validate-release-metadata-and-check-policy

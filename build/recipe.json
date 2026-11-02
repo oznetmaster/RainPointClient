@@ -34,6 +34,20 @@
           "shell": "pwsh"
         }
       ]
+    },
+    "documentation": {
+      "commands": [
+        {
+          "executable": "pwsh",
+          "script": "build/steps/documentation-0.ps1",
+          "shell": "pwsh"
+        }
+      ],
+      "documentation": {
+        "config": "docfx/docfx.json",
+        "site": "artifacts/docs-site",
+        "title": "RainPointClient"
+      }
     }
   }
 }

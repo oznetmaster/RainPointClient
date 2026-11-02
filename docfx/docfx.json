@@ -34,13 +34,23 @@
           "ATTRIBUTIONS.md"
         ],
         "src": ".."
+      },
+      {
+        "files": [
+          "toc.yml",
+          "guides/**.md",
+          "guides/**/toc.yml",
+          "reference/**.md",
+          "reference/**/toc.yml"
+        ]
       }
     ],
     "dest": "../artifacts/docs-site",
     "globalMetadata": {
       "_appTitle": "RainPointClient",
       "_appName": "RainPointClient",
-      "_enableSearch": true
+      "_enableSearch": true,
+      "_appFooter": "Copyright (c) 2026 Neil Colvin."
     },
     "template": [
       "default",
