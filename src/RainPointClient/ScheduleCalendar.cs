@@ -47,6 +47,7 @@ public sealed class RainPointScheduleOccurrence
 	/// <summary>
 	/// Gets the RF address of the timer associated with this projected start.
 	/// </summary>
+	/// <value>The RF address of the timer associated with this projected start.</value>
 	public int Address
 		{
 		get;
@@ -54,6 +55,7 @@ public sealed class RainPointScheduleOccurrence
 	/// <summary>
 	/// Gets the one-based zone associated with this projected start.
 	/// </summary>
+	/// <value>The one-based zone associated with this projected start.</value>
 	public int Zone
 		{
 		get;
@@ -61,11 +63,13 @@ public sealed class RainPointScheduleOccurrence
 	/// <summary>
 	/// Gets the saved plan from which this occurrence was projected.
 	/// </summary>
+	/// <value>The saved plan from which this occurrence was projected.</value>
 	public RainPointSchedule Plan
 		{
 		get;
 		}
 	/// <summary>Home-local wall time with Unspecified kind. No UTC/DST conversion is inferred.</summary>
+	/// <value>Home-local wall time with Unspecified kind. No UTC/DST conversion is inferred.</value>
 	public DateTime StartsAt
 		{
 		get;
@@ -73,11 +77,13 @@ public sealed class RainPointScheduleOccurrence
 	/// <summary>
 	/// Gets the month's decoded duration multiplier in percent, or null when unavailable.
 	/// </summary>
+	/// <value>The month's decoded duration multiplier in percent, or null when unavailable.</value>
 	public int? SeasonalPercentage
 		{
 		get;
 		}
 	/// <summary>Vendor-calendar display duration: scaled and rounded to whole minutes, minimum one. Null when seasonal settings are unavailable. Not an elapsed runtime or a volume-limit estimate.</summary>
+	/// <value>Vendor-calendar display duration: scaled and rounded to whole minutes, minimum one. Null when seasonal settings are unavailable. Not an elapsed runtime or a volume-limit estimate.</value>
 	public TimeSpan? CalendarDuration
 		{
 		get;
@@ -85,6 +91,7 @@ public sealed class RainPointScheduleOccurrence
 	/// <summary>
 	/// Gets whether the projected start is covered by a known rain delay, or whether that setting is unknown.
 	/// </summary>
+	/// <value>Whether the projected start is covered by a known rain delay, or whether that setting is unknown.</value>
 	public RainPointCalendarRainDelay RainDelay
 		{
 		get;
@@ -111,6 +118,7 @@ public sealed class RainPointCalendarPreview
 	/// <summary>
 	/// Gets the inclusive first home-local date of the projection.
 	/// </summary>
+	/// <value>The inclusive first home-local date of the projection.</value>
 	public DateTime FromDate
 		{
 		get;
@@ -118,6 +126,7 @@ public sealed class RainPointCalendarPreview
 	/// <summary>
 	/// Gets the inclusive last home-local date of the projection.
 	/// </summary>
+	/// <value>The inclusive last home-local date of the projection.</value>
 	public DateTime ThroughDate
 		{
 		get;
@@ -125,6 +134,7 @@ public sealed class RainPointCalendarPreview
 	/// <summary>
 	/// Gets whether the entire requested projection could be decoded without guessing unsupported recurrence.
 	/// </summary>
+	/// <value>Whether the entire requested projection could be decoded without guessing unsupported recurrence.</value>
 	public TimerReadingAvailability Availability
 		{
 		get;
@@ -132,6 +142,7 @@ public sealed class RainPointCalendarPreview
 	/// <summary>
 	/// Gets projected starts within the bounded window; availability determines whether an empty list is meaningful.
 	/// </summary>
+	/// <value>Projected starts within the bounded window; availability determines whether an empty list is meaningful.</value>
 	public IReadOnlyList<RainPointScheduleOccurrence> Occurrences
 		{
 		get;

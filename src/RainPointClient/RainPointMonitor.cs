@@ -95,6 +95,7 @@ public sealed class RainPointMonitor
 	/// <summary>
 	/// Gets the latest merged observation, or null before a successful observation is accepted.
 	/// </summary>
+	/// <value>The latest merged observation, or null before a successful observation is accepted.</value>
 	public RainPointStatusUpdate? Current
 		{
 		get
@@ -106,6 +107,7 @@ public sealed class RainPointMonitor
 	/// <summary>
 	/// Gets the monitor's current connection lifecycle state.
 	/// </summary>
+	/// <value>The monitor's current connection lifecycle state.</value>
 	public RainPointMonitorState State
 		{
 		get
@@ -115,16 +117,19 @@ public sealed class RainPointMonitor
 			}
 		}
 	/// <summary>True after a successful catch-up read on the current MQTT connection and authenticated session. This is observer availability, not a physical-device heartbeat.</summary>
+	/// <value>True after a successful catch-up read on the current MQTT connection and authenticated session. This is observer availability, not a physical-device heartbeat.</value>
 	public bool LiveUpdatesAvailable => _pushConnected && _client.HasValidSession
 		&& ReferenceEquals (_pushSessionIdentity, _client.SessionIdentity)
 		&& Interlocked.Read (ref _pushGeneration) == Interlocked.Read (ref _synchronizedPushGeneration);
 	/// <summary>
 	/// Gets the count of accepted status pushes, not a count of physical valve transitions.
 	/// </summary>
+	/// <value>The count of accepted status pushes, not a count of physical valve transitions.</value>
 	public long AcceptedPushCount => Interlocked.Read (ref _acceptedPushes);
 	/// <summary>
 	/// Gets the count of status pushes rejected by scope, decoding or ordering checks.
 	/// </summary>
+	/// <value>The count of status pushes rejected by scope, decoding or ordering checks.</value>
 	public long RejectedPushCount => Interlocked.Read (ref _rejectedPushes);
 
 	/// <summary>Runs until cancelled or stopped. A monitor instance can be started once.</summary>

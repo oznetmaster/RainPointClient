@@ -99,6 +99,7 @@ public sealed class RainPointScheduleSnapshot
 		get; set;
 		}
 	/// <summary>Availability of sensor association and moisture stop settings, separate from live sensor data.</summary>
+	/// <value>Availability of sensor association and moisture stop settings, separate from live sensor data.</value>
 	public TimerReadingAvailability SoilSensorAvailability
 		{
 		get; internal set;
@@ -106,6 +107,7 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets decoded sensor association and moisture-stop settings, or null when not decoded.
 	/// </summary>
+	/// <value>Decoded sensor association and moisture-stop settings, or null when not decoded.</value>
 	public RainPointSoilSensorSettings? SoilSensorSettings
 		{
 		get; internal set;
@@ -113,20 +115,24 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets the independent decoding state of monthly seasonal percentages.
 	/// </summary>
+	/// <value>The independent decoding state of monthly seasonal percentages.</value>
 	public TimerReadingAvailability SeasonalAdjustmentAvailability
 		{
 		get; internal set;
 		}
 	/// <summary>January through December percentages. Empty when unavailable; never inferred as 100%.</summary>
+	/// <value>January through December percentages. Empty when unavailable; never inferred as 100%.</value>
 	public IReadOnlyList<int> SeasonalPercentages { get; internal set; } = Array.AsReadOnly (Array.Empty<int> ());
 	/// <summary>
 	/// Gets the independent decoding state of the saved rain-delay field.
 	/// </summary>
+	/// <value>The independent decoding state of the saved rain-delay field.</value>
 	public TimerReadingAvailability RainDelayAvailability
 		{
 		get; internal set;
 		}
 	/// <summary>Home-local end time with Unspecified kind; null for an explicit zero field. Compare with the home's current local time to determine activity. An expired value is retained.</summary>
+	/// <value>Home-local end time with Unspecified kind; null for an explicit zero field. Compare with the home's current local time to determine activity. An expired value is retained.</value>
 	public DateTime? RainDelayUntil
 		{
 		get; internal set;
@@ -134,11 +140,13 @@ public sealed class RainPointScheduleSnapshot
 
 
 	/// <summary>Availability of the zone-default configuration, independent of seasonal adjustment and rain delay.</summary>
+	/// <value>Availability of the zone-default configuration, independent of seasonal adjustment and rain delay.</value>
 	public TimerReadingAvailability ZoneDefaultsAvailability
 		{
 		get; internal set;
 		}
 	/// <summary>Null when defaults are absent, malformed or unsupported. Individual null durations denote encoded app-default sentinels.</summary>
+	/// <value>Null when defaults are absent, malformed or unsupported. Individual null durations denote encoded app-default sentinels.</value>
 	public RainPointZoneDefaults? ZoneDefaults
 		{
 		get; internal set;
@@ -146,11 +154,13 @@ public sealed class RainPointScheduleSnapshot
 
 
 	/// <summary>Availability of the saved flow-calibration percentage.</summary>
+	/// <value>Availability of the saved flow-calibration percentage.</value>
 	public TimerReadingAvailability FlowCalibrationAvailability
 		{
 		get; internal set;
 		}
 	/// <summary>Signed correction percentage, -20..20. Null when not decoded; zero is an explicit neutral setting.</summary>
+	/// <value>Signed correction percentage, -20..20. Null when not decoded; zero is an explicit neutral setting.</value>
 	public int? FlowCalibrationPercent
 		{
 		get; internal set;
@@ -159,11 +169,13 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets the independent decoding state of automatic low-moisture watering settings.
 	/// </summary>
+	/// <value>The independent decoding state of automatic low-moisture watering settings.</value>
 	public TimerReadingAvailability MoistureRuleAvailability
 		{
 		get; internal set;
 		}
 	/// <summary>Decoded rule values, or null when absent/unreadable. Editing this object alone does not write to the device.</summary>
+	/// <value>Decoded rule values, or null when absent/unreadable. Editing this object alone does not write to the device.</value>
 	public RainPointMoistureWateringRule? MoistureWateringRule
 		{
 		get; internal set;
@@ -192,6 +204,7 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets the timer's RF address within its hub.
 	/// </summary>
+	/// <value>The timer's RF address within its hub.</value>
 	public int Address
 		{
 		get;
@@ -199,11 +212,13 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets the one-based zone whose configuration was observed.
 	/// </summary>
+	/// <value>The one-based zone whose configuration was observed.</value>
 	public int Zone
 		{
 		get;
 		}
 	/// <summary>Only Decoded with an empty list means the zone has no saved schedules.</summary>
+	/// <value>Only Decoded with an empty list means the zone has no saved schedules.</value>
 	public TimerReadingAvailability Availability
 		{
 		get;
@@ -211,6 +226,7 @@ public sealed class RainPointScheduleSnapshot
 	/// <summary>
 	/// Gets the decoded saved plans in configuration order; an empty list means no plans only when availability is Decoded.
 	/// </summary>
+	/// <value>The decoded saved plans in configuration order; an empty list means no plans only when availability is Decoded.</value>
 	public IReadOnlyList<RainPointSchedule> Schedules
 		{
 		get;
@@ -254,6 +270,7 @@ public sealed class RainPointSchedule
 		}
 
 	/// <summary>Zero-based position in the returned configuration; not a durable plan identifier.</summary>
+	/// <value>Zero-based position in the returned configuration; not a durable plan identifier.</value>
 	public int Index
 		{
 		get;
@@ -261,6 +278,7 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets whether this saved plan is enabled in cloud configuration.
 	/// </summary>
+	/// <value>Whether this saved plan is enabled in cloud configuration.</value>
 	public bool Enabled
 		{
 		get;
@@ -268,6 +286,7 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the decoded irrigation, misting or cycle-and-soak mode.
 	/// </summary>
+	/// <value>The decoded irrigation, misting or cycle-and-soak mode.</value>
 	public RainPointScheduleMode Mode
 		{
 		get;
@@ -275,11 +294,13 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the scheduled time of day in the home's local calendar.
 	/// </summary>
+	/// <value>The scheduled time of day in the home's local calendar.</value>
 	public TimeSpan StartTime
 		{
 		get;
 		}
 	/// <summary>Configured duration. For cycle/soak this is total watering time, excluding pauses.</summary>
+	/// <value>Configured duration. For cycle/soak this is total watering time, excluding pauses.</value>
 	public TimeSpan Duration
 		{
 		get;
@@ -287,6 +308,7 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the plan's decoded recurrence pattern.
 	/// </summary>
+	/// <value>The plan's decoded recurrence pattern.</value>
 	public RainPointScheduleRepeat Repeat
 		{
 		get;
@@ -294,21 +316,25 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the selected days for weekly recurrence; other patterns need not supply days.
 	/// </summary>
+	/// <value>The selected days for weekly recurrence; other patterns need not supply days.</value>
 	public IReadOnlyList<DayOfWeek> Weekdays
 		{
 		get;
 		}
 	/// <summary>Repeat interval in days or hours according to Repeat; null for other repeat modes.</summary>
+	/// <value>Repeat interval in days or hours according to Repeat; null for other repeat modes.</value>
 	public int? Interval
 		{
 		get;
 		}
 	/// <summary>Positive water limit in litres; null when absent or configured for duration.</summary>
+	/// <value>Positive water limit in litres; null when absent or configured for duration.</value>
 	public decimal? WaterLimitLitres
 		{
 		get;
 		}
 	/// <summary>Local date with Unspecified kind; null when absent or disabled in the wire format.</summary>
+	/// <value>Local date with Unspecified kind; null when absent or disabled in the wire format.</value>
 	public DateTime? EffectiveDate
 		{
 		get;
@@ -316,6 +342,7 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the watering burst duration for a cyclic plan, or null when not present.
 	/// </summary>
+	/// <value>The watering burst duration for a cyclic plan, or null when not present.</value>
 	public TimeSpan? CycleWateringTime
 		{
 		get;
@@ -323,6 +350,7 @@ public sealed class RainPointSchedule
 	/// <summary>
 	/// Gets the pause between watering bursts, or null when not present.
 	/// </summary>
+	/// <value>The pause between watering bursts, or null when not present.</value>
 	public TimeSpan? CyclePauseTime
 		{
 		get;
@@ -335,33 +363,41 @@ public sealed class RainPointIrrigationSchedule
 	/// <summary>
 	/// Gets or sets whether the submitted plan is enabled; defaults to false.
 	/// </summary>
+	/// <value>Whether the submitted plan is enabled; defaults to false.</value>
 	public bool Enabled
 		{
 		get; set;
 		}
 	/// <summary>Home-local start time, from midnight to 23:59, in whole minutes.</summary>
+	/// <value>Home-local start time, from midnight to 23:59, in whole minutes.</value>
 	public TimeSpan StartTime { get; set; } = TimeSpan.FromHours (8);
 	/// <summary>Whole seconds from one minute to twelve hours.</summary>
+	/// <value>Whole seconds from one minute to twelve hours.</value>
 	public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes (1);
 	/// <summary>
 	/// Gets or sets the recurrence pattern; defaults to every day. The write operation validates supported patterns.
 	/// </summary>
+	/// <value>The recurrence pattern; defaults to every day. The write operation validates supported patterns.</value>
 	public RainPointScheduleRepeat Repeat { get; set; } = RainPointScheduleRepeat.EveryDay;
 	/// <summary>
 	/// Gets or sets the selected days for weekly recurrence; leave empty for other supported patterns.
 	/// </summary>
+	/// <value>The selected days for weekly recurrence; leave empty for other supported patterns.</value>
 	public IReadOnlyList<DayOfWeek> Weekdays { get; set; } = [];
 	/// <summary>Required for IntervalDays (1..127); null for other supported repeats.</summary>
+	/// <value>Required for IntervalDays (1..127); null for other supported repeats.</value>
 	public int? Interval
 		{
 		get; set;
 		}
 	/// <summary>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</summary>
+	/// <value>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</value>
 	public decimal? WaterLimitLitres
 		{
 		get; set;
 		}
 	/// <summary>Optional home-local date (2020..2083), with Unspecified kind and no time component.</summary>
+	/// <value>Optional home-local date (2020..2083), with Unspecified kind and no time component.</value>
 	public DateTime? EffectiveDate
 		{
 		get; set;
@@ -374,37 +410,47 @@ public sealed class RainPointCycleAndSoakSchedule
 	/// <summary>
 	/// Gets or sets whether the submitted plan is enabled; defaults to false.
 	/// </summary>
+	/// <value>Whether the submitted plan is enabled; defaults to false.</value>
 	public bool Enabled
 		{
 		get; set;
 		}
 	/// <summary>Home-local start time, from midnight to 23:59, in whole minutes.</summary>
+	/// <value>Home-local start time, from midnight to 23:59, in whole minutes.</value>
 	public TimeSpan StartTime { get; set; } = TimeSpan.FromHours (8);
 	/// <summary>Total watering time excluding pauses: 5..1440 whole minutes.</summary>
+	/// <value>Total watering time excluding pauses: 5..1440 whole minutes.</value>
 	public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes (10);
 	/// <summary>Watering per cycle: 1..720 whole minutes, no greater than Duration.</summary>
+	/// <value>Watering per cycle: 1..720 whole minutes, no greater than Duration.</value>
 	public TimeSpan CycleWateringTime { get; set; } = TimeSpan.FromMinutes (5);
 	/// <summary>Pause between cycles: 1..720 whole minutes. There is no pause after the last cycle.</summary>
+	/// <value>Pause between cycles: 1..720 whole minutes. There is no pause after the last cycle.</value>
 	public TimeSpan CyclePauseTime { get; set; } = TimeSpan.FromMinutes (30);
 	/// <summary>
 	/// Gets or sets the recurrence pattern; defaults to every day. The write operation validates supported patterns.
 	/// </summary>
+	/// <value>The recurrence pattern; defaults to every day. The write operation validates supported patterns.</value>
 	public RainPointScheduleRepeat Repeat { get; set; } = RainPointScheduleRepeat.EveryDay;
 	/// <summary>
 	/// Gets or sets the selected days for weekly recurrence; leave empty for other supported patterns.
 	/// </summary>
+	/// <value>The selected days for weekly recurrence; leave empty for other supported patterns.</value>
 	public IReadOnlyList<DayOfWeek> Weekdays { get; set; } = [];
 	/// <summary>Required for IntervalDays (1..127); null for other supported repeats.</summary>
+	/// <value>Required for IntervalDays (1..127); null for other supported repeats.</value>
 	public int? Interval
 		{
 		get; set;
 		}
 	/// <summary>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</summary>
+	/// <value>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</value>
 	public decimal? WaterLimitLitres
 		{
 		get; set;
 		}
 	/// <summary>Home-local midnight date in 2020..2083, Unspecified kind; required for IntervalDays.</summary>
+	/// <value>Home-local midnight date in 2020..2083, Unspecified kind; required for IntervalDays.</value>
 	public DateTime? EffectiveDate
 		{
 		get; set;
@@ -417,37 +463,47 @@ public sealed class RainPointMistingSchedule
 	/// <summary>
 	/// Gets or sets whether the submitted plan is enabled; defaults to false.
 	/// </summary>
+	/// <value>Whether the submitted plan is enabled; defaults to false.</value>
 	public bool Enabled
 		{
 		get; set;
 		}
 	/// <summary>Home-local start time, from midnight to 23:59, in whole minutes.</summary>
+	/// <value>Home-local start time, from midnight to 23:59, in whole minutes.</value>
 	public TimeSpan StartTime { get; set; } = TimeSpan.FromHours (8);
 	/// <summary>Configured misting duration: 1..720 whole minutes. Physical treatment of pauses remains unverified.</summary>
+	/// <value>Configured misting duration: 1..720 whole minutes. Physical treatment of pauses remains unverified.</value>
 	public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes (10);
 	/// <summary>Each misting burst: 5..3600 whole seconds.</summary>
+	/// <value>Each misting burst: 5..3600 whole seconds.</value>
 	public TimeSpan CycleWateringTime { get; set; } = TimeSpan.FromSeconds (10);
 	/// <summary>Pause between misting bursts: 5..3600 whole seconds.</summary>
+	/// <value>Pause between misting bursts: 5..3600 whole seconds.</value>
 	public TimeSpan CyclePauseTime { get; set; } = TimeSpan.FromSeconds (20);
 	/// <summary>
 	/// Gets or sets the recurrence pattern; defaults to every day. The write operation validates supported patterns.
 	/// </summary>
+	/// <value>The recurrence pattern; defaults to every day. The write operation validates supported patterns.</value>
 	public RainPointScheduleRepeat Repeat { get; set; } = RainPointScheduleRepeat.EveryDay;
 	/// <summary>
 	/// Gets or sets the selected days for weekly recurrence; leave empty for other supported patterns.
 	/// </summary>
+	/// <value>The selected days for weekly recurrence; leave empty for other supported patterns.</value>
 	public IReadOnlyList<DayOfWeek> Weekdays { get; set; } = [];
 	/// <summary>Required for IntervalDays (1..127); null for other supported repeats.</summary>
+	/// <value>Required for IntervalDays (1..127); null for other supported repeats.</value>
 	public int? Interval
 		{
 		get; set;
 		}
 	/// <summary>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</summary>
+	/// <value>Optional 0.3..6000 litre limit in 0.1 litre steps. Watering ends at the volume or duration limit.</value>
 	public decimal? WaterLimitLitres
 		{
 		get; set;
 		}
 	/// <summary>Home-local midnight date in 2020..2083, Unspecified kind; required for IntervalDays.</summary>
+	/// <value>Home-local midnight date in 2020..2083, Unspecified kind; required for IntervalDays.</value>
 	public DateTime? EffectiveDate
 		{
 		get; set;

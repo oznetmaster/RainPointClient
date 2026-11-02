@@ -189,6 +189,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the recognized condition kind, or Unsupported without discarding its wire representation.
 	/// </summary>
+	/// <value>The recognized condition kind, or Unsupported without discarding its wire representation.</value>
 	public RainPointSceneConditionKind Kind
 		{
 		get;
@@ -196,18 +197,22 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the recognized enabled flag, or null for an unknown value.
 	/// </summary>
+	/// <value>The recognized enabled flag, or null for an unknown value.</value>
 	public bool? Enabled => Wire.Enable is 0 or 1 ? Wire.Enable == 1 : null;
 	/// <summary>
 	/// Gets the associated positive hub ID, or null when absent.
 	/// </summary>
+	/// <value>The associated positive hub ID, or null when absent.</value>
 	public long? HubId => Wire.HubId > 0 ? Wire.HubId : null;
 	/// <summary>
 	/// Gets the associated RF address for a device condition, or null for other condition families.
 	/// </summary>
+	/// <value>The associated RF address for a device condition, or null for other condition families.</value>
 	public int? DeviceAddress => Wire.Type == 0 ? Wire.Address : null;
 	/// <summary>
 	/// Gets the weather-threshold metric, or null when this is not a decoded weather-threshold condition.
 	/// </summary>
+	/// <value>The weather-threshold metric, or null when this is not a decoded weather-threshold condition.</value>
 	public RainPointSceneWeatherMetric? Metric
 		{
 		get;
@@ -215,6 +220,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the decoded threshold comparison, or null when unavailable.
 	/// </summary>
+	/// <value>The decoded threshold comparison, or null when unavailable.</value>
 	public RainPointSceneComparison? Comparison
 		{
 		get;
@@ -222,11 +228,13 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the threshold in the selected metric's units, or null when unavailable.
 	/// </summary>
+	/// <value>The threshold in the selected metric's units, or null when unavailable.</value>
 	public decimal? Threshold
 		{
 		get;
 		}
 	/// <summary>Home-local wall time; no conversion using the computer's time zone is made.</summary>
+	/// <value>Home-local wall time; no conversion using the computer's time zone is made.</value>
 	public DateTime? AtLocal
 		{
 		get;
@@ -234,6 +242,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the time condition's recurrence pattern, or null when unavailable.
 	/// </summary>
+	/// <value>The time condition's recurrence pattern, or null when unavailable.</value>
 	public RainPointSceneRepeat? Repeat
 		{
 		get;
@@ -241,6 +250,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the selected weekday mask for weekly recurrence; None denotes no selected weekdays.
 	/// </summary>
+	/// <value>The selected weekday mask for weekly recurrence; None denotes no selected weekdays.</value>
 	public RainPointSceneWeekdays Weekdays
 		{
 		get;
@@ -248,6 +258,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the fixed-clock or solar-time selection, or null when unavailable.
 	/// </summary>
+	/// <value>The fixed-clock or solar-time selection, or null when unavailable.</value>
 	public RainPointSceneTime? Time
 		{
 		get;
@@ -255,6 +266,7 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the home-local time of day for a fixed-clock condition, or null for other conditions.
 	/// </summary>
+	/// <value>The home-local time of day for a fixed-clock condition, or null for other conditions.</value>
 	public TimeSpan? ClockTime
 		{
 		get;
@@ -262,10 +274,12 @@ public sealed class RainPointSceneCondition
 	/// <summary>
 	/// Gets the matched vendor weather codes for a weather-types condition, otherwise an empty list.
 	/// </summary>
+	/// <value>The matched vendor weather codes for a weather-types condition, otherwise an empty list.</value>
 	public IReadOnlyList<int> WeatherTypeCodes { get; } = Array.Empty<int> ();
 	/// <summary>
 	/// Gets a readable decoded description or an explicit unsupported-condition message.
 	/// </summary>
+	/// <value>A readable decoded description or an explicit unsupported-condition message.</value>
 	public string Description => Kind switch
 		{
 			RainPointSceneConditionKind.WeatherTypes => "Weather types: " + string.Join (", ", WeatherTypeCodes),
@@ -425,6 +439,7 @@ public sealed class RainPointSceneAction
 	/// <summary>
 	/// Gets the recognized action kind, or Unsupported without discarding its wire representation.
 	/// </summary>
+	/// <value>The recognized action kind, or Unsupported without discarding its wire representation.</value>
 	public RainPointSceneActionKind Kind
 		{
 		get;
@@ -432,31 +447,38 @@ public sealed class RainPointSceneAction
 	/// <summary>
 	/// Gets the recognized enabled flag, or null for an unknown value.
 	/// </summary>
+	/// <value>The recognized enabled flag, or null for an unknown value.</value>
 	public bool? Enabled => Wire.Enable is 0 or 1 ? Wire.Enable == 1 : null;
 	/// <summary>
 	/// Gets the associated positive hub ID, or null when absent.
 	/// </summary>
+	/// <value>The associated positive hub ID, or null when absent.</value>
 	public long? HubId => Wire.HubId > 0 ? Wire.HubId : null;
 	/// <summary>
 	/// Gets the associated child RF address, or null when absent.
 	/// </summary>
+	/// <value>The associated child RF address, or null when absent.</value>
 	public int? DeviceAddress => Wire.Type is 0 or 2 ? Wire.Address : null;
 	/// <summary>
 	/// Gets the notification message, or null when this action is not a decoded notification.
 	/// </summary>
+	/// <value>The notification message, or null when this action is not a decoded notification.</value>
 	public string? Message
 		{
 		get;
 		}
 	/// <summary>Member identifiers or email addresses, never a protocol payload.</summary>
+	/// <value>Member identifiers or email addresses, never a protocol payload.</value>
 	public IReadOnlyList<string> Recipients { get; } = Array.Empty<string> ();
 	/// <summary>
 	/// Gets the one-based zones targeted by a decoded rain-delay action, otherwise an empty list.
 	/// </summary>
+	/// <value>The one-based zones targeted by a decoded rain-delay action, otherwise an empty list.</value>
 	public IReadOnlyList<int> Zones { get; } = Array.Empty<int> ();
 	/// <summary>
 	/// Gets the decoded rain-delay length in days, or null when unavailable.
 	/// </summary>
+	/// <value>The decoded rain-delay length in days, or null when unavailable.</value>
 	public int? RainDelayDays
 		{
 		get;
@@ -464,6 +486,7 @@ public sealed class RainPointSceneAction
 	/// <summary>
 	/// Gets a readable decoded description or an explicit unsupported-action message.
 	/// </summary>
+	/// <value>A readable decoded description or an explicit unsupported-action message.</value>
 	public string Description => Kind switch { RainPointSceneActionKind.Notification => $"Notify {Recipients.Count} recipient(s): {Message}", RainPointSceneActionKind.RainDelay => $"Rain delay {RainDelayDays} days; zones {string.Join (", ", Zones)}", _ => "Unsupported device action; use the vendor app to inspect it." };
 	/// <summary>
 	/// Creates a notification action for the specified home members and email recipients; creating the object sends nothing.
@@ -553,6 +576,7 @@ public sealed class RainPointSceneSummary
 	/// <summary>
 	/// Gets the cloud or catalog identifier for this record.
 	/// </summary>
+	/// <value>The cloud or catalog identifier for this record.</value>
 	public long Id
 		{
 		get;
@@ -560,6 +584,7 @@ public sealed class RainPointSceneSummary
 	/// <summary>
 	/// Gets the display name supplied for this record.
 	/// </summary>
+	/// <value>The display name supplied for this record.</value>
 	public string Name
 		{
 		get;
@@ -567,6 +592,7 @@ public sealed class RainPointSceneSummary
 	/// <summary>
 	/// Gets the recognized scene enabled state, or null when the vendor value is unknown.
 	/// </summary>
+	/// <value>The recognized scene enabled state, or null when the vendor value is unknown.</value>
 	public bool? Enabled
 		{
 		get;
@@ -574,6 +600,7 @@ public sealed class RainPointSceneSummary
 	/// <summary>
 	/// Gets the recognized scene availability state, or null when the vendor value is unknown.
 	/// </summary>
+	/// <value>The recognized scene availability state, or null when the vendor value is unknown.</value>
 	public bool? Available
 		{
 		get;
@@ -617,6 +644,7 @@ public sealed class RainPointScene
 	/// <summary>
 	/// Gets the home containing this scene.
 	/// </summary>
+	/// <value>The home containing this scene.</value>
 	public long HomeId
 		{
 		get;
@@ -624,32 +652,40 @@ public sealed class RainPointScene
 	/// <summary>
 	/// Gets the cloud scene identifier.
 	/// </summary>
+	/// <value>The cloud scene identifier.</value>
 	public long Id => Wire.Id!.Value;
 	/// <summary>
 	/// Gets the scene display name.
 	/// </summary>
+	/// <value>The scene display name.</value>
 	public string Name => Wire.Name ?? string.Empty;
 	/// <summary>
 	/// Gets the cloud ID of the hub assigned to execute the scene.
 	/// </summary>
+	/// <value>The cloud ID of the hub assigned to execute the scene.</value>
 	public long? ExecutingHubId => Wire.Executant;
 	/// <summary>
 	/// Gets the recognized enabled state, or null for an unrecognized switch value.
 	/// </summary>
+	/// <value>The recognized enabled state, or null for an unrecognized switch value.</value>
 	public bool? Enabled => Wire.Open is 0 or 1 ? Wire.Open == 1 : null;
 	/// <summary>
 	/// Gets reported scene availability, or null for an unrecognized availability value.
 	/// </summary>
+	/// <value>Reported scene availability, or null for an unrecognized availability value.</value>
 	public bool? Available => Wire.Enable is 0 or 1 ? Wire.Enable == 1 : null;
 	/// <summary>
 	/// Gets whether all conditions must match, or null when the flags cannot be interpreted.
 	/// </summary>
+	/// <value>Whether all conditions must match, or null when the flags cannot be interpreted.</value>
 	public bool? MatchAll => Wire.Flags.HasValue ? (Wire.Flags.Value & 128) != 0 : null;
 	/// <summary>Zero means unlimited.</summary>
+	/// <value>Zero means unlimited.</value>
 	public int? MaximumRunsPerDay => Wire.Frequency;
 	/// <summary>
 	/// Gets the minimum execution interval in minutes, or null when unavailable.
 	/// </summary>
+	/// <value>The minimum execution interval in minutes, or null when unavailable.</value>
 	public int? MinimumIntervalMinutes => Wire.Interval;
 	/// <summary>Copies a fully understood scene to an editable definition. Unsupported effective periods or components are never silently discarded.</summary>
 	/// <returns>An editable complete copy, provided every effective-period and component representation is supported.</returns>
@@ -666,6 +702,7 @@ public sealed class RainPointScene
 	/// <summary>
 	/// Gets the observed conditions, including explicitly unsupported kinds.
 	/// </summary>
+	/// <value>The observed conditions, including explicitly unsupported kinds.</value>
 	public IReadOnlyList<RainPointSceneCondition> Conditions
 		{
 		get;
@@ -673,6 +710,7 @@ public sealed class RainPointScene
 	/// <summary>
 	/// Gets the observed actions, including explicitly unsupported kinds.
 	/// </summary>
+	/// <value>The observed actions, including explicitly unsupported kinds.</value>
 	public IReadOnlyList<RainPointSceneAction> Actions
 		{
 		get;

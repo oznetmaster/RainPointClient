@@ -16,6 +16,7 @@ public sealed class RainPointProductCatalog
 	/// <summary>
 	/// Gets the version string reported for this firmware or catalog record.
 	/// </summary>
+	/// <value>The version string reported for this firmware or catalog record.</value>
 	[JsonPropertyName ("version"), JsonInclude]
 	public long? Version
 		{
@@ -24,6 +25,7 @@ public sealed class RainPointProductCatalog
 	/// <summary>
 	/// Gets the vendor product-model catalog; listing does not imply implemented control support.
 	/// </summary>
+	/// <value>The vendor product-model catalog; listing does not imply implemented control support.</value>
 	[JsonPropertyName ("models"), JsonRequired, JsonInclude] public IReadOnlyList<RainPointProductModel> Models { get; internal set; } = Array.Empty<RainPointProductModel> ();
 	}
 /// <summary>
@@ -42,10 +44,12 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor's protocol model name.
 	/// </summary>
+	/// <value>The vendor's protocol model name.</value>
 	[JsonPropertyName ("model"), JsonRequired, JsonInclude] public string Model { get; internal set; } = string.Empty;
 	/// <summary>
 	/// Gets the numeric vendor model code used to distinguish catalog variants.
 	/// </summary>
+	/// <value>The numeric vendor model code used to distinguish catalog variants.</value>
 	[JsonPropertyName ("modelCode"), JsonRequired, JsonInclude]
 	public int ModelCode
 		{
@@ -54,6 +58,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor-facing display model name.
 	/// </summary>
+	/// <value>The vendor-facing display model name.</value>
 	[JsonPropertyName ("displayModel"), JsonInclude]
 	public string? DisplayModel
 		{
@@ -62,6 +67,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor product code.
 	/// </summary>
+	/// <value>The vendor product code.</value>
 	[JsonPropertyName ("productCode"), JsonInclude]
 	public int? ProductCode
 		{
@@ -70,6 +76,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor product-category code without inferring control support.
 	/// </summary>
+	/// <value>The vendor product-category code without inferring control support.</value>
 	[JsonPropertyName ("productCategory"), JsonInclude]
 	public string? Category
 		{
@@ -78,6 +85,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the advertised port count; catalog presence does not establish implemented zone support.
 	/// </summary>
+	/// <value>The advertised port count; catalog presence does not establish implemented zone support.</value>
 	[JsonPropertyName ("portNumber"), JsonInclude]
 	public int? PortCount
 		{
@@ -86,6 +94,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor's hub classification.
 	/// </summary>
+	/// <value>The vendor's hub classification.</value>
 	[JsonPropertyName ("isMainDevice"), JsonInclude]
 	public bool? IsHub
 		{
@@ -94,6 +103,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the vendor child-device type code.
 	/// </summary>
+	/// <value>The vendor child-device type code.</value>
 	[JsonPropertyName ("subDeviceType"), JsonInclude]
 	public int? ChildDeviceType
 		{
@@ -102,6 +112,7 @@ public sealed class RainPointProductModel
 	/// <summary>
 	/// Gets the advertised data-point metadata, not an automatically generated decoder.
 	/// </summary>
+	/// <value>The advertised data-point metadata, not an automatically generated decoder.</value>
 	[JsonPropertyName ("dp"), JsonInclude] public IReadOnlyList<RainPointDataPointDefinition> DataPoints { get; internal set; } = Array.Empty<RainPointDataPointDefinition> ();
 	}
 /// <summary>Numeric codes and type labels are vendor metadata, not inferred decoders.</summary>
@@ -110,6 +121,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor data-point identifier.
 	/// </summary>
+	/// <value>The vendor data-point identifier.</value>
 	[JsonPropertyName ("dpId"), JsonInclude]
 	public int? Id
 		{
@@ -118,6 +130,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor data-point code.
 	/// </summary>
+	/// <value>The vendor data-point code.</value>
 	[JsonPropertyName ("dpCode"), JsonInclude]
 	public int? Code
 		{
@@ -126,6 +139,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor data-point type code.
 	/// </summary>
+	/// <value>The vendor data-point type code.</value>
 	[JsonPropertyName ("dpType"), JsonInclude]
 	public int? Type
 		{
@@ -134,6 +148,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor port association.
 	/// </summary>
+	/// <value>The vendor port association.</value>
 	[JsonPropertyName ("dpPort"), JsonInclude]
 	public int? Port
 		{
@@ -142,6 +157,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the advertised field length in bytes.
 	/// </summary>
+	/// <value>The advertised field length in bytes.</value>
 	[JsonPropertyName ("dpLen"), JsonInclude]
 	public int? ByteLength
 		{
@@ -150,6 +166,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor flags without interpreting unrecognized bits.
 	/// </summary>
+	/// <value>The vendor flags without interpreting unrecognized bits.</value>
 	[JsonPropertyName ("dpFlags"), JsonInclude]
 	public int? Flags
 		{
@@ -158,6 +175,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor data-type label.
 	/// </summary>
+	/// <value>The vendor data-type label.</value>
 	[JsonPropertyName ("dpDataType"), JsonInclude]
 	public string? DataType
 		{
@@ -166,6 +184,7 @@ public sealed class RainPointDataPointDefinition
 	/// <summary>
 	/// Gets the vendor identity label for the data point.
 	/// </summary>
+	/// <value>The vendor identity label for the data point.</value>
 	[JsonPropertyName ("identity"), JsonInclude]
 	public string? Identity
 		{

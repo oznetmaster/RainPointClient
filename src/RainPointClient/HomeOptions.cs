@@ -65,6 +65,7 @@ public sealed class RainPointCurrency
 	/// <summary>
 	/// Gets the vendor catalog code for this option.
 	/// </summary>
+	/// <value>The vendor catalog code for this option.</value>
 	[JsonPropertyName ("code"), JsonRequired, JsonInclude]
 	public int Code
 		{
@@ -73,6 +74,7 @@ public sealed class RainPointCurrency
 	/// <summary>
 	/// Gets the display name supplied for this record.
 	/// </summary>
+	/// <value>The display name supplied for this record.</value>
 	[JsonPropertyName ("name"), JsonRequired, JsonInclude] public string Name { get; internal set; } = string.Empty;
 	}
 /// <summary>
@@ -83,6 +85,7 @@ public sealed class RainPointWeatherType
 	/// <summary>
 	/// Gets the vendor catalog code for this option.
 	/// </summary>
+	/// <value>The vendor catalog code for this option.</value>
 	[JsonPropertyName ("code"), JsonRequired, JsonInclude]
 	public int Code
 		{
@@ -91,6 +94,7 @@ public sealed class RainPointWeatherType
 	/// <summary>
 	/// Gets the display name supplied for this record.
 	/// </summary>
+	/// <value>The display name supplied for this record.</value>
 	[JsonPropertyName ("name"), JsonRequired, JsonInclude] public string Name { get; internal set; } = string.Empty;
 	}
 /// <summary>
@@ -111,6 +115,7 @@ public sealed class RainPointHomeOptions
 	/// <summary>
 	/// Gets the supported currencies returned by the vendor catalog.
 	/// </summary>
+	/// <value>The supported currencies returned by the vendor catalog.</value>
 	public IReadOnlyList<RainPointCurrency> Currencies
 		{
 		get;
@@ -118,6 +123,7 @@ public sealed class RainPointHomeOptions
 	/// <summary>
 	/// Gets the supported weather-condition choices returned by the vendor catalog.
 	/// </summary>
+	/// <value>The supported weather-condition choices returned by the vendor catalog.</value>
 	public IReadOnlyList<RainPointWeatherType> WeatherTypes
 		{
 		get;

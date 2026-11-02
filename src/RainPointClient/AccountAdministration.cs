@@ -52,6 +52,7 @@ public sealed class RainPointRegistrationEmail
 	/// <summary>
 	/// Gets the email address associated with this verification or profile.
 	/// </summary>
+	/// <value>The email address associated with this verification or profile.</value>
 	public string Email
 		{
 		get;
@@ -59,6 +60,7 @@ public sealed class RainPointRegistrationEmail
 	/// <summary>
 	/// Gets the account country calling code as digits without a plus sign.
 	/// </summary>
+	/// <value>The account country calling code as digits without a plus sign.</value>
 	public string AreaCode
 		{
 		get;
@@ -66,6 +68,7 @@ public sealed class RainPointRegistrationEmail
 	/// <summary>
 	/// Gets the vendor address to which the caller must send the manual verification email.
 	/// </summary>
+	/// <value>The vendor address to which the caller must send the manual verification email.</value>
 	public string Destination
 		{
 		get;
@@ -73,6 +76,7 @@ public sealed class RainPointRegistrationEmail
 	/// <summary>
 	/// Gets the required manual verification-email content; the library does not send it.
 	/// </summary>
+	/// <value>The required manual verification-email content; the library does not send it.</value>
 	public string Content
 		{
 		get;
@@ -118,6 +122,7 @@ public sealed class RainPointVerifiedEmail
 	/// <summary>
 	/// Gets the email address associated with this verification or profile.
 	/// </summary>
+	/// <value>The email address associated with this verification or profile.</value>
 	public string Email
 		{
 		get;
@@ -125,6 +130,7 @@ public sealed class RainPointVerifiedEmail
 	/// <summary>
 	/// Gets the account country calling code as digits without a plus sign.
 	/// </summary>
+	/// <value>The account country calling code as digits without a plus sign.</value>
 	public string AreaCode
 		{
 		get;
@@ -132,6 +138,7 @@ public sealed class RainPointVerifiedEmail
 	/// <summary>
 	/// Gets the account operation for which this email was verified.
 	/// </summary>
+	/// <value>The account operation for which this email was verified.</value>
 	public RainPointEmailVerificationPurpose Purpose
 		{
 		get;
@@ -161,6 +168,7 @@ public sealed class RainPointAccountProfile
 	/// <summary>
 	/// Gets the signed-in account identifier, or null when not supplied.
 	/// </summary>
+	/// <value>The signed-in account identifier, or null when not supplied.</value>
 	public long? Id
 		{
 		get;
@@ -168,6 +176,7 @@ public sealed class RainPointAccountProfile
 	/// <summary>
 	/// Gets the profile email address, or null when not supplied.
 	/// </summary>
+	/// <value>The profile email address, or null when not supplied.</value>
 	public string? Email
 		{
 		get;
@@ -175,6 +184,7 @@ public sealed class RainPointAccountProfile
 	/// <summary>
 	/// Gets the profile display nickname, or null when not supplied.
 	/// </summary>
+	/// <value>The profile display nickname, or null when not supplied.</value>
 	public string? Nickname
 		{
 		get;
@@ -182,6 +192,7 @@ public sealed class RainPointAccountProfile
 	/// <summary>
 	/// Gets the reported profile-image address, or null when not supplied.
 	/// </summary>
+	/// <value>The reported profile-image address, or null when not supplied.</value>
 	public string? Photo
 		{
 		get;
@@ -189,6 +200,7 @@ public sealed class RainPointAccountProfile
 	/// <summary>
 	/// Gets the reported profile language code, or null when not supplied.
 	/// </summary>
+	/// <value>The reported profile language code, or null when not supplied.</value>
 	public string? Language
 		{
 		get;
@@ -197,6 +209,7 @@ public sealed class RainPointAccountProfile
 public sealed partial class RainPointCloudClient
 	{
 	/// <summary>Profile observed at sign-in. Null after an attempted profile write; sign in again for a fresh observation.</summary>
+	/// <value>Profile observed at sign-in. Null after an attempted profile write; sign in again for a fresh observation.</value>
 	public RainPointAccountProfile? AccountProfile
 		{
 		get

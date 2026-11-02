@@ -14,6 +14,7 @@ public sealed class RainPointMoistureWateringRule
 	/// <summary>
 	/// Gets or sets whether the automatic low-moisture rule is enabled; enabling can authorize future watering.
 	/// </summary>
+	/// <value>Whether the automatic low-moisture rule is enabled; enabling can authorize future watering.</value>
 	public bool Enabled
 		{
 		get; set;
@@ -21,17 +22,22 @@ public sealed class RainPointMoistureWateringRule
 	/// <summary>
 	/// Gets or sets the soil-moisture threshold from 1 to 99 percent below which the associated sensor can trigger watering.
 	/// </summary>
+	/// <value>The soil-moisture threshold from 1 to 99 percent below which the associated sensor can trigger watering.</value>
 	public int StartBelowMoisturePercent { get; set; } = 30;
 	/// <summary>Normal irrigation or misting only. Misting uses the zone's saved burst/pause defaults.</summary>
+	/// <value>Normal irrigation or misting only. Misting uses the zone's saved burst/pause defaults.</value>
 	public RainPointScheduleMode Mode { get; set; } = RainPointScheduleMode.Irrigation;
 	/// <summary>1..30 whole minutes, or null for volume-only operation.</summary>
+	/// <value>1..30 whole minutes, or null for volume-only operation.</value>
 	public TimeSpan? Duration { get; set; } = TimeSpan.FromMinutes (10);
 	/// <summary>Optional 0.3..6000 litres in 0.1 litre steps. Duration or volume must be supplied.</summary>
+	/// <value>Optional 0.3..6000 litres in 0.1 litre steps. Duration or volume must be supplied.</value>
 	public decimal? WaterLimitLitres
 		{
 		get; set;
 		}
 	/// <summary>Optional home-local daily exclusion period; start and end must both be supplied, to whole minutes.</summary>
+	/// <value>Optional home-local daily exclusion period; start and end must both be supplied, to whole minutes.</value>
 	public TimeSpan? ExcludedFrom
 		{
 		get; set;
@@ -39,6 +45,7 @@ public sealed class RainPointMoistureWateringRule
 	/// <summary>
 	/// Gets or sets the daily home-local exclusion end time to whole minutes. Supply it together with ExcludedFrom; null disables the exclusion window.
 	/// </summary>
+	/// <value>The daily home-local exclusion end time to whole minutes. Supply it together with ExcludedFrom; null disables the exclusion window.</value>
 	public TimeSpan? ExcludedUntil
 		{
 		get; set;

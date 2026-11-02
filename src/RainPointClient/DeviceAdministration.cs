@@ -35,6 +35,7 @@ public sealed class RainPointRoomDevice
 	/// <summary>
 	/// Gets the cloud hub ID associated with the room assignment.
 	/// </summary>
+	/// <value>The cloud hub ID associated with the room assignment.</value>
 	public long HubId
 		{
 		get;
@@ -42,6 +43,7 @@ public sealed class RainPointRoomDevice
 	/// <summary>
 	/// Gets the child cloud ID, or null for a hub-level assignment.
 	/// </summary>
+	/// <value>The child cloud ID, or null for a hub-level assignment.</value>
 	public long? DeviceId
 		{
 		get;
@@ -49,6 +51,7 @@ public sealed class RainPointRoomDevice
 	/// <summary>
 	/// Gets the optional one-based zone number for a zone-level assignment.
 	/// </summary>
+	/// <value>The optional one-based zone number for a zone-level assignment.</value>
 	public int? Zone
 		{
 		get;

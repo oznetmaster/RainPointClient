@@ -32,11 +32,13 @@ public sealed class RainPointWaterUsage
 		Litres = litres;
 		}
 	/// <summary>Home-calendar date, with Unspecified kind. Monthly buckets use the first day.</summary>
+	/// <value>Home-calendar date, with Unspecified kind. Monthly buckets use the first day.</value>
 	public DateTime PeriodStart
 		{
 		get;
 		}
 	/// <summary>Litres, or null when the cloud supplied no usable reading.</summary>
+	/// <value>Litres, or null when the cloud supplied no usable reading.</value>
 	public decimal? Litres
 		{
 		get;
@@ -49,6 +51,7 @@ public sealed class RainPointEventQuery
 	/// <summary>
 	/// Gets or sets an optional cloud hub-ID filter; null leaves hubs unfiltered.
 	/// </summary>
+	/// <value>An optional cloud hub-ID filter; null leaves hubs unfiltered.</value>
 	public long? HubId
 		{
 		get; set;
@@ -56,6 +59,7 @@ public sealed class RainPointEventQuery
 	/// <summary>
 	/// Gets or sets an optional child RF-address filter.
 	/// </summary>
+	/// <value>An optional child RF-address filter.</value>
 	public int? Address
 		{
 		get; set;
@@ -63,11 +67,13 @@ public sealed class RainPointEventQuery
 	/// <summary>
 	/// Gets or sets an optional one-based zone filter; the service may also return timer-wide events.
 	/// </summary>
+	/// <value>An optional one-based zone filter; the service may also return timer-wide events.</value>
 	public int? Zone
 		{
 		get; set;
 		}
 	/// <summary>Vendor event code. Null requests all event types.</summary>
+	/// <value>Vendor event code. Null requests all event types.</value>
 	public int? Code
 		{
 		get; set;
@@ -75,6 +81,7 @@ public sealed class RainPointEventQuery
 	/// <summary>
 	/// Gets or sets the inclusive lower cloud-timestamp bound, or null for no lower bound.
 	/// </summary>
+	/// <value>The inclusive lower cloud-timestamp bound, or null for no lower bound.</value>
 	public DateTimeOffset? Begin
 		{
 		get; set;
@@ -82,11 +89,13 @@ public sealed class RainPointEventQuery
 	/// <summary>
 	/// Gets or sets the inclusive upper cloud-timestamp bound, or null for no upper bound.
 	/// </summary>
+	/// <value>The inclusive upper cloud-timestamp bound, or null for no upper bound.</value>
 	public DateTimeOffset? End
 		{
 		get; set;
 		}
 	/// <summary>1–50; the app requests 50 records per page.</summary>
+	/// <value>1–50; the app requests 50 records per page.</value>
 	public int Limit { get; set; } = 50;
 	}
 
@@ -245,10 +254,12 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the cloud event ID used to deduplicate overlapping history pages.
 	/// </summary>
+	/// <value>The cloud event ID used to deduplicate overlapping history pages.</value>
 	public string Id { get; internal set; } = string.Empty;
 	/// <summary>
 	/// Gets the cloud hub identifier associated with the event.
 	/// </summary>
+	/// <value>The cloud hub identifier associated with the event.</value>
 	public long HubId
 		{
 		get; internal set;
@@ -256,6 +267,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the reported child RF address; hub-wide events may use zero.
 	/// </summary>
+	/// <value>The reported child RF address; hub-wide events may use zero.</value>
 	public int Address
 		{
 		get; internal set;
@@ -263,6 +275,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the reported zone number; zero denotes a timer-wide event.
 	/// </summary>
+	/// <value>The reported zone number; zero denotes a timer-wide event.</value>
 	public int Zone
 		{
 		get; internal set;
@@ -270,6 +283,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the original vendor event code, including unrecognized codes.
 	/// </summary>
+	/// <value>The original vendor event code, including unrecognized codes.</value>
 	public int Code
 		{
 		get; internal set;
@@ -277,13 +291,16 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the recognized event kind, or Unknown without discarding the original code.
 	/// </summary>
+	/// <value>The recognized event kind, or Unknown without discarding the original code.</value>
 	public RainPointEventKind Kind => Enum.IsDefined (typeof (RainPointEventKind), Code) ? (RainPointEventKind)Code : RainPointEventKind.Unknown;
 	/// <summary>The cloud's Unix-millisecond timestamp, also used for history query bounds.</summary>
+	/// <value>The cloud's Unix-millisecond timestamp, also used for history query bounds.</value>
 	public DateTimeOffset CloudTimestamp
 		{
 		get; internal set;
 		}
 	/// <summary>Device-reported local time; independent of CloudTimestamp. No machine-local conversion is performed.</summary>
+	/// <value>Device-reported local time; independent of CloudTimestamp. No machine-local conversion is performed.</value>
 	public DateTime? ReportedLocalTime
 		{
 		get; internal set;
@@ -291,6 +308,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the device-reported time-zone label, or null when unavailable.
 	/// </summary>
+	/// <value>The device-reported time-zone label, or null when unavailable.</value>
 	public string? ReportedTimeZone
 		{
 		get; internal set;
@@ -298,6 +316,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets decoded usage in litres, or null when that detail is absent or invalid.
 	/// </summary>
+	/// <value>Decoded usage in litres, or null when that detail is absent or invalid.</value>
 	public decimal? WaterUsedLitres
 		{
 		get; internal set;
@@ -305,6 +324,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets decoded watering duration, or null when that detail is absent or invalid.
 	/// </summary>
+	/// <value>Decoded watering duration, or null when that detail is absent or invalid.</value>
 	public TimeSpan? Duration
 		{
 		get; internal set;
@@ -312,6 +332,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the vendor watering-mode detail, or null when absent or invalid.
 	/// </summary>
+	/// <value>The vendor watering-mode detail, or null when absent or invalid.</value>
 	public int? WorkModeCode
 		{
 		get; internal set;
@@ -319,6 +340,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the vendor control-source detail, or null when absent or invalid.
 	/// </summary>
+	/// <value>The vendor control-source detail, or null when absent or invalid.</value>
 	public int? ControlModeCode
 		{
 		get; internal set;
@@ -326,6 +348,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the vendor exception detail, or null when absent or invalid.
 	/// </summary>
+	/// <value>The vendor exception detail, or null when absent or invalid.</value>
 	public int? ExceptionCode
 		{
 		get; internal set;
@@ -333,6 +356,7 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the event's reported connectivity state, or null when unavailable.
 	/// </summary>
+	/// <value>The event's reported connectivity state, or null when unavailable.</value>
 	public bool? IsOnline
 		{
 		get; internal set;
@@ -340,11 +364,13 @@ public sealed class RainPointEvent
 	/// <summary>
 	/// Gets the operator description supplied in event details, or null when absent.
 	/// </summary>
+	/// <value>The operator description supplied in event details, or null when absent.</value>
 	public string? Operator
 		{
 		get; internal set;
 		}
 	/// <summary>True when detail rules are missing, unknown, duplicated or malformed. Known independent details are retained.</summary>
+	/// <value>True when detail rules are missing, unknown, duplicated or malformed. Known independent details are retained.</value>
 	public bool HasUninterpretedDetails
 		{
 		get; internal set;
@@ -369,16 +395,19 @@ public sealed class RainPointEventPage
 	/// <summary>
 	/// Gets the events in this response; no automatic paging or deduplication is performed.
 	/// </summary>
+	/// <value>The events in this response; no automatic paging or deduplication is performed.</value>
 	public IReadOnlyList<RainPointEvent> Events
 		{
 		get;
 		}
 	/// <summary>The response filled the requested limit; more events may exist. This is not a total-count or completeness guarantee.</summary>
+	/// <value>The response filled the requested limit; more events may exist. This is not a total-count or completeness guarantee.</value>
 	public bool IsLimitReached
 		{
 		get;
 		}
 	/// <summary>Oldest returned cloud timestamp. Use as End for an older-page request and deduplicate by Id; timestamp ties have no documented cursor guarantee.</summary>
+	/// <value>Oldest returned cloud timestamp. Use as End for an older-page request and deduplicate by Id; timestamp ties have no documented cursor guarantee.</value>
 	public DateTimeOffset? OldestTimestamp
 		{
 		get

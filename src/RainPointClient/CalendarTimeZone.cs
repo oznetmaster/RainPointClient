@@ -20,6 +20,7 @@ public sealed class RainPointCalendarTimeZone
 	/// <summary>
 	/// Gets the home's standard-time offset from UTC.
 	/// </summary>
+	/// <value>The home's standard-time offset from UTC.</value>
 	public TimeSpan BaseOffset
 		{
 		get;
@@ -27,11 +28,13 @@ public sealed class RainPointCalendarTimeZone
 	/// <summary>
 	/// Gets the additional daylight-saving offset reported by the home.
 	/// </summary>
+	/// <value>The additional daylight-saving offset reported by the home.</value>
 	public TimeSpan DaylightAdjustment
 		{
 		get;
 		}
 	/// <summary>Alternating daylight start/end instants supplied by the service. No future rules are invented beyond this table.</summary>
+	/// <value>Alternating daylight start/end instants supplied by the service. No future rules are invented beyond this table.</value>
 	public IReadOnlyList<DateTimeOffset> Transitions
 		{
 		get;

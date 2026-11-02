@@ -36,20 +36,27 @@ public sealed class RainPointNotificationPreferences
 	/// <summary>
 	/// Gets whether the known mobile-notification flag is enabled.
 	/// </summary>
+	/// <value>Whether the known mobile-notification flag is enabled.</value>
 	public bool MobileEnabled => (Flags & 1) != 0;
 	/// <summary>
 	/// Gets whether the known email-notification flag is enabled.
 	/// </summary>
+	/// <value>Whether the known email-notification flag is enabled.</value>
 	public bool EmailEnabled => (Flags & 2) != 0;
 	/// <summary>
 	/// Gets uninterpreted preference bits retained when known notification flags are changed.
 	/// </summary>
+	/// <value>Uninterpreted preference bits retained when known notification flags are changed.</value>
 	public int UnknownFlags => Flags & ~3;
 	}
 public sealed partial class RainPointCloudClient
 	{
 	/// <summary>The sign-in observation, or null if omitted or already used for a write. Sign in again to refresh.
 	/// Other app sessions may change it. Cloud acceptance does not prove notification delivery.</summary>
+	/// <value>
+	/// The sign-in observation, or null if omitted or already used for a write. Sign in again to refresh.
+	/// Other app sessions may change it. Cloud acceptance does not prove notification delivery.
+	/// </value>
 	public RainPointNotificationPreferences? NotificationPreferences
 		{
 		get

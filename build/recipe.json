@@ -48,6 +48,21 @@
         "site": "artifacts/docs-site",
         "title": "RainPointClient"
       }
+    },
+    "xml-documentation": {
+      "commands": [
+        {
+          "executable": "dotnet",
+          "arguments": [
+            "--version"
+          ]
+        }
+      ]
     }
+  },
+  "xmlDocumentation": {
+    "projects": [
+      "src/RainPointClient/RainPointClient.csproj"
+    ]
   }
 }

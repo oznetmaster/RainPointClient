@@ -45,6 +45,7 @@ public sealed class RainPointMonitorStateChangedEventArgs (RainPointMonitorState
 	/// <summary>
 	/// Gets the lifecycle state carried by this event.
 	/// </summary>
+	/// <value>The lifecycle state carried by this event.</value>
 	public RainPointMonitorState State { get; } = state;
 	}
 
@@ -66,6 +67,7 @@ public sealed class RainPointTimerObservation
 	/// <summary>
 	/// Gets the accepted timer snapshot.
 	/// </summary>
+	/// <value>The accepted timer snapshot.</value>
 	public RainPointTimerStatus Status
 		{
 		get;
@@ -73,6 +75,7 @@ public sealed class RainPointTimerObservation
 	/// <summary>
 	/// Gets the transport source of this timer's accepted snapshot.
 	/// </summary>
+	/// <value>The transport source of this timer's accepted snapshot.</value>
 	public RainPointUpdateSource Source
 		{
 		get;
@@ -80,6 +83,7 @@ public sealed class RainPointTimerObservation
 	/// <summary>
 	/// Gets the local receipt instant; it does not establish the physical age of the device reading.
 	/// </summary>
+	/// <value>The local receipt instant; it does not establish the physical age of the device reading.</value>
 	public DateTimeOffset ReceivedAt
 		{
 		get;
@@ -111,6 +115,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets the merged hub status for this update.
 	/// </summary>
+	/// <value>The merged hub status for this update.</value>
 	public RainPointHubStatus Status
 		{
 		get;
@@ -118,6 +123,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets timer observations retaining their individual accepted source and receipt times.
 	/// </summary>
+	/// <value>Timer observations retaining their individual accepted source and receipt times.</value>
 	public IReadOnlyList<RainPointTimerObservation> Timers
 		{
 		get;
@@ -125,6 +131,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets the transport that triggered this merged update.
 	/// </summary>
+	/// <value>The transport that triggered this merged update.</value>
 	public RainPointUpdateSource Source
 		{
 		get;
@@ -132,6 +139,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets the local receipt time of this update.
 	/// </summary>
+	/// <value>The local receipt time of this update.</value>
 	public DateTimeOffset ReceivedAt
 		{
 		get;
@@ -139,6 +147,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets the most recent successful REST-read instant, or null before any successful REST read.
 	/// </summary>
+	/// <value>The most recent successful REST-read instant, or null before any successful REST read.</value>
 	public DateTimeOffset? LastSuccessfulPollAt
 		{
 		get;
@@ -146,6 +155,7 @@ public sealed class RainPointStatusUpdate : EventArgs
 	/// <summary>
 	/// Gets the monotonically increasing revision of accepted updates within this monitor.
 	/// </summary>
+	/// <value>The monotonically increasing revision of accepted updates within this monitor.</value>
 	public long Revision
 		{
 		get;
@@ -160,12 +170,15 @@ public sealed class RainPointMonitorOptions
 	/// <summary>
 	/// Gets or sets the REST reconciliation interval, from five seconds to one hour; defaults to thirty seconds.
 	/// </summary>
+	/// <value>The REST reconciliation interval, from five seconds to one hour; defaults to thirty seconds.</value>
 	public TimeSpan PollInterval { get; set; } = TimeSpan.FromSeconds (30);
 	/// <summary>
 	/// Gets or sets whether to connect the MQTT observer; defaults to true.
 	/// </summary>
+	/// <value>Whether to connect the MQTT observer; defaults to true.</value>
 	public bool EnablePush { get; set; } = true;
 	/// <summary>When false, automatic REST reads run at startup, after each MQTT connection, and while live updates are unavailable. Manual refresh remains available.</summary>
 	/// <remarks>The default preserves periodic reconciliation for existing callers. A quiet connected observer need not emit timer changes.</remarks>
+	/// <value>When false, automatic REST reads run at startup, after each MQTT connection, and while live updates are unavailable. Manual refresh remains available.</value>
 	public bool PollWhilePushConnected { get; set; } = true;
 	}

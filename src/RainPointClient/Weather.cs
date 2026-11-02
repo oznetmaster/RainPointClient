@@ -93,6 +93,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets air temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Air temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? TemperatureCelsius
 		{
 		get;
@@ -100,6 +101,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets apparent temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Apparent temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? FeelsLikeCelsius
 		{
 		get;
@@ -107,6 +109,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets minimum temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Minimum temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? MinimumCelsius
 		{
 		get;
@@ -114,6 +117,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets maximum temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Maximum temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? MaximumCelsius
 		{
 		get;
@@ -121,6 +125,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets minimum apparent temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Minimum apparent temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? MinimumFeelsLikeCelsius
 		{
 		get;
@@ -128,6 +133,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets maximum apparent temperature in degrees Celsius, or null when unavailable.
 	/// </summary>
+	/// <value>Maximum apparent temperature in degrees Celsius, or null when unavailable.</value>
 	public decimal? MaximumFeelsLikeCelsius
 		{
 		get;
@@ -135,6 +141,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets relative humidity in percent, or null when unavailable.
 	/// </summary>
+	/// <value>Relative humidity in percent, or null when unavailable.</value>
 	public decimal? HumidityPercent
 		{
 		get;
@@ -142,6 +149,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets precipitation probability in percent, or null when unavailable.
 	/// </summary>
+	/// <value>Precipitation probability in percent, or null when unavailable.</value>
 	public decimal? RainProbabilityPercent
 		{
 		get;
@@ -149,6 +157,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets wind speed in kilometres per hour, or null when unavailable.
 	/// </summary>
+	/// <value>Wind speed in kilometres per hour, or null when unavailable.</value>
 	public decimal? WindSpeedKilometresPerHour
 		{
 		get;
@@ -156,6 +165,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the unitless UV index, or null when unavailable.
 	/// </summary>
+	/// <value>The unitless UV index, or null when unavailable.</value>
 	public decimal? UltravioletIndex
 		{
 		get;
@@ -163,6 +173,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets cloud cover in percent, or null when unavailable.
 	/// </summary>
+	/// <value>Cloud cover in percent, or null when unavailable.</value>
 	public decimal? CloudCoverPercent
 		{
 		get;
@@ -170,6 +181,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the vendor weather-condition code, or null when unavailable.
 	/// </summary>
+	/// <value>The vendor weather-condition code, or null when unavailable.</value>
 	public string? WeatherCode
 		{
 		get;
@@ -177,6 +189,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the vendor wind-direction description, or null when unavailable.
 	/// </summary>
+	/// <value>The vendor wind-direction description, or null when unavailable.</value>
 	public string? WindDirection
 		{
 		get;
@@ -184,11 +197,13 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the reading's expiry instant, or null for an absent or invalid expiry.
 	/// </summary>
+	/// <value>The reading's expiry instant, or null for an absent or invalid expiry.</value>
 	public DateTimeOffset? ExpiresAt
 		{
 		get;
 		}
 	/// <summary>Vendor-local forecast date/time, without assuming the computer's time zone.</summary>
+	/// <value>Vendor-local forecast date/time, without assuming the computer's time zone.</value>
 	public DateTime? ForecastDate
 		{
 		get;
@@ -196,6 +211,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the supplied forecast wall-clock time without applying the computer's local time zone.
 	/// </summary>
+	/// <value>The supplied forecast wall-clock time without applying the computer's local time zone.</value>
 	public DateTime? ForecastLocalTime
 		{
 		get;
@@ -203,6 +219,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the supplied sunrise value, or null when unavailable.
 	/// </summary>
+	/// <value>The supplied sunrise value, or null when unavailable.</value>
 	public TimeSpan? Sunrise
 		{
 		get;
@@ -210,6 +227,7 @@ public sealed class RainPointWeatherReading
 	/// <summary>
 	/// Gets the supplied sunset value, or null when unavailable.
 	/// </summary>
+	/// <value>The supplied sunset value, or null when unavailable.</value>
 	public TimeSpan? Sunset
 		{
 		get;
@@ -248,6 +266,7 @@ public sealed class RainPointWeather
 	/// <summary>
 	/// Gets the current weather reading, or null when not supplied.
 	/// </summary>
+	/// <value>The current weather reading, or null when not supplied.</value>
 	public RainPointWeatherReading? Current
 		{
 		get;
@@ -255,6 +274,7 @@ public sealed class RainPointWeather
 	/// <summary>
 	/// Gets the supplied hourly forecast readings; missing periods are not synthesized.
 	/// </summary>
+	/// <value>The supplied hourly forecast readings; missing periods are not synthesized.</value>
 	public IReadOnlyList<RainPointWeatherReading> Hourly
 		{
 		get;
@@ -262,6 +282,7 @@ public sealed class RainPointWeather
 	/// <summary>
 	/// Gets the supplied daily forecast readings; missing periods are not synthesized.
 	/// </summary>
+	/// <value>The supplied daily forecast readings; missing periods are not synthesized.</value>
 	public IReadOnlyList<RainPointWeatherReading> Daily
 		{
 		get;
@@ -269,6 +290,7 @@ public sealed class RainPointWeather
 	/// <summary>
 	/// Gets the hourly series expiry instant, or null for an absent or invalid expiry.
 	/// </summary>
+	/// <value>The hourly series expiry instant, or null for an absent or invalid expiry.</value>
 	public DateTimeOffset? HourlyExpiresAt
 		{
 		get;
@@ -276,6 +298,7 @@ public sealed class RainPointWeather
 	/// <summary>
 	/// Gets the daily series expiry instant, or null for an absent or invalid expiry.
 	/// </summary>
+	/// <value>The daily series expiry instant, or null for an absent or invalid expiry.</value>
 	public DateTimeOffset? DailyExpiresAt
 		{
 		get;

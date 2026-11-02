@@ -28,6 +28,7 @@ public sealed class RainPointException : Exception
 	/// <summary>
 	/// Gets the vendor result code, or null when no service code was available.
 	/// </summary>
+	/// <value>The vendor result code, or null when no service code was available.</value>
 	public int? ApiCode
 		{
 		get;
@@ -35,6 +36,7 @@ public sealed class RainPointException : Exception
 	/// <summary>
 	/// Gets the HTTP failure status, or null for failures without an HTTP status.
 	/// </summary>
+	/// <value>The HTTP failure status, or null for failures without an HTTP status.</value>
 	public HttpStatusCode? HttpStatus
 		{
 		get;
@@ -42,6 +44,7 @@ public sealed class RainPointException : Exception
 	/// <summary>
 	/// Gets a reported retry delay, or null when absent; the client does not replay a failed operation automatically.
 	/// </summary>
+	/// <value>A reported retry delay, or null when absent; the client does not replay a failed operation automatically.</value>
 	public TimeSpan? RetryAfter
 		{
 		get;

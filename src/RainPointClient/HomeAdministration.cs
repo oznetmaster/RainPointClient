@@ -43,6 +43,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets whether the app uses a twelve-hour clock instead of a twenty-four-hour clock.
 	/// </summary>
+	/// <value>Whether the app uses a twelve-hour clock instead of a twenty-four-hour clock.</value>
 	public bool TwelveHourClock
 		{
 		get; set;
@@ -50,6 +51,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets whether the app displays Fahrenheit; typed client weather readings remain Celsius.
 	/// </summary>
+	/// <value>Whether the app displays Fahrenheit; typed client weather readings remain Celsius.</value>
 	public bool Fahrenheit
 		{
 		get; set;
@@ -57,6 +59,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets the app's imperial-length display preference.
 	/// </summary>
+	/// <value>The app's imperial-length display preference.</value>
 	public bool ImperialLength
 		{
 		get; set;
@@ -64,6 +67,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets the app's imperial-volume display preference; typed client usage remains litres.
 	/// </summary>
+	/// <value>The app's imperial-volume display preference; typed client usage remains litres.</value>
 	public bool ImperialVolume
 		{
 		get; set;
@@ -71,6 +75,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets the recognized app date format, or null to preserve an unrecognized format on update.
 	/// </summary>
+	/// <value>The recognized app date format, or null to preserve an unrecognized format on update.</value>
 	public RainPointDateFormat? DateFormat
 		{
 		get; set;
@@ -78,6 +83,7 @@ public sealed class RainPointDisplayUnits
 	/// <summary>
 	/// Gets or sets the app's pressure display unit.
 	/// </summary>
+	/// <value>The app's pressure display unit.</value>
 	public RainPointPressureUnit Pressure
 		{
 		get; set;
@@ -167,20 +173,25 @@ public sealed class RainPointHomeDetails
 	/// <summary>
 	/// Gets the cloud home identifier.
 	/// </summary>
+	/// <value>The cloud home identifier.</value>
 	public long Id => Wire.Id;
 	/// <summary>
 	/// Gets the home's assigned display name.
 	/// </summary>
+	/// <value>The home's assigned display name.</value>
 	public string Name => Wire.Name;
 	/// <summary>
 	/// Gets the reported IANA time-zone name, or null when absent.
 	/// </summary>
+	/// <value>The reported IANA time-zone name, or null when absent.</value>
 	public string? TimeZoneName => Wire.ZoneName;
 	/// <summary>
 	/// Gets the reported base UTC offset in minutes, or null when absent.
 	/// </summary>
+	/// <value>The reported base UTC offset in minutes, or null when absent.</value>
 	public int? TimeZoneOffsetMinutes => Wire.Offset;
 	/// <summary>Null when the reported calendar offset/transition data is missing or malformed.</summary>
+	/// <value>Null when the reported calendar offset/transition data is missing or malformed.</value>
 	public RainPointCalendarTimeZone? CalendarTimeZone
 		{
 		get;
@@ -188,30 +199,37 @@ public sealed class RainPointHomeDetails
 	/// <summary>
 	/// Gets whether the account is the home owner, or null for unknown permission metadata.
 	/// </summary>
+	/// <value>Whether the account is the home owner, or null for unknown permission metadata.</value>
 	public bool? IsOwner => Wire.Owner is 0 or 1 ? Wire.Owner == 1 : null;
 	/// <summary>
 	/// Gets the recognized non-owner role, or null when the role code is unknown.
 	/// </summary>
+	/// <value>The recognized non-owner role, or null when the role code is unknown.</value>
 	public RainPointMemberRole? Role => Wire.Rights is 0 or 1 ? (RainPointMemberRole)Wire.Rights : null;
 	/// <summary>
 	/// Gets latitude in decimal degrees, or null for an absent or invalid coordinate.
 	/// </summary>
+	/// <value>Latitude in decimal degrees, or null for an absent or invalid coordinate.</value>
 	public decimal? Latitude => Wire.Latitude is >= -90000000 and <= 90000000 ? Wire.Latitude / 1000000m : null;
 	/// <summary>
 	/// Gets longitude in decimal degrees, or null for an absent or invalid coordinate.
 	/// </summary>
+	/// <value>Longitude in decimal degrees, or null for an absent or invalid coordinate.</value>
 	public decimal? Longitude => Wire.Longitude is >= -180000000 and <= 180000000 ? Wire.Longitude / 1000000m : null;
 	/// <summary>
 	/// Gets decoded app display preferences, or null when unsupported or malformed.
 	/// </summary>
+	/// <value>Decoded app display preferences, or null when unsupported or malformed.</value>
 	public RainPointDisplayUnits? DisplayUnits => RainPointDisplayUnits.Decode (Wire.Units);
 	/// <summary>
 	/// Gets the vendor currency code, or null when absent.
 	/// </summary>
+	/// <value>The vendor currency code, or null when absent.</value>
 	public int? CurrencyCode => Wire.Currency;
 	/// <summary>
 	/// Gets the rooms included in this home snapshot.
 	/// </summary>
+	/// <value>The rooms included in this home snapshot.</value>
 	public IReadOnlyList<RainPointRoom> Rooms
 		{
 		get;
@@ -240,10 +258,12 @@ public sealed class RainPointRoom
 	/// <summary>
 	/// Gets the cloud or catalog identifier for this record.
 	/// </summary>
+	/// <value>The cloud or catalog identifier for this record.</value>
 	public long Id => Wire.Id;
 	/// <summary>
 	/// Gets the display name supplied for this record.
 	/// </summary>
+	/// <value>The display name supplied for this record.</value>
 	public string Name => Wire.Name;
 	}
 /// <summary>
@@ -269,22 +289,27 @@ public sealed class RainPointMember
 	/// <summary>
 	/// Gets the member's cloud account identifier.
 	/// </summary>
+	/// <value>The member's cloud account identifier.</value>
 	public long Id => Wire.Id;
 	/// <summary>
 	/// Gets the member's display name, or null when absent.
 	/// </summary>
+	/// <value>The member's display name, or null when absent.</value>
 	public string? Name => Wire.Name;
 	/// <summary>
 	/// Gets the member's email address, or null when absent.
 	/// </summary>
+	/// <value>The member's email address, or null when absent.</value>
 	public string? Email => Wire.Email;
 	/// <summary>
 	/// Gets the reported owner flag, or null for unknown permission metadata.
 	/// </summary>
+	/// <value>The reported owner flag, or null for unknown permission metadata.</value>
 	public bool? IsOwner => Wire.Owner is 0 or 1 ? Wire.Owner == 1 : null;
 	/// <summary>
 	/// Gets the recognized membership role, or null when the role code is unknown.
 	/// </summary>
+	/// <value>The recognized membership role, or null when the role code is unknown.</value>
 	public RainPointMemberRole? Role => Wire.Rights is 0 or 1 ? (RainPointMemberRole)Wire.Rights : null;
 	}
 /// <summary>
@@ -323,14 +348,17 @@ public sealed class RainPointInvitation
 	/// <summary>
 	/// Gets the cloud or catalog identifier for this record.
 	/// </summary>
+	/// <value>The cloud or catalog identifier for this record.</value>
 	public long Id => Wire.Id;
 	/// <summary>
 	/// Gets the cloud home identifier associated with this record.
 	/// </summary>
+	/// <value>The cloud home identifier associated with this record.</value>
 	public long HomeId => Wire.HomeId;
 	/// <summary>
 	/// Gets the assigned name of the home associated with this record.
 	/// </summary>
+	/// <value>The assigned name of the home associated with this record.</value>
 	public string HomeName => Wire.HomeName;
 	}
 public sealed partial class RainPointCloudClient

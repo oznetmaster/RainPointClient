@@ -79,6 +79,7 @@ public sealed class RainPointSceneActionResult
 	/// <summary>
 	/// Gets the cloud identifier of the scene action.
 	/// </summary>
+	/// <value>The cloud identifier of the scene action.</value>
 	public long ActionId
 		{
 		get;
@@ -86,21 +87,25 @@ public sealed class RainPointSceneActionResult
 	/// <summary>
 	/// Gets the cloud hub identifier associated with this record.
 	/// </summary>
+	/// <value>The cloud hub identifier associated with this record.</value>
 	public long HubId
 		{
 		get;
 		}
 	/// <summary>Reported device address, or null when omitted (as observed for notification actions).</summary>
+	/// <value>Reported device address, or null when omitted (as observed for notification actions).</value>
 	public int? DeviceAddress
 		{
 		get;
 		}
 	/// <summary>Original vendor result code, retained even when no specific meaning is known.</summary>
+	/// <value>Original vendor result code, retained even when no specific meaning is known.</value>
 	public int ResultCode
 		{
 		get;
 		}
 	/// <summary>App-defined meaning where established; unknown codes remain Unknown. A successful result is only the cloud report.</summary>
+	/// <value>App-defined meaning where established; unknown codes remain Unknown. A successful result is only the cloud report.</value>
 	public RainPointSceneActionOutcome Outcome => ResultCode switch
 		{
 			0 => RainPointSceneActionOutcome.Succeeded,
@@ -138,6 +143,7 @@ public sealed class RainPointSceneLogEntry
 	/// <summary>
 	/// Gets the cloud execution-log identifier.
 	/// </summary>
+	/// <value>The cloud execution-log identifier.</value>
 	public string Id
 		{
 		get;
@@ -145,6 +151,7 @@ public sealed class RainPointSceneLogEntry
 	/// <summary>
 	/// Gets the home to which the execution record belongs.
 	/// </summary>
+	/// <value>The home to which the execution record belongs.</value>
 	public long HomeId
 		{
 		get;
@@ -152,6 +159,7 @@ public sealed class RainPointSceneLogEntry
 	/// <summary>
 	/// Gets the scene identifier associated with the execution.
 	/// </summary>
+	/// <value>The scene identifier associated with the execution.</value>
 	public long SceneId
 		{
 		get;
@@ -159,11 +167,13 @@ public sealed class RainPointSceneLogEntry
 	/// <summary>
 	/// Gets the trigger instant decoded from the cloud's Unix-millisecond timestamp.
 	/// </summary>
+	/// <value>The trigger instant decoded from the cloud's Unix-millisecond timestamp.</value>
 	public DateTimeOffset TriggeredAt
 		{
 		get;
 		}
 	/// <summary>Null means no result was supplied; an empty list means a supplied empty result.</summary>
+	/// <value>Null means no result was supplied; an empty list means a supplied empty result.</value>
 	public IReadOnlyList<RainPointSceneActionResult>? Actions
 		{
 		get;
@@ -191,6 +201,7 @@ public sealed class RainPointSceneLogPage
 	/// <summary>
 	/// Gets the total record count reported by the service for this query.
 	/// </summary>
+	/// <value>The total record count reported by the service for this query.</value>
 	public long Total
 		{
 		get;
@@ -198,6 +209,7 @@ public sealed class RainPointSceneLogPage
 	/// <summary>
 	/// Gets the zero-based page index requested by the caller.
 	/// </summary>
+	/// <value>The zero-based page index requested by the caller.</value>
 	public int Page
 		{
 		get;
@@ -205,6 +217,7 @@ public sealed class RainPointSceneLogPage
 	/// <summary>
 	/// Gets the requested page size.
 	/// </summary>
+	/// <value>The requested page size.</value>
 	public int PageSize
 		{
 		get;
@@ -212,6 +225,7 @@ public sealed class RainPointSceneLogPage
 	/// <summary>
 	/// Gets the execution records returned on this page.
 	/// </summary>
+	/// <value>The execution records returned on this page.</value>
 	public IReadOnlyList<RainPointSceneLogEntry> Entries
 		{
 		get;
@@ -219,6 +233,7 @@ public sealed class RainPointSceneLogPage
 	/// <summary>
 	/// Gets whether a nonempty page and the reported total suggest another page exists; it is not a stable-snapshot guarantee.
 	/// </summary>
+	/// <value>Whether a nonempty page and the reported total suggest another page exists; it is not a stable-snapshot guarantee.</value>
 	public bool HasMore => Entries.Count > 0 && (long)Page * PageSize + Entries.Count < Total;
 	}
 public sealed partial class RainPointCloudClient

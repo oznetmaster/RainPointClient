@@ -28,6 +28,7 @@ public sealed class RainPointWateringCommandResult
 	/// <summary>
 	/// Gets the cloud acknowledgement classification, not physical confirmation.
 	/// </summary>
+	/// <value>The cloud acknowledgement classification, not physical confirmation.</value>
 	public RainPointCommandOutcome Outcome
 		{
 		get;
@@ -35,6 +36,7 @@ public sealed class RainPointWateringCommandResult
 	/// <summary>
 	/// Gets the one-based zone addressed by the command.
 	/// </summary>
+	/// <value>The one-based zone addressed by the command.</value>
 	public int RequestedZone
 		{
 		get;
@@ -42,6 +44,7 @@ public sealed class RainPointWateringCommandResult
 
 	/// <summary>Only fields actually reported in the response are populated. Check Availability first.</summary>
 	/// <remarks>This may be partial or stale. It is not automatically merged into monitored status.</remarks>
+	/// <value>Only fields actually reported in the response are populated. Check Availability first.</value>
 	public RainPointTimerStatus Status
 		{
 		get;
@@ -49,6 +52,7 @@ public sealed class RainPointWateringCommandResult
 
 	/// <summary>Optional server response timestamp, separate from receipt time and device data-change time.</summary>
 	/// <remarks>Absent, invalid and out-of-range timestamps remain unknown.</remarks>
+	/// <value>Optional server response timestamp, separate from receipt time and device data-change time.</value>
 	public DateTimeOffset? ResponseTimestamp
 		{
 		get;

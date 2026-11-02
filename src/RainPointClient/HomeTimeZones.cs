@@ -18,10 +18,12 @@ public sealed class RainPointTimeZone
 	/// <summary>
 	/// Gets the display name supplied for this record.
 	/// </summary>
+	/// <value>The display name supplied for this record.</value>
 	[JsonPropertyName ("zone"), JsonInclude] public string Name { get; internal set; } = string.Empty;
 	/// <summary>
 	/// Gets the country code associated with this catalog time zone.
 	/// </summary>
+	/// <value>The country code associated with this catalog time zone.</value>
 	[JsonPropertyName ("country"), JsonInclude]
 	public string? Country
 		{

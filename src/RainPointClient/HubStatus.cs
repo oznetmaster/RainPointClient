@@ -31,6 +31,7 @@ public sealed class RainPointHubStatus
 	/// <summary>
 	/// Gets the cloud hub ID to which this snapshot belongs.
 	/// </summary>
+	/// <value>The cloud hub ID to which this snapshot belongs.</value>
 	public long HubId
 		{
 		get;
@@ -38,6 +39,7 @@ public sealed class RainPointHubStatus
 	/// <summary>
 	/// Gets cloud-reported hub connectivity, or null when unavailable; this is not a LAN probe.
 	/// </summary>
+	/// <value>Cloud-reported hub connectivity, or null when unavailable; this is not a LAN probe.</value>
 	public bool? IsConnected
 		{
 		get;
@@ -45,11 +47,13 @@ public sealed class RainPointHubStatus
 	/// <summary>
 	/// Gets reported hub Wi-Fi signal strength in dBm, or null when unavailable; this is separate from timer RF strength.
 	/// </summary>
+	/// <value>Reported hub Wi-Fi signal strength in dBm, or null when unavailable; this is separate from timer RF strength.</value>
 	public int? WifiSignalStrengthDbm
 		{
 		get;
 		}
 	/// <summary>Time the cloud connection record changed; not a heartbeat or status-receipt time.</summary>
+	/// <value>Time the cloud connection record changed; not a heartbeat or status-receipt time.</value>
 	public DateTimeOffset? LastConnectionChange
 		{
 		get;
@@ -57,6 +61,7 @@ public sealed class RainPointHubStatus
 	/// <summary>
 	/// Gets the timer status snapshots included in this cloud response.
 	/// </summary>
+	/// <value>The timer status snapshots included in this cloud response.</value>
 	public IReadOnlyList<RainPointTimerStatus> Timers
 		{
 		get;

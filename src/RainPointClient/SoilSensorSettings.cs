@@ -27,11 +27,13 @@ public sealed class RainPointSoilSensorSettings
 		StopAboveMoisturePercent = threshold == 0 ? null : threshold;
 		}
 	/// <summary>Paired RF address. Null means no association.</summary>
+	/// <value>Paired RF address. Null means no association.</value>
 	public int? SensorAddress
 		{
 		get;
 		}
 	/// <summary>Stop when moisture exceeds this percentage. Null is the disabled zero sentinel.</summary>
+	/// <value>Stop when moisture exceeds this percentage. Null is the disabled zero sentinel.</value>
 	public int? StopAboveMoisturePercent
 		{
 		get;

@@ -22,6 +22,7 @@ public sealed class RainPointConfigurationChange : EventArgs
 	/// <summary>
 	/// Gets the cloud home identifier associated with this record.
 	/// </summary>
+	/// <value>The cloud home identifier associated with this record.</value>
 	public long HomeId
 		{
 		get;
@@ -29,6 +30,7 @@ public sealed class RainPointConfigurationChange : EventArgs
 	/// <summary>
 	/// Gets the configuration revision used to suppress repeated or older notifications.
 	/// </summary>
+	/// <value>The configuration revision used to suppress repeated or older notifications.</value>
 	public long Revision
 		{
 		get;

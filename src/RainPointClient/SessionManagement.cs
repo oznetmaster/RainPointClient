@@ -25,14 +25,17 @@ public sealed partial class RainPointCloudClient
 	/// </summary>
 	internal void ReleaseSessionRecovery () => Volatile.Write (ref _sessionRecoveryActive, 0);
 	/// <summary>Local session expiry; a server-side rejection can invalidate a session earlier.</summary>
+	/// <value>Local session expiry; a server-side rejection can invalidate a session earlier.</value>
 	public DateTimeOffset? SessionExpiresAt => Volatile.Read (ref _session)?.ExpiresAt;
 	/// <summary>
 	/// Gets whether the locally held session is within its calculated expiry; this does not probe server validity.
 	/// </summary>
+	/// <value>Whether the locally held session is within its calculated expiry; this does not probe server validity.</value>
 	public bool HasValidSession => SessionExpiresAt > DateTimeOffset.UtcNow;
 	/// <summary>
 	/// Gets whether the current session has a refresh token available for an explicit renewal attempt.
 	/// </summary>
+	/// <value>Whether the current session has a refresh token available for an explicit renewal attempt.</value>
 	public bool CanRefreshSession => !string.IsNullOrWhiteSpace (Volatile.Read (ref _session)?.RefreshToken);
 
 	/// <summary>Refreshes the session using its refresh token, without retaining or resending the password.</summary>

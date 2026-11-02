@@ -34,10 +34,12 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the required scene display name.
 	/// </summary>
+	/// <value>The required scene display name.</value>
 	public string Name { get; set; } = string.Empty;
 	/// <summary>
 	/// Gets or sets an optional daylight or nighttime effective window, mutually exclusive with clock boundaries.
 	/// </summary>
+	/// <value>An optional daylight or nighttime effective window, mutually exclusive with clock boundaries.</value>
 	public RainPointSceneSolarPeriod SolarPeriod
 		{
 		get; set;
@@ -45,6 +47,7 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the local-date recurrence of the scene's effective period.
 	/// </summary>
+	/// <value>The local-date recurrence of the scene's effective period.</value>
 	public RainPointSceneRepeat EffectiveRepeat
 		{
 		get; set;
@@ -52,6 +55,7 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the weekday mask, used only with a weekday effective recurrence.
 	/// </summary>
+	/// <value>The weekday mask, used only with a weekday effective recurrence.</value>
 	public RainPointSceneWeekdays EffectiveWeekdays
 		{
 		get; set;
@@ -59,6 +63,7 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets whether every condition must match; false permits any matching condition.
 	/// </summary>
+	/// <value>Whether every condition must match; false permits any matching condition.</value>
 	public bool MatchAll
 		{
 		get; set;
@@ -66,20 +71,25 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the vendor daily execution-frequency value, from 0 through 30; defaults to 1.
 	/// </summary>
+	/// <value>The vendor daily execution-frequency value, from 0 through 30; defaults to 1.</value>
 	public int MaximumRunsPerDay { get; set; } = 1;
 	/// <summary>
 	/// Gets or sets the minimum interval between executions, from 1 through 1440 minutes; defaults to 120.
 	/// </summary>
+	/// <value>The minimum interval between executions, from 1 through 1440 minutes; defaults to 120.</value>
 	public int MinimumIntervalMinutes { get; set; } = 120;
 	/// <summary>
 	/// Gets or sets one to five supported, enabled conditions to save.
 	/// </summary>
+	/// <value>One to five supported, enabled conditions to save.</value>
 	public IReadOnlyList<RainPointSceneCondition> Conditions { get; set; } = Array.Empty<RainPointSceneCondition> ();
 	/// <summary>
 	/// Gets or sets one to five supported, enabled actions to save.
 	/// </summary>
+	/// <value>One to five supported, enabled actions to save.</value>
 	public IReadOnlyList<RainPointSceneAction> Actions { get; set; } = Array.Empty<RainPointSceneAction> ();
 	/// <summary>Optional inclusive home-local date, at midnight with Unspecified kind.</summary>
+	/// <value>Optional inclusive home-local date, at midnight with Unspecified kind.</value>
 	public DateTime? StartsOn
 		{
 		get; set;
@@ -87,11 +97,13 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the optional inclusive final home-local date, at midnight with Unspecified kind.
 	/// </summary>
+	/// <value>The optional inclusive final home-local date, at midnight with Unspecified kind.</value>
 	public DateTime? EndsOn
 		{
 		get; set;
 		}
 	/// <summary>Optional daily clock window. Both boundaries are required; time-triggered conditions use their own time instead.</summary>
+	/// <value>Optional daily clock window. Both boundaries are required; time-triggered conditions use their own time instead.</value>
 	public TimeSpan? WindowStartsAt
 		{
 		get; set;
@@ -99,6 +111,7 @@ public sealed class RainPointSceneDraft
 	/// <summary>
 	/// Gets or sets the final clock boundary of the effective window; both boundaries are required.
 	/// </summary>
+	/// <value>The final clock boundary of the effective window; both boundaries are required.</value>
 	public TimeSpan? WindowEndsAt
 		{
 		get; set;

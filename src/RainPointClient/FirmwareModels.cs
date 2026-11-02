@@ -12,10 +12,12 @@ public sealed class RainPointFirmwareStatus
 	/// <summary>
 	/// Gets the reported installed firmware version.
 	/// </summary>
+	/// <value>The reported installed firmware version.</value>
 	[JsonPropertyName ("softVer"), JsonRequired, JsonInclude]
 	public string InstalledVersion { get; internal set; } = string.Empty;
 
 	/// <summary>Null means the cloud reports no available update.</summary>
+	/// <value>Null means the cloud reports no available update.</value>
 	[JsonPropertyName ("info"), JsonRequired, JsonInclude]
 	public RainPointFirmwareOffer? AvailableUpdate
 		{
@@ -31,12 +33,14 @@ public sealed class RainPointFirmwareOffer
 	/// <summary>
 	/// Gets the version string reported for this firmware or catalog record.
 	/// </summary>
+	/// <value>The version string reported for this firmware or catalog record.</value>
 	[JsonPropertyName ("versionName"), JsonRequired, JsonInclude]
 	public string Version { get; internal set; } = string.Empty;
 
 	/// <summary>
 	/// Gets the numeric vendor model code associated with the firmware offer.
 	/// </summary>
+	/// <value>The numeric vendor model code associated with the firmware offer.</value>
 	[JsonPropertyName ("modelCode"), JsonInclude]
 	public int? ModelCode
 		{
@@ -46,6 +50,7 @@ public sealed class RainPointFirmwareOffer
 	/// <summary>
 	/// Gets the firmware release notes supplied by the vendor.
 	/// </summary>
+	/// <value>The firmware release notes supplied by the vendor.</value>
 	[JsonPropertyName ("mark"), JsonInclude]
 	public string? ReleaseNotes
 		{

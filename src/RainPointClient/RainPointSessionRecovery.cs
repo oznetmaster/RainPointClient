@@ -33,6 +33,7 @@ public sealed class RainPointCredentials
 	/// <summary>
 	/// Gets the account email address.
 	/// </summary>
+	/// <value>The account email address.</value>
 	public string Email
 		{
 		get;
@@ -40,6 +41,7 @@ public sealed class RainPointCredentials
 	/// <summary>
 	/// Gets the password supplied by the caller; do not log or display this value.
 	/// </summary>
+	/// <value>The password supplied by the caller; do not log or display this value.</value>
 	public string Password
 		{
 		get;
@@ -47,6 +49,7 @@ public sealed class RainPointCredentials
 	/// <summary>
 	/// Gets the account's country calling code as digits without a plus sign.
 	/// </summary>
+	/// <value>The account's country calling code as digits without a plus sign.</value>
 	public string AreaCode
 		{
 		get;
@@ -80,6 +83,7 @@ public sealed class RainPointSessionStateChangedEventArgs (RainPointSessionState
 	/// <summary>
 	/// Gets the lifecycle state carried by this event.
 	/// </summary>
+	/// <value>The lifecycle state carried by this event.</value>
 	public RainPointSessionState State { get; } = state;
 	}
 
@@ -130,6 +134,7 @@ public sealed class RainPointSessionRecovery
 	/// <summary>
 	/// Gets the worker's current session-health and recovery state.
 	/// </summary>
+	/// <value>The worker's current session-health and recovery state.</value>
 	public RainPointSessionState State => (RainPointSessionState)Volatile.Read (ref _state);
 	/// <summary>
 	/// Occurs on a background thread when session-health or recovery state changes.

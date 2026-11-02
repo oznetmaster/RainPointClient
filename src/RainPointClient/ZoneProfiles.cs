@@ -22,6 +22,7 @@ public sealed class RainPointProfileCategory
 	/// <summary>
 	/// Gets the cloud or catalog identifier for this record.
 	/// </summary>
+	/// <value>The cloud or catalog identifier for this record.</value>
 	[JsonPropertyName ("id"), JsonRequired, JsonInclude]
 	public int Id
 		{
@@ -30,10 +31,12 @@ public sealed class RainPointProfileCategory
 	/// <summary>
 	/// Gets the vendor display label, which may be a localization key.
 	/// </summary>
+	/// <value>The vendor display label, which may be a localization key.</value>
 	[JsonPropertyName ("langField"), JsonRequired, JsonInclude] public string Label { get; internal set; } = string.Empty;
 	/// <summary>
 	/// Gets the vendor-defined display ordering value.
 	/// </summary>
+	/// <value>The vendor-defined display ordering value.</value>
 	[JsonPropertyName ("sort"), JsonInclude]
 	public int SortOrder
 		{
@@ -42,6 +45,7 @@ public sealed class RainPointProfileCategory
 	/// <summary>
 	/// Gets the selectable options in this profile category.
 	/// </summary>
+	/// <value>The selectable options in this profile category.</value>
 	[JsonPropertyName ("subType"), JsonRequired, JsonInclude] public IReadOnlyList<RainPointProfileOption> Options { get; internal set; } = Array.Empty<RainPointProfileOption> ();
 	}
 /// <summary>
@@ -52,6 +56,7 @@ public sealed class RainPointProfileOption
 	/// <summary>
 	/// Gets the cloud or catalog identifier for this record.
 	/// </summary>
+	/// <value>The cloud or catalog identifier for this record.</value>
 	[JsonPropertyName ("id"), JsonRequired, JsonInclude]
 	public int Id
 		{
@@ -60,10 +65,12 @@ public sealed class RainPointProfileOption
 	/// <summary>
 	/// Gets the vendor display label, which may be a localization key.
 	/// </summary>
+	/// <value>The vendor display label, which may be a localization key.</value>
 	[JsonPropertyName ("langField"), JsonRequired, JsonInclude] public string Label { get; internal set; } = string.Empty;
 	/// <summary>
 	/// Gets the vendor-defined display ordering value.
 	/// </summary>
+	/// <value>The vendor-defined display ordering value.</value>
 	[JsonPropertyName ("sort"), JsonInclude]
 	public int SortOrder
 		{
@@ -80,6 +87,7 @@ public sealed class RainPointProfileOption
 	/// <summary>
 	/// Gets whether the vendor marks this profile option as the default.
 	/// </summary>
+	/// <value>Whether the vendor marks this profile option as the default.</value>
 	[JsonIgnore] public bool IsDefault => DefaultFlag == 1;
 	}
 /// <summary>Saved recommendation preferences for one zone. These are not watering schedules.</summary>
@@ -118,6 +126,7 @@ public sealed class RainPointZoneProfileSnapshot
 	/// <summary>
 	/// Gets the timer's RF address within the hub.
 	/// </summary>
+	/// <value>The timer's RF address within the hub.</value>
 	public int Address
 		{
 		get;
@@ -125,6 +134,7 @@ public sealed class RainPointZoneProfileSnapshot
 	/// <summary>
 	/// Gets the one-based zone for these recommendation preferences.
 	/// </summary>
+	/// <value>The one-based zone for these recommendation preferences.</value>
 	public int Zone
 		{
 		get;
@@ -132,11 +142,13 @@ public sealed class RainPointZoneProfileSnapshot
 	/// <summary>
 	/// Gets the decoding state of the recommendation-profile payload.
 	/// </summary>
+	/// <value>The decoding state of the recommendation-profile payload.</value>
 	public TimerReadingAvailability Availability
 		{
 		get;
 		}
 	/// <summary>False when the app's unconfigured defaults are used for an absent profile.</summary>
+	/// <value>False when the app's unconfigured defaults are used for an absent profile.</value>
 	public bool IsConfigured
 		{
 		get;
@@ -144,6 +156,7 @@ public sealed class RainPointZoneProfileSnapshot
 	/// <summary>
 	/// Gets whether cloud recommendations are enabled for the zone; this is not a saved-plan switch.
 	/// </summary>
+	/// <value>Whether cloud recommendations are enabled for the zone; this is not a saved-plan switch.</value>
 	public bool? RecommendationsEnabled
 		{
 		get;
@@ -151,6 +164,7 @@ public sealed class RainPointZoneProfileSnapshot
 	/// <summary>
 	/// Gets the selected vendor option IDs in the profile.
 	/// </summary>
+	/// <value>The selected vendor option IDs in the profile.</value>
 	public IReadOnlyList<int> SelectedOptionIds
 		{
 		get;
@@ -162,6 +176,7 @@ public sealed class RainPointWateringRecommendation
 	/// <summary>
 	/// Gets the recommended interval in days; this does not create or enable a watering schedule.
 	/// </summary>
+	/// <value>The recommended interval in days; this does not create or enable a watering schedule.</value>
 	[JsonPropertyName ("day"), JsonInclude]
 	public decimal? IntervalDays
 		{
@@ -178,6 +193,7 @@ public sealed class RainPointWateringRecommendation
 	/// <summary>
 	/// Gets the recommended watering duration as a time span.
 	/// </summary>
+	/// <value>The recommended watering duration as a time span.</value>
 	[JsonIgnore] public TimeSpan? Duration => Seconds.HasValue ? TimeSpan.FromSeconds ((double)Seconds.Value) : null;
 	}
 public sealed partial class RainPointCloudClient

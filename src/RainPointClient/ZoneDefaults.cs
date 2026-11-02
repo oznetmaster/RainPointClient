@@ -26,16 +26,19 @@ public sealed class RainPointZoneDefaults
 		MistingInterval = interval;
 		}
 	/// <summary>Saved duration; null means the encoded zero sentinel. The inspected app displays ten minutes for that sentinel.</summary>
+	/// <value>Saved duration; null means the encoded zero sentinel. The inspected app displays ten minutes for that sentinel.</value>
 	public TimeSpan? WateringDuration
 		{
 		get;
 		}
 	/// <summary>Saved misting on-time; null means the encoded zero sentinel, displayed by the app as ten seconds.</summary>
+	/// <value>Saved misting on-time; null means the encoded zero sentinel, displayed by the app as ten seconds.</value>
 	public TimeSpan? MistingRunTime
 		{
 		get;
 		}
 	/// <summary>Saved misting off-time; null means the encoded zero sentinel, displayed by the app as thirty seconds.</summary>
+	/// <value>Saved misting off-time; null means the encoded zero sentinel, displayed by the app as thirty seconds.</value>
 	public TimeSpan? MistingInterval
 		{
 		get;
