@@ -11,9 +11,14 @@ foreach ($name in @('Version','AssemblyVersion','FileVersion')) {
     if ($null -eq $actual -or $actual.InnerText -cne $expected) { throw "Set $name to '$expected' before publishing." }
 }
 [xml]$project = Get-Content -LiteralPath (Join-Path $Root 'src/RainPointClient/RainPointClient.csproj') -Raw
-if ($project.Project.PropertyGroup.PackageId -cne 'RainPointClient' -or $project.Project.PropertyGroup.TargetFrameworks -cne 'net472;net10.0') { throw 'Package identity/targets changed; review release validation.' }
+function Get-ProjectProperty([string]$Name) {
+    $nodes = $project.SelectNodes("/Project/PropertyGroup/$Name")
+    if ($nodes.Count -ne 1) { throw "Expected exactly one project property: $Name." }
+    return $nodes[0].InnerText
+}
+if ((Get-ProjectProperty 'PackageId') -cne 'RainPointClient' -or (Get-ProjectProperty 'TargetFrameworks') -cne 'net472;net10.0') { throw 'Package identity/targets changed; review release validation.' }
 if ($project.SelectSingleNode('/Project/PropertyGroup/Version')) { throw 'The package must inherit the shared release version.' }
-if ($project.Project.PropertyGroup.PackageReleaseNotes -notmatch ([regex]::Escape("/blob/v$Version/release-notes/v$Version.md"))) { throw 'Package release-note URL does not match the version.' }
+if ((Get-ProjectProperty 'PackageReleaseNotes') -notmatch ([regex]::Escape("/blob/v$Version/release-notes/v$Version.md"))) { throw 'Package release-note URL does not match the version.' }
 $notes = Join-Path $Root "release-notes/v$Version.md"
 if (!(Test-Path -LiteralPath $notes -PathType Leaf)) { throw "Missing versioned release notes: v$Version." }
 $notesText = Get-Content -LiteralPath $notes -Raw

@@ -22,6 +22,18 @@ try {
     Reject { & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Version "1.2.1`ninvalid" -Root $temporary }
     $projectPath = Join-Path $temporary 'src/RainPointClient/RainPointClient.csproj'
     $originalProject = Get-Content -LiteralPath $projectPath -Raw
+    # Unrelated policy groups must not change how unique identity properties are read.
+    [IO.File]::WriteAllText($projectPath, $originalProject.Replace('</Project>', '<PropertyGroup><GenerateDocumentationFile>true</GenerateDocumentationFile></PropertyGroup><PropertyGroup><WarningsAsErrors>CS1591</WarningsAsErrors></PropertyGroup></Project>'))
+    & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary | Out-Null
+    foreach ($invalidProject in @(
+        $originalProject.Replace('<PackageId>RainPointClient</PackageId>', '<PackageId>WrongClient</PackageId>'),
+        $originalProject.Replace('<TargetFrameworks>net472;net10.0</TargetFrameworks>', '<TargetFrameworks>net10.0</TargetFrameworks>'),
+        $originalProject.Replace('</Project>', '<PropertyGroup><PackageId>RainPointClient</PackageId></PropertyGroup></Project>'),
+        $originalProject.Replace('</Project>', '<PropertyGroup><TargetFrameworks>net472;net10.0</TargetFrameworks></PropertyGroup></Project>')
+    )) {
+        [IO.File]::WriteAllText($projectPath, $invalidProject)
+        Reject { & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary }
+    }
     [IO.File]::WriteAllText($projectPath, $originalProject.Replace('/blob/v1.2.1/release-notes/v1.2.1.md','/blob/v0.0.0/release-notes/v0.0.0.md'))
     Reject { & "$PSScriptRoot/Test-ReleaseMetadata.ps1" -Root $temporary }
     [IO.File]::WriteAllText($projectPath, $originalProject)
@@ -50,7 +62,7 @@ try {
     Copy-Item -LiteralPath "$root/README.md" -Destination "$temporary/README.md"
     [IO.File]::WriteAllText("$temporary/ATTRIBUTIONS.md",'# Attributions')
     Reject { & "$PSScriptRoot/Test-SourceNotices.ps1" -Root $temporary }
-    Write-Output 'Release checks: three changelog formats accepted; thirteen metadata and three source-notice rejection scenarios passed.'
+    Write-Output 'Release checks: three changelog formats and unrelated property groups accepted; seventeen metadata and three source-notice rejection scenarios passed.'
 
 } finally {
     $resolved = [IO.Path]::GetFullPath($temporary)
