@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "tasks": {
+    "unit-tests-test-run-offline-nunit-tests": {
+      "commands": [
+        {
+          "executable": "dotnet",
+          "arguments": [
+            "test",
+            "${env:TEST_PROJECT}",
+            "-c",
+            "Release",
+            "-f",
+            "${env:TEST_FRAMEWORK}",
+            "--filter",
+            "TestCategory!=Live",
+            "--logger",
+            "trx;LogFileName=tests.trx",
+            "--results-directory",
+            "artifacts/test-results",
+            "-p:ContinuousIntegrationBuild=true"
+          ]
+        }
+      ],
+      "results": [
+        "artifacts/test-results/**/*.trx"
+      ]
+    },
+    "unit-tests-release-policy-validate-release-metadata-and-check-policy": {
+      "commands": [
+        {
+          "executable": "pwsh",
+          "script": "build/steps/unit-tests-release-policy-validate-release-metadata-and-check-policy.ps1",
+          "shell": "pwsh"
+        }
+      ]
+    }
+  }
+}

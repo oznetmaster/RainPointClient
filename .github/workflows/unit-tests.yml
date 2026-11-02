@@ -38,11 +38,12 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Run offline NUnit tests
-        shell: pwsh
+        uses: oznetmaster/BuildAutomation@6f20e1937d3bab8ba7e545a3a77b6fe689f63f2e
+        with:
+          task: unit-tests-test-run-offline-nunit-tests
         env:
           TEST_PROJECT: ${{ matrix.project }}
           TEST_FRAMEWORK: ${{ matrix.framework }}
-        run: dotnet test $env:TEST_PROJECT -c Release -f $env:TEST_FRAMEWORK --filter "TestCategory!=Live" --logger "trx;LogFileName=tests.trx" --results-directory artifacts/test-results -p:ContinuousIntegrationBuild=true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -60,5 +61,6 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Validate release metadata and check policy
-        shell: pwsh
-        run: ./tools/Test-ReleasePreparation.ps1
+        uses: oznetmaster/BuildAutomation@6f20e1937d3bab8ba7e545a3a77b6fe689f63f2e
+        with:
+          task: unit-tests-release-policy-validate-release-metadata-and-check-policy
