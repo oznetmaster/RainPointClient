@@ -97,7 +97,6 @@ jobs:
     needs: build
     runs-on: windows-latest
     timeout-minutes: 30
-    environment: release
     permissions:
       actions: read
       contents: write
@@ -117,7 +116,6 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.artifact_run_id != ''
     runs-on: windows-latest
     timeout-minutes: 30
-    environment: release
     permissions:
       actions: read
       contents: write
