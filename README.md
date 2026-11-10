@@ -117,3 +117,7 @@ Validated on 1 October 2026: 1399 offline cases passed in each of two runs from 
 Timer configuration edits serialize the complete revalidation and full-record write across zones and snapshots. A queued edit based on older configuration is rejected before submission; read the timer again before editing. A session change during validation also rejects the edit. Commands are not automatically replayed, and cloud acceptance is not physical-device confirmation.
 
 Release packaging and publication use the [shared publication component](https://github.com/oznetmaster/BuildAutomation/tree/5d8006f140a59c8d1dd92ab70723fe8338650bd2/ReleasePublishing). Set `RELEASE_VERSION=1.2.2` and run `./build/Invoke.ps1 -Task release-assets` for local preparation; it publishes nothing. GitHub publication reuses retained, hash-verified artifacts and the repository's existing NuGet trust identity.
+
+## Debugging NuGet packages
+
+The release workflow publishes matching portable debugging symbols as separate `.snupkg` files on GitHub and NuGet's symbol server. They are optional debugger downloads and do not enlarge the normal library package or enable runtime logging. This policy applies to releases built with the updated workflow; earlier versions may not include symbols. See [the build documentation](build/README.md#symbol-packages) and [Microsoft's symbol-server setup](https://learn.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg#nugetorg-symbol-server).

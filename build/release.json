@@ -11,7 +11,8 @@
         "net472",
         "net10.0"
       ],
-      "project": "src/RainPointClient/RainPointClient.csproj"
+      "project": "src/RainPointClient/RainPointClient.csproj",
+      "symbols": true
     }
   ],
   "applications": [

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Future binary library releases include separate portable-PDB symbol packages on GitHub and NuGet, verified against the matching Release DLLs for each framework.
+
 ## [1.2.2](https://github.com/oznetmaster/RainPointClient/releases/tag/v1.2.2) — 2026-11-10
 
 - Timer configuration edits serialize the complete revalidation and full-record write across zones and snapshots. A queued edit based on older configuration is rejected before submission; read the timer again before editing. A session change during validation also rejects the edit. Commands are not automatically replayed, and cloud acceptance is not physical-device confirmation.
