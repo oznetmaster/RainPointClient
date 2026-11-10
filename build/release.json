@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "name": "RainPointClient",
+  "versionFile": "Directory.Build.props",
+  "versionXPath": "/Project/PropertyGroup/Version",
+  "notesFile": "release-notes/v{version}.md",
+  "packages": [
+    {
+      "id": "RainPointClient",
+      "frameworks": [
+        "net472",
+        "net10.0"
+      ],
+      "project": "src/RainPointClient/RainPointClient.csproj"
+    }
+  ],
+  "applications": [
+    {
+      "name": "Desktop-net472",
+      "framework": "net472",
+      "project": "src/RainPointClient.Desktop/RainPointClient.Desktop.csproj"
+    },
+    {
+      "name": "Desktop-net10",
+      "framework": "net10.0-windows",
+      "project": "src/RainPointClient.Desktop/RainPointClient.Desktop.csproj"
+    }
+  ],
+  "documents": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md",
+    "ATTRIBUTIONS.md",
+    "licenses"
+  ],
+  "rawLibraries": true,
+  "libraryArchive": false
+}

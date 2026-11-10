@@ -521,6 +521,7 @@ public sealed partial class RainPointCloudClient : IDisposable
 		_disposed = true;
 		_ = Interlocked.Exchange (ref _session, null);
 		_loginGate.Dispose ();
+		_parameterWrites.Dispose ();
 		if (_ownsHttp)
 			{
 			_http.Dispose ();

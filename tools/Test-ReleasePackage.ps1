@@ -1,7 +1,8 @@
 # Copyright (c) 2026 Neil Colvin. MIT License.
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$Package, [string]$Version = '1.2.1')
+param([Parameter(Mandatory)][string]$Package, [string]$Version = '')
 $ErrorActionPreference = 'Stop'
+if (!$Version) { [xml]$versionMetadata = Get-Content -LiteralPath (Join-Path (Split-Path $PSScriptRoot -Parent) 'Directory.Build.props') -Raw; $Version = $versionMetadata.SelectSingleNode('/Project/PropertyGroup/Version').InnerText }
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $Package))
 try {

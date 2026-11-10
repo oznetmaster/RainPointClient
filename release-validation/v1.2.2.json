@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "version": "1.2.2",
+  "completedUtc": "2026-11-09T23:12:44.6184403Z",
+  "workstation": [
+    {
+      "configurations": [
+        "Debug",
+        "Release"
+      ],
+      "passed": 1400,
+      "suite": "RainPoint",
+      "failed": 0,
+      "framework": "net10.0",
+      "skipped": 0
+    },
+    {
+      "configurations": [
+        "Debug",
+        "Release"
+      ],
+      "passed": 1400,
+      "suite": "RainPoint",
+      "failed": 0,
+      "framework": "net472",
+      "skipped": 0
+    }
+  ],
+  "processor": {
+    "selectedPassed": 112.0,
+    "aggregatePassed": 374,
+    "scope": "Merged offline host with recorded resolved dependencies; fake services and credentials only",
+    "runtime": "Mono 6.12.0.107, 32-bit",
+    "firmware": "4.013.0134",
+    "failed": 0,
+    "skipped": 0
+  },
+  "validatedSourceFiles": [
+    {
+      "Path": "src/RainPointClient/RainPointCloudClient.cs",
+      "Sha256": "3FD331B4E3B4136A4E1FFDB25E5E5F8ECE75BA43F67D58AE960F0A659A089029"
+    },
+    {
+      "Path": "src/RainPointClient/Schedules.cs",
+      "Sha256": "D11DC1425716B170C581A6F4DCDDEDBD7C1F3CB145340403AFD46900E864E860"
+    },
+    {
+      "Path": "tests/RainPointClient.Tests/ConcurrentConfigurationTests.cs",
+      "Sha256": "75C54F7E08059AEFDAE9476DFABC55A2EA3B4ED0976FE578137F778E12EB7B72"
+    },
+    {
+      "Path": "tests/RainPointClient.Tests/FrameworkTaskWaitExtensions.cs",
+      "Sha256": "1923B2E35193BE809F0A01EC34ED83FB3EC2E2959329E535DAA685927FBCCC82"
+    }
+  ],
+  "publicationChanges": "Version metadata, documentation and shared publication tooling added after validation; runtime source hashes retained."
+}

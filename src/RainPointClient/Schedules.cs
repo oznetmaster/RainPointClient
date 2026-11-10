@@ -15,6 +15,9 @@ namespace RainPointClient;
 
 public sealed partial class RainPointCloudClient
 	{
+	// One timer parameter contains every zone. Coordinate revalidation and the
+	// full-record write across snapshots; independent snapshot guards are not enough.
+	private readonly SemaphoreSlim _parameterWrites = new (1, 1);
 	/// <summary>Reads fresh saved schedules for a supported HTV145FRF, HTV245FRF or HTV345FRF zone. Sends no configuration or valve commands.</summary>
 	/// <param name="hub">A hub discovered through its home in the current account; its child list identifies valid RF addresses and models.</param>
 	/// <param name="address">The paired child's RF address within its hub, distinct from its cloud database ID.</param>
@@ -200,6 +203,19 @@ public sealed partial class RainPointCloudClient
 
 	private async Task WriteTimerParameterAsync (RainPointHub hub, RainPointScheduleSnapshot expected, string updated, CancellationToken cancellationToken)
 		{
+		Session session = GetSession ();
+		await _parameterWrites.WaitAsync (cancellationToken).ConfigureAwait (false);
+		try
+			{
+			await WriteTimerParameterCoreAsync (hub, expected, updated, session, cancellationToken).ConfigureAwait (false);
+			}
+		finally { _ = _parameterWrites.Release (); }
+		}
+
+	private async Task WriteTimerParameterCoreAsync (RainPointHub hub, RainPointScheduleSnapshot expected, string updated, Session session, CancellationToken cancellationToken)
+		{
+		if (!ReferenceEquals (session, GetSession ()))
+			throw new InvalidOperationException ("The authenticated session changed. Read the timer configuration again.");
 		ValidateScheduleSnapshot (hub, expected);
 		RainPointDevice fresh = await GetScheduleDeviceAsync (hub, expected.Address, expected.Zone, cancellationToken).ConfigureAwait (false);
 		if (fresh.Id != expected.DeviceId || fresh.Parameter != expected.Parameter
@@ -208,6 +224,8 @@ public sealed partial class RainPointCloudClient
 			throw new RainPointException ("The timer configuration changed. Read schedules again before editing.");
 			}
 		cancellationToken.ThrowIfCancellationRequested ();
+		if (!ReferenceEquals (session, GetSession ()))
+			throw new InvalidOperationException ("The authenticated session changed. Read the timer configuration again.");
 		if (Interlocked.CompareExchange (ref expected.WriteAttempted, 1, 0) != 0)
 			{
 			throw new InvalidOperationException ("This snapshot has already been used for a write. Read schedules again; do not replay an uncertain write.");
@@ -216,7 +234,6 @@ public sealed partial class RainPointCloudClient
 			{
 			return;
 			}
-		Session session = GetSession ();
 		ApiResult response = await SendAsync<TimerParameterRequest, ApiResult> (HttpMethod.Post, "app/device/sub/update",
 			 new TimerParameterRequest { HubId = hub.Id, DeviceId = fresh.Id!.Value, Parameter = updated }, session, cancellationToken).ConfigureAwait (false);
 		CheckResult (response, session);
